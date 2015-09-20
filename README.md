@@ -8,7 +8,7 @@ The B100, unlike its 8\-bit counterpart, the A100, has 16 registers available (R
 
 ## Instruction Set
 Format: <4x: Opcode\> <12x: Options\>
-
+```
 sys - System Instructions.
 0000 ???? ???? ????
 
@@ -24,3 +24,4 @@ mov - Swap, copy, or move a value from one register to another.
     0: Move \- Sets b to a's value, and clears a.
     1: Copy \- Sets b to a's value while retaining the value of a.
     2: Swap \- Switches the values in a and b.
+```
