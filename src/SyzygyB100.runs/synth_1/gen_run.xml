@@ -1,16 +1,37 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<GenRun Id="synth_1" LaunchPart="xc7a35tcpg236-1" LaunchTime="1483508976">
-  <File Type="RDS-PROPCONSTRS" Name="InstructionRegControl_drc_synth.rpt"/>
-  <File Type="PA-TCL" Name="InstructionRegControl.tcl"/>
-  <File Type="RDS-RDS" Name="InstructionRegControl.vds"/>
-  <File Type="RDS-UTIL" Name="InstructionRegControl_utilization_synth.rpt"/>
-  <File Type="RDS-UTIL-PB" Name="InstructionRegControl_utilization_synth.pb"/>
-  <File Type="RDS-DCP" Name="InstructionRegControl.dcp"/>
-  <File Type="VDS-TIMINGSUMMARY" Name="InstructionRegControl_timing_summary_synth.rpt"/>
-  <File Type="VDS-TIMING-PB" Name="InstructionRegControl_timing_summary_synth.pb"/>
+<GenRun Id="synth_1" LaunchPart="xc7a35tcpg236-1" LaunchTime="1491186020">
+  <File Type="RDS-PROPCONSTRS" Name="ControlShifter_drc_synth.rpt"/>
+  <File Type="PA-TCL" Name="ControlShifter.tcl"/>
+  <File Type="RDS-RDS" Name="ControlShifter.vds"/>
+  <File Type="RDS-UTIL" Name="ControlShifter_utilization_synth.rpt"/>
+  <File Type="RDS-UTIL-PB" Name="ControlShifter_utilization_synth.pb"/>
+  <File Type="RDS-DCP" Name="ControlShifter.dcp"/>
+  <File Type="VDS-TIMINGSUMMARY" Name="ControlShifter_timing_summary_synth.rpt"/>
+  <File Type="VDS-TIMING-PB" Name="ControlShifter_timing_summary_synth.pb"/>
   <FileSet Name="sources" Type="DesignSrcs" RelSrcDir="$PSRCDIR/sources_1">
     <Filter Type="Srcs"/>
-    <File Path="$PSRCDIR/sources_1/new/Debouncer.v">
+    <File Path="$PSRCDIR/sources_1/new/Mux2to1.v">
+      <FileInfo>
+        <Attr Name="UsedIn" Val="synthesis"/>
+        <Attr Name="UsedIn" Val="implementation"/>
+        <Attr Name="UsedIn" Val="simulation"/>
+      </FileInfo>
+    </File>
+    <File Path="$PSRCDIR/sources_1/new/Reverser16B.v">
+      <FileInfo>
+        <Attr Name="UsedIn" Val="synthesis"/>
+        <Attr Name="UsedIn" Val="implementation"/>
+        <Attr Name="UsedIn" Val="simulation"/>
+      </FileInfo>
+    </File>
+    <File Path="$PSRCDIR/sources_1/new/BarrelShifter16B.v">
+      <FileInfo>
+        <Attr Name="UsedIn" Val="synthesis"/>
+        <Attr Name="UsedIn" Val="implementation"/>
+        <Attr Name="UsedIn" Val="simulation"/>
+      </FileInfo>
+    </File>
+    <File Path="$PSRCDIR/sources_1/new/ControlShifter.v">
       <FileInfo>
         <Attr Name="UsedIn" Val="synthesis"/>
         <Attr Name="UsedIn" Val="implementation"/>
@@ -19,6 +40,7 @@
     </File>
     <File Path="$PSRCDIR/sources_1/imports/Administrator/SevenSeg.v">
       <FileInfo>
+        <Attr Name="UserDisabled" Val="1"/>
         <Attr Name="ImportPath" Val="C:/Users/Administrator/SevenSeg.v"/>
         <Attr Name="ImportTime" Val="1483487820"/>
         <Attr Name="UsedIn" Val="synthesis"/>
@@ -28,6 +50,7 @@
     </File>
     <File Path="$PSRCDIR/sources_1/imports/Administrator/InstructionReg.v">
       <FileInfo>
+        <Attr Name="UserDisabled" Val="1"/>
         <Attr Name="ImportPath" Val="C:/Users/Administrator/InstructionReg.v"/>
         <Attr Name="ImportTime" Val="1483485824"/>
         <Attr Name="UsedIn" Val="synthesis"/>
@@ -35,8 +58,17 @@
         <Attr Name="UsedIn" Val="simulation"/>
       </FileInfo>
     </File>
+    <File Path="$PSRCDIR/sources_1/new/Debouncer.v">
+      <FileInfo>
+        <Attr Name="UserDisabled" Val="1"/>
+        <Attr Name="UsedIn" Val="synthesis"/>
+        <Attr Name="UsedIn" Val="implementation"/>
+        <Attr Name="UsedIn" Val="simulation"/>
+      </FileInfo>
+    </File>
     <File Path="$PSRCDIR/sources_1/imports/Administrator/InstructionRegControl.v">
       <FileInfo>
+        <Attr Name="UserDisabled" Val="1"/>
         <Attr Name="ImportPath" Val="C:/Users/Administrator/InstructionRegControl.v"/>
         <Attr Name="ImportTime" Val="1483488957"/>
         <Attr Name="UsedIn" Val="synthesis"/>
@@ -46,8 +78,7 @@
     </File>
     <Config>
       <Option Name="DesignMode" Val="RTL"/>
-      <Option Name="TopModule" Val="InstructionRegControl"/>
-      <Option Name="TopAutoSet" Val="TRUE"/>
+      <Option Name="TopModule" Val="ControlShifter"/>
     </Config>
   </FileSet>
   <FileSet Name="constrs_in" Type="Constrs" RelSrcDir="$PSRCDIR/constrs_1">

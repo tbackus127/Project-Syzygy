@@ -40,4 +40,4 @@ EAStep()
      fi
 }
 
-EAStep vivado -log InstructionRegControl.vds -m64 -mode batch -messageDb vivado.pb -notrace -source InstructionRegControl.tcl
+EAStep vivado -log ControlShifter.vds -m64 -mode batch -messageDb vivado.pb -notrace -source ControlShifter.tcl
