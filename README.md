@@ -36,7 +36,7 @@ ALU operations
     0: A (pass)
     1: A | B (logical OR)
     2: A + B (addition)
-    3: Left shift A by B
+    3: Left shift A by B (only bits 0-3 of B are used)
     4: A XOR B
     5: Count bits of A
     6: (unused)
