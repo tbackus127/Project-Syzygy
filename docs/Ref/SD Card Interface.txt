@@ -1,0 +1,20 @@
+CS - Chip Select (0 for SPI mode)
+MOSI - Master Out, Slave In (Write to)
+MISO - Master In, Slave Out (Read from)
+SCK - Serial Clock
+CD - Card Detection
+WP - Write Protection
+
+>> To Write
+
+1. Set MOSI and CS lines to 1, toggle CLK for at least 74 cycles.
+2. Set CS to 0, and send "01 000000 00000000 00000000 00000000 00000000 1001010 1".
+3. If successful, will receive "0000 0001". To receive, keep MOSI=1 and CS=0 while toggling CLK, look for data.
+  MISO line is kept high while SD sends no data.
+  Format: 0, param error, address error, case seq error, crc error, illegal cmd, erase reset, in idle state
+4. 
+
+
+Opcode:
+
+  0 1 <Command Number (6 bits)> <Arguments (30 bits)> <CRC (7 bits)> 1
