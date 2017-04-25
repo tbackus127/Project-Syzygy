@@ -1,0 +1,69 @@
+
+# Fetch SD Block 0
+push $conf.SD.GBLK
+copy 2, 4
+iosr $conf.SD, 0
+ioex 3
+
+# Set memory instruction
+push $conf.MEM.SET
+copy 2, 4
+iosr $conf.PID.MEM, 0
+
+# Get SD mem instruction
+push $conf.SD.GET
+copy 2, 4
+iosr $conf.PID.SD, 0
+
+# Set up loop
+push 511
+copy 2, 6
+push $lbl.bwait
+copy 2, 3
+
+# Wait for GBLK to finish
+:bwait
+iogr $conf.PID.SD, 1
+jne
+
+# Set addresses
+:cpstart
+copy 6, 4
+iosr $conf.PID.MEM, 3
+iosr $conf.PID.SD, 3
+
+# Get SD[addr]
+push $lbl.swait
+copy 2, 3
+ioex $conf.PID.SD
+:swait
+iogr $conf.PID.SD, 3
+jne
+
+# Transfer data SD -> Mem
+iogr $conf.PID.SD, 2
+iosr $conf.PID.MEM, 2
+
+# Set memory with SD's value
+push $lbl.mwait
+copy 2, 3
+ioex $conf.PID.MEM
+:mwait
+iogr $conf.PID.MEM, 1
+jne
+
+# Jump to end if done looping
+push $lbl.cpend
+copy 2, 3
+copy 6, 2
+jle
+
+# Decrement loop counter and jump back
+dec
+copy 2, 6
+push $lbl.cpstart
+jmp
+
+# Done. Turn on Von Neumann fetching mode
+:cpend
+sys flag $flags.VNX 1

@@ -1,0 +1,29 @@
+# Sets a particular memory address to a given value
+# Arguments
+#   0: Memory address
+#   1: Value
+
+# Set memory address
+push $arg.0
+copy 2, 4
+iosr $conf.PID.MEM, 3
+
+# Set value
+push $arg.1
+copy 2, 4
+iosr $conf.PID.MEM, 2
+
+# Set instruction
+push $conf.MEM.SET
+copy 2, 4
+iosr $conf.PID.MEM, 0
+
+# Set jump address
+push $lbl.lib_MEM_setmem_loop
+copy 2, 3
+
+# Execute setmem
+ioex $conf.PID.MEM
+:lib_MEM_setmem_loop
+iogr $conf.PID.MEM
+jne
