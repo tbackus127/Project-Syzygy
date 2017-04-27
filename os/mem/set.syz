@@ -19,11 +19,11 @@ copy 2, 4
 iosr $conf.PID.MEM, 0
 
 # Set jump address
-push $lbl.lib_MEM_setmem_loop
+push $lbl.lib_MEM_set_loop
 copy 2, 3
 
 # Execute setmem
 ioex $conf.PID.MEM
-:lib_MEM_setmem_loop
+:lib_MEM_set_loop
 iogr $conf.PID.MEM
 jne
