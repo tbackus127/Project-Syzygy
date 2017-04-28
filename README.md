@@ -77,3 +77,12 @@ io - Peripheral I/O operations
 0111 ____ ____ ____
 
 ```
+
+# SyzOS (WIP!)
+
+An original minimal command line operating system for the Syzygy B100 CPU, written in SYZ assembly.
+
+### Planned features
+* Create and edit text files
+* Boots from SD card; not hard-coded on FPGA
+* Assemble and run programs within the operating system
