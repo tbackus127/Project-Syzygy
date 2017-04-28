@@ -1,12 +1,17 @@
 
 package com.rath.syzasm;
 
+import java.io.DataOutputStream;
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Scanner;
 
+import com.rath.syzasm.util.VariableFetcher;
+import com.rath.syzasm.vals.ALUInstr;
+import com.rath.syzasm.vals.IOInstr;
 import com.rath.syzasm.vals.Opcodes;
 
 public class Assembler {
@@ -17,17 +22,16 @@ public class Assembler {
    * @param args 0: .syz file.
    */
   public static void main(String[] args) {
-
     final File asmFile = new File(args[0]);
     assemble(asmFile);
   }
 
   /**
+   * Assembles a .syz source file into binary.
    * 
-   * @param fscan
-   * @return
+   * @param asmFile the .syz file to be assembled.
    */
-  private static final boolean assemble(final File asmFile) {
+  private static final void assemble(final File asmFile) {
 
     final HashMap<String, Integer> labels = parseLabels(asmFile);
     final ArrayList<Short> instr = parseInstructions(asmFile, labels);
@@ -35,91 +39,6 @@ public class Assembler {
     final String fileName = asmFile.getName().substring(0, asmFile.getName().lastIndexOf('.'));
     writeToFile(instr, fileName);
 
-    return true;
-  }
-
-  private static final void writeToFile(final ArrayList<Short> instr, final String fname) {
-    // TODO: Write method to save the assembled file.
-  }
-
-  private static final ArrayList<Short> parseInstructions(final File asmFile, final HashMap<String, Integer> labels) {
-
-    // Open a scanner on the file
-    Scanner fscan = null;
-    try {
-      fscan = new Scanner(asmFile);
-    }
-    catch (IOException ioe) {
-      ioe.printStackTrace();
-    }
-
-    final ArrayList<Short> result = new ArrayList<Short>();
-    int currLine = 1;
-
-    while (fscan.hasNextLine()) {
-      final String line = fscan.nextLine().trim();
-
-      final String[] operation = line.split(" ", 2);
-      short binInstr = 0;
-
-      switch (operation[0].toLowerCase().trim()) {
-        case "push":
-          try {
-            binInstr &= parsePush(operation[1], currLine);
-          }
-          catch (IllegalArgumentException iae) {
-            System.err.println(iae.getMessage());
-          }
-        break;
-        case "copy":
-          try {
-            binInstr &= parseCopy(operation[1], currLine);
-          }
-          catch (IllegalArgumentException iae) {
-            System.err.println(iae.getMessage());
-          }
-        break;
-        default:
-      }
-
-      // TODO: Parse ALU instructions
-      // TODO: Parse IO instructions
-      // TODO: Parse SYS instruction
-
-      result.add(binInstr);
-      currLine++;
-    }
-
-    return result;
-  }
-
-  /**
-   * Parses the push instruction.
-   * 
-   * @param pstr the line containing the push instruction.
-   * @return the machine code as two bytes.
-   */
-  private static final short parsePush(final String pargs, final int line) {
-
-    if (pargs.trim().indexOf(' ') > 0)
-      throw new IllegalArgumentException("Push instruction does not have only one argument (line " + line + ").");
-
-    short num = Opcodes.PUSH;
-    if (isNumber(pargs)) {
-      num &= Short.decode(pargs);
-    } else if (varLookup(pargs) != null) {
-      num &= Short.decode(varLookup(pargs));
-    } else {
-      throw new IllegalArgumentException("Push instruction's value is not valid (line " + line + ").");
-    }
-
-    return num;
-  }
-
-  private static final short parseCopy(final String args, final int line) {
-
-    // TODO: Write parseCopy().
-    return (short) 0;
   }
 
   /**
@@ -159,20 +78,302 @@ public class Assembler {
   }
 
   /**
+   * Parses all instructions in an assembly file.
    * 
-   * @param token
-   * @return
+   * @param asmFile a handle to the input assembly file.
+   * @param labels a Map of labels in the assembly file -> instruction number.
+   * @return a list of 16-bit binary instructions.
    */
-  private static final String varLookup(final String token) {
+  private static final ArrayList<Short> parseInstructions(final File asmFile, final HashMap<String, Integer> labels) {
 
-    // TODO: Make lookup method
-    return null;
+    // Open a scanner on the file
+    Scanner fscan = null;
+    try {
+      fscan = new Scanner(asmFile);
+    }
+    catch (IOException ioe) {
+      ioe.printStackTrace();
+    }
+
+    // Build list of instructions
+    final ArrayList<Short> result = new ArrayList<Short>();
+    int currLine = 1;
+
+    // Scan through the assembly file
+    while (fscan.hasNextLine()) {
+
+      // Get the current line
+      final String line = fscan.nextLine().trim();
+      short binInstr = 0;
+
+      // If there's only one string on this line (jump or ALU instruction)
+      if (line.indexOf(' ') < 0) {
+
+        if (line.startsWith("j")) {
+          binInstr = parseJump(line, currLine);
+        } else if (ALUInstr.INSTR_MAP.keySet().contains(line)) {
+          binInstr = parseALUInstr(line, currLine);
+        } else {
+          throw new IllegalArgumentException("Not a valid instruction (line " + line + ").");
+        }
+
+      } else {
+
+        final String[] operation = line.split(" ", 2);
+
+        if (operation[0].trim().startsWith("io")) {
+          binInstr = parseIOInstr(line, currLine);
+
+        } else {
+
+          switch (operation[0].trim().toLowerCase()) {
+            case "push":
+              try {
+                binInstr = parsePush(operation[1], currLine);
+              }
+              catch (IllegalArgumentException iae) {
+                System.err.println(iae.getMessage());
+              }
+            break;
+            case "copy":
+              try {
+                binInstr = parseCopy(operation[1], currLine);
+              }
+              catch (IllegalArgumentException iae) {
+                System.err.println(iae.getMessage());
+              }
+            break;
+            case "sys":
+              binInstr = parseSys(operation[1], currLine);
+            break;
+            default:
+          }
+        }
+
+      }
+
+      result.add(binInstr);
+      currLine++;
+    }
+
+    return result;
   }
 
   /**
+   * Parses the push instruction.
    * 
-   * @param str
-   * @return
+   * @param pstr the line containing the push instruction.
+   * @return the machine code as two bytes.
+   */
+  private static final short parsePush(final String pargs, final int line) {
+
+    // Ensure correct argument count
+    if (pargs.trim().indexOf(' ') > 0)
+      throw new IllegalArgumentException("Push instruction does not have only one argument (line " + line + ").");
+
+    // Decode the argument
+    short num = Opcodes.PUSH;
+    if (isNumber(pargs)) {
+      num |= Short.decode(pargs);
+    } else {
+
+      // Look up the variable for its value from config files
+      final String lookupStr = VariableFetcher.lookup(pargs);
+      if (lookupStr != null) {
+        num |= Short.decode(lookupStr);
+      } else {
+        throw new IllegalArgumentException("Push instruction's value is not valid (line " + line + ").");
+      }
+    }
+
+    return num;
+  }
+
+  /**
+   * Performs parsing on a copy instruction.
+   * 
+   * @param args the tokens after the copy keyword.
+   * @param line the line number.
+   * @return a 16-bit machine instruction representation of the copy instruction.
+   */
+  private static final short parseCopy(final String args, final int line) {
+
+    // Ensure copy arguments match syntax and get tokens
+    if (!args.trim().matches("\\s*\\d{1,2}\\s*,\\s*\\d{1,2}"))
+      throw new IllegalArgumentException("Invalid copy instruction syntax (line " + line + ").");
+    final String[] tokens = args.split(",");
+
+    // Set the instruction's opcode to copy.
+    short num = Opcodes.COPY;
+
+    // Parse and check range of first argument (source register)
+    short argSrc = Short.parseShort(tokens[0].trim());
+    if (argSrc < 0 || argSrc > 15)
+      throw new IllegalArgumentException("Source register for copy instruction out of range (line " + line + ").");
+
+    // Parse and check range of second argument (destination register)
+    short argDest = Short.parseShort(tokens[1].trim());
+    if (argDest < 0 || argDest > 15)
+      throw new IllegalArgumentException("Source register for copy instruction out of range (line " + line + ").");
+
+    // Set the arguments in the machine code
+    num |= (argSrc << 8);
+    num |= (argDest << 4);
+
+    return num;
+  }
+
+  /**
+   * Parses a jump instruction into 16-bit binary machine code.
+   * 
+   * @param str the instruction.
+   * @param line the line number.
+   * @return the two byte instruction as a short.
+   */
+  private static final short parseJump(final String str, final int line) {
+
+    // Ensure only one token
+    if (str.trim().indexOf(' ') >= 0)
+      throw new IllegalArgumentException("Jump instruction is invalid (line " + line + ").");
+
+    short num = Opcodes.JUMP;
+
+    return num;
+  }
+
+  /**
+   * Parses an ALU instruction into a 16-bit machine instruction.
+   * 
+   * @param str the instruction.
+   * @param line the current line.
+   * @return the two bytes that make up this instruction.
+   */
+  private static final short parseALUInstr(final String str, final int line) {
+    short num = Opcodes.ALU;
+    num |= ALUInstr.INSTR_MAP.get(str);
+    return num;
+  }
+
+  /**
+   * Parses an I/O instruction into machine code.
+   * 
+   * @param str the instruction.
+   * @param line the current line number.
+   * @return the two bytes that make up this instruction.
+   */
+  private static final short parseIOInstr(final String str, final int line) {
+
+    short num = Opcodes.IO;
+
+    final String[] opTokens = str.split(" ", 2);
+
+    // Get the interface number and check its range
+    final short pid;
+    final int commaIdx = opTokens[1].indexOf(',');
+    if (commaIdx > 0) {
+
+      // For two arguments
+      pid = Short.parseShort(opTokens[1].trim().substring(0, commaIdx));
+    } else {
+
+      // For one argument
+      pid = Short.parseShort(opTokens[1].trim());
+    }
+    if (pid < 0 || pid > 7)
+      throw new IllegalArgumentException("I/O interface to execute out of range (line " + line + ").");
+
+    // Set peripheral ID bits
+    num |= (pid << 8);
+
+    short regNum = 0;
+    switch (opTokens[0].trim()) {
+
+      // I/O peripheral execute command
+      case "ioex":
+        num |= IOInstr.IOEX;
+      break;
+
+      // I/O peripheral set register command
+      case "iosr":
+
+        // Get the register ID to write to.
+        try {
+          regNum = Short.parseShort(opTokens[1].trim().substring(commaIdx + 1, opTokens[1].length()));
+        }
+        catch (NumberFormatException nfe) {
+          throw new IllegalArgumentException("I/O interface register is not a valid number (line " + line + ").");
+        }
+        if (regNum < 0 || regNum > 15)
+          throw new IllegalArgumentException("I/O interface register out of range (line " + line + ").");
+
+        // Set peripheral ID and write mode bits
+        num |= (regNum << 4) | IOInstr.IOSR;
+
+      break;
+
+      // I/O peripheral get register value command
+      case "iogr":
+
+        // Get the register ID to read from.
+        try {
+          regNum = Short.parseShort(opTokens[1].trim().substring(commaIdx + 1, opTokens[1].length()));
+        }
+        catch (NumberFormatException nfe) {
+          throw new IllegalArgumentException("I/O interface register is not a valid number (line " + line + ").");
+        }
+        if (regNum < 0 || regNum > 15)
+          throw new IllegalArgumentException("I/O interface register out of range (line " + line + ").");
+
+        // Set peripheral ID bits
+        num |= (regNum << 4);
+      break;
+      default:
+    }
+
+    return num;
+  }
+
+  /**
+   * Parses a system instruction into machine code.
+   * 
+   * @param str the instruction's arguments after the "sys" keyword.
+   * @param line the current line number.
+   * @return the two bytes that make up this instruction.
+   */
+  private static final short parseSys(final String str, final int line) {
+    short num = Opcodes.SYS;
+
+    // TODO: Write SYS instruction parser.
+
+    return num;
+  }
+
+  /**
+   * Writes the list of instructions to a .bin file to be executed on the Syzygy B100 CPU.
+   * 
+   * @param instr a List of 16-bit instructions.
+   * @param fname the file name (sans extension) to output to.
+   */
+  private static final void writeToFile(final ArrayList<Short> instr, final String fname) {
+
+    final File binFile = new File(fname + ".bin");
+    DataOutputStream bout = null;
+    try {
+      bout = new DataOutputStream(new FileOutputStream(binFile));
+      for (short val : instr) {
+        bout.writeShort(val);
+      }
+    }
+    catch (IOException ioe) {
+      ioe.printStackTrace();
+    }
+  }
+
+  /**
+   * Checks whether or not a String is numeric and can fit within two bytes.
+   * 
+   * @param str the String to check.
+   * @return true if the string is valid; false if not.
    */
   private static final boolean isNumber(final String str) {
     try {
