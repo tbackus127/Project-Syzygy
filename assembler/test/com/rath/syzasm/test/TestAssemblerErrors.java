@@ -11,7 +11,7 @@ import com.rath.syzasm.Assembler;
 
 public class TestAssemblerErrors {
 
-  private static final HashMap<String, Integer> labels = new HashMap<String, Integer>();
+  private static final HashMap<String, Short> labels = new HashMap<String, Short>();
   private static final String[] nopStr = { "", " ", "\\", "p", "cp", "\n", "\t", "j", "0", "\0", null };
 
   @Test

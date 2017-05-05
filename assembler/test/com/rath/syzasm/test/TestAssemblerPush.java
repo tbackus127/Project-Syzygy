@@ -11,14 +11,14 @@ import com.rath.syzasm.Assembler;
 
 public class TestAssemblerPush {
 
-  private static final HashMap<String, Integer> labels = new HashMap<String, Integer>() {
+  private static final HashMap<String, Short> labels = new HashMap<String, Short>() {
 
     private static final long serialVersionUID = 1L;
 
     {
-      put("label1", 15);
-      put("label2", 440);
-      put("label3", 2498);
+      put("label1", (short) 15);
+      put("label2", (short) 440);
+      put("label3", (short) 2498);
     }
   };
 
@@ -47,13 +47,16 @@ public class TestAssemblerPush {
 
   @Test
   public void testPushInvalids() {
+    System.out.println("Testing invalid pushes:");
     int numErrors = 0;
     for (final String s : perr) {
+      System.out.println("  Testing \"" + s + "\".");
       try {
         Assembler.parseInstruction(s, labels, 0);
       }
       catch (IllegalArgumentException iae) {
         numErrors++;
+        System.out.println("    Error!");
       }
     }
 
@@ -62,8 +65,10 @@ public class TestAssemblerPush {
 
   @Test
   public void testPushStandard() {
+    System.out.println("Testing constant pushes:");
     int numErrors = 0;
     for(String s : pstd.keySet()) {
+      System.out.println("  Testing \"" + s + "\".");
       if(Assembler.parseInstruction(s, labels, 0) != pstd.get(s)) {
         numErrors++;
       }

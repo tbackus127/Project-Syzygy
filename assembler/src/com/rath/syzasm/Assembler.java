@@ -38,7 +38,7 @@ public class Assembler {
    */
   private static final void assemble(final File asmFile) {
 
-    final HashMap<String, Integer> labels = parseLabels(asmFile);
+    final HashMap<String, Short> labels = parseLabels(asmFile);
     final ArrayList<Short> instr = parseInstructions(asmFile, labels);
 
     final String fileName = asmFile.getName().substring(0, asmFile.getName().lastIndexOf('.'));
@@ -52,7 +52,7 @@ public class Assembler {
    * @param asmFile the assembly file.
    * @return A HashMap that maps Label -> Line number.
    */
-  private static final HashMap<String, Integer> parseLabels(final File asmFile) {
+  private static final HashMap<String, Short> parseLabels(final File asmFile) {
 
     // Open a scanner on the file
     Scanner fscan = null;
@@ -64,8 +64,8 @@ public class Assembler {
     }
 
     // Keep track of the label map and current line
-    final HashMap<String, Integer> result = new HashMap<String, Integer>();
-    int currLine = 1;
+    final HashMap<String, Short> result = new HashMap<String, Short>();
+    short currLine = 1;
 
     // Go through each line
     while (fscan.hasNextLine()) {
@@ -89,7 +89,7 @@ public class Assembler {
    * @param labels a Map of labels in the assembly file -> instruction number.
    * @return a list of 16-bit binary instructions.
    */
-  private static final ArrayList<Short> parseInstructions(final File asmFile, final HashMap<String, Integer> labels) {
+  private static final ArrayList<Short> parseInstructions(final File asmFile, final HashMap<String, Short> labels) {
 
     // Open a scanner on the file
     Scanner fscan = null;
@@ -124,12 +124,10 @@ public class Assembler {
    * @param currLine
    * @return
    */
-  public static final short parseInstruction(final String line, final HashMap<String, Integer> labels,
+  public static final short parseInstruction(final String line, final HashMap<String, Short> labels,
       final int currLine) {
     short binInstr = 0;
 
-    System.err.println("Parsing \"" + line + "\"");
-    
     if (line == null || line.length() < 2) {
       throw new IllegalArgumentException("Line is too short or empty!");
     }
@@ -156,7 +154,7 @@ public class Assembler {
 
         switch (operation[0].trim().toLowerCase()) {
           case "push":
-            binInstr = parsePush(operation[1], currLine);
+            binInstr = parsePush(operation[1], labels, currLine);
           break;
           case "copy":
             binInstr = parseCopy(operation[1], currLine);
@@ -178,21 +176,33 @@ public class Assembler {
    * @param pstr the line containing the push instruction.
    * @return the machine code as two bytes.
    */
-  private static final short parsePush(final String pargs, final int line) {
+  private static final short parsePush(final String pargs, final HashMap<String, Short> labels, final int line) {
 
     // TODO: Parse labels correctly
-    
+
     // Ensure correct argument count
     if (pargs.trim().indexOf(' ') > 0)
       throw new IllegalArgumentException("Push instruction does not have only one argument (line " + line + ").");
 
     // Decode the argument
     short num = Opcodes.PUSH;
-    if (isNumber(pargs)) {
-      num |= Short.decode(pargs);
-    } else {
 
-      // Look up the variable for its value from config files
+    if (isNumber(pargs)) {
+
+      // If it's just a normal number
+      final short argNum = Short.decode(pargs);
+      if(argNum < 0) {
+        throw new IllegalArgumentException("Push cannot be negative!");
+      }
+      num |= argNum;
+    } else if (pargs.trim().startsWith("$lbl.")) {
+
+      // If it's a label (look it up)
+      final String lbl = pargs.split(".")[1];
+      num |= (short) labels.get(lbl);
+    } else {
+      
+      // Otherwise, it's probably a config value, so look it up
       final String lookupStr = VariableFetcher.lookup(pargs);
       if (lookupStr != null) {
         num |= Short.decode(lookupStr);
