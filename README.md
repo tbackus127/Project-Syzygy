@@ -25,10 +25,16 @@ push - Sets R2 to the specified number.
   n: 15-bit value to write to R2
   
 copy - Copy the contents of one register to another
-0010 ssss dddd n___
+0001 ssss dddd n___
   s: source register
   d: destination register
   n: negate value before writing
+  
+Branching operations
+0010 leg_ ____ ____
+  l: Set R1 to the value in R3 if R0's value is less than 0.
+  e: Set R1 to the value in R3 if R0's value equal to 0.
+  g: Set R1 to the value in R3 if R0's value is greater than 0.
   
 ALU operations
 0011 _ppp abzq rff_
@@ -54,14 +60,8 @@ ALU operations
     2: Arithmetic shift
     3: Arithmetic rotation
 
-Branching operations
-0100 leg_ ____ ____
-  l: Set R1 to the value in R3 if R0's value is less than 0.
-  e: Set R1 to the value in R3 if R0's value equal to 0.
-  g: Set R1 to the value in R3 if R0's value is greater than 0.
-
 io - Peripheral I/O operations
-0101 dddd rrrr xmb_
+0100 dddd rrrr xmb_
   d: Peripheral ID
   r: Peripheral register (ignored if x=1)
   x: Execute command
@@ -69,6 +69,9 @@ io - Peripheral I/O operations
     0: Read the value from peripheral ID d's register r and copy it to R4 (and R5 if b=1)
     1: Write R4 (and R5 if b=1) with the value from peripheral ID d's register r
   b: Enables 32-bit I/O mode. The peripheral must support 32-bit values, or only bits 0-15 will be transferred
+
+(unused)
+0101 ____ ____ ____
 
 (unused)
 0110 ____ ____ ____
