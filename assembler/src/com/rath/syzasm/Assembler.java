@@ -22,8 +22,13 @@ public class Assembler {
    * @param args 0: .syz file.
    */
   public static void main(String[] args) {
-    final File asmFile = new File(args[0]);
-    assemble(asmFile);
+
+    if (args.length > 0) {
+      final File asmFile = new File(args[0]);
+      assemble(asmFile);
+    } else {
+      printUsage();
+    }
   }
 
   /**
@@ -102,61 +107,69 @@ public class Assembler {
     // Scan through the assembly file
     while (fscan.hasNextLine()) {
 
-      // Get the current line
-      final String line = fscan.nextLine().trim();
-      short binInstr = 0;
-
-      // If there's only one string on this line (jump or ALU instruction)
-      if (line.indexOf(' ') < 0) {
-
-        if (line.startsWith("j")) {
-          binInstr = parseJump(line, currLine);
-        } else if (ALUInstr.INSTR_MAP.keySet().contains(line)) {
-          binInstr = parseALUInstr(line, currLine);
-        } else {
-          throw new IllegalArgumentException("Not a valid instruction (line " + line + ").");
-        }
-
-      } else {
-
-        final String[] operation = line.split(" ", 2);
-
-        if (operation[0].trim().startsWith("io")) {
-          binInstr = parseIOInstr(line, currLine);
-
-        } else {
-
-          switch (operation[0].trim().toLowerCase()) {
-            case "push":
-              try {
-                binInstr = parsePush(operation[1], currLine);
-              }
-              catch (IllegalArgumentException iae) {
-                System.err.println(iae.getMessage());
-              }
-            break;
-            case "copy":
-              try {
-                binInstr = parseCopy(operation[1], currLine);
-              }
-              catch (IllegalArgumentException iae) {
-                System.err.println(iae.getMessage());
-              }
-            break;
-            case "sys":
-              binInstr = parseSys(operation[1], currLine);
-            break;
-            default:
-          }
-        }
-
-      }
-
-      result.add(binInstr);
+      // Send the current line to the instruction parser
+      final short instr = parseInstruction(fscan.nextLine().trim(), labels, currLine);
+      result.add(instr);
       currLine++;
     }
 
     return result;
+  }
+
+  /**
+   * Parses an instruction that spans one line and encodes it as a short.
+   * 
+   * @param line
+   * @param labels
+   * @param currLine
+   * @return
+   */
+  public static final short parseInstruction(final String line, final HashMap<String, Integer> labels,
+      final int currLine) {
+    short binInstr = 0;
+
+    System.err.println("Parsing \"" + line + "\"");
+    
+    if (line == null || line.length() < 2) {
+      throw new IllegalArgumentException("Line is too short or empty!");
+    }
+
+    // If there's only one string on this line (jump or ALU instruction)
+    if (line.indexOf(' ') < 0) {
+
+      if (line.startsWith("j")) {
+        binInstr = parseJump(line, currLine);
+      } else if (ALUInstr.INSTR_MAP.keySet().contains(line)) {
+        binInstr = parseALUInstr(line, currLine);
+      } else {
+        throw new IllegalArgumentException("Not a valid instruction (line " + line + ").");
+      }
+
+    } else {
+
+      final String[] operation = line.split(" ", 2);
+
+      if (operation[0].trim().startsWith("io")) {
+        binInstr = parseIOInstr(line, currLine);
+
+      } else {
+
+        switch (operation[0].trim().toLowerCase()) {
+          case "push":
+            binInstr = parsePush(operation[1], currLine);
+          break;
+          case "copy":
+            binInstr = parseCopy(operation[1], currLine);
+          break;
+          case "sys":
+            binInstr = parseSys(operation[1], currLine);
+          break;
+          default:
+        }
+      }
+    }
+
+    return binInstr;
   }
 
   /**
@@ -167,6 +180,8 @@ public class Assembler {
    */
   private static final short parsePush(final String pargs, final int line) {
 
+    // TODO: Parse labels correctly
+    
     // Ensure correct argument count
     if (pargs.trim().indexOf(' ') > 0)
       throw new IllegalArgumentException("Push instruction does not have only one argument (line " + line + ").");
@@ -383,5 +398,12 @@ public class Assembler {
       return false;
     }
     return true;
+  }
+
+  /**
+   * Prints the usage message.
+   */
+  private static final void printUsage() {
+    System.out.println("Pass in a .syz assembly file as the runtime argument.");
   }
 }
