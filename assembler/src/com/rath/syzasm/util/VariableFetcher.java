@@ -36,7 +36,7 @@ public class VariableFetcher {
     }
     
     // Get the file and variable name
-    final String[] tokens = confString.split(".");
+    final String[] tokens = confString.split("\\.");
     if (tokens.length < 3) {
       return null;
     }
@@ -79,8 +79,8 @@ public class VariableFetcher {
             final String fname = f.getName();
             final int dotIdx = fname.lastIndexOf('.');
             final String fileLabel = fname.substring(0, dotIdx);
-            final String varKey = fileLabel + "-" + tokens[0].trim();
-            result.put(varKey, tokens[1].trim());
+            final String varKey = fileLabel + "-" + tokens[0].trim().toLowerCase();
+            result.put(varKey, tokens[1].trim().toLowerCase());
           }
         }
         

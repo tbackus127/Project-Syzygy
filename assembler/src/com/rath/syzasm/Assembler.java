@@ -65,20 +65,23 @@ public class Assembler {
     
     // Keep track of the label map and current line
     final HashMap<String, Short> result = new HashMap<String, Short>();
-    short currLine = 1;
+    short currInstr = 1;
     
     // Go through each line
     while (fscan.hasNextLine()) {
+      
+      // Get the line, ignore comments and empty lines
       final String line = fscan.nextLine().trim();
+      if (line.startsWith("#") || line.length() < 2) continue;
       
       // If it's a valid label (starts with ":"), add it to the map
       if (line.startsWith(":")) {
-        final String label = line.substring(1, line.indexOf(' '));
-        result.put(label, currLine);
-        System.out.println("Added \"" + label + "\" to labels.");
+        final String label = line.substring(1);
+        result.put(label, currInstr);
+        System.out.println("Added \"" + label + "\" to labels at instruction " + currInstr + ".");
       }
       
-      currLine++;
+      currInstr++;
     }
     
     return result;
@@ -103,15 +106,18 @@ public class Assembler {
     
     // Build list of instructions
     final ArrayList<Short> result = new ArrayList<Short>();
-    int currLine = 1;
+    int currLine = 0;
     
     // Scan through the assembly file
     while (fscan.hasNextLine()) {
       
-      // Send the current line to the instruction parser
-      final short instr = parseInstruction(fscan.nextLine().trim(), labels, currLine);
-      result.add(instr);
       currLine++;
+      final String line = fscan.nextLine().trim();
+      if (line == null || line.startsWith("#") || line.length() < 2 || line.startsWith(":")) continue;
+      
+      // Send the current line to the instruction parser
+      final short instr = parseInstruction(line, labels, currLine);
+      result.add(instr);
     }
     
     return result;
@@ -120,28 +126,28 @@ public class Assembler {
   /**
    * Parses an instruction that spans one line and encodes it as a short.
    * 
-   * @param line
-   * @param labels
-   * @param currLine
-   * @return
+   * @param line the instruction as a String.
+   * @param labels the label map.
+   * @param currLine the current line number.
+   * @return a two-byte machine code version of this instruction.
    */
   public static final short parseInstruction(final String line, final HashMap<String, Short> labels,
       final int currLine) {
-    short binInstr = 0;
     
-    if (line == null || line.length() < 2) {
-      throw new IllegalArgumentException("Line is too short or empty!");
+    short binInstr = 0;
+    if (line == null) {
+      throw new IllegalArgumentException("Line is too short or empty (line " + line + ").");
     }
     
     // If there's only one string on this line (jump or ALU instruction)
-    if (line.indexOf(' ') < 0) {
+    if (line.trim().indexOf(' ') < 0) {
       
       if (line.startsWith("j")) {
         binInstr = parseJump(line, currLine);
       } else if (ALUInstr.INSTR_MAP.keySet().contains(line)) {
         binInstr = parseALUInstr(line, currLine);
       } else {
-        throw new IllegalArgumentException("Not a valid instruction (line " + line + ").");
+        throw new IllegalArgumentException("Not a valid instruction (line " + currLine + ").");
       }
       
     } else {
@@ -191,7 +197,7 @@ public class Assembler {
       // If it's just a normal number
       final short argNum = Short.decode(pargs);
       if (argNum < 0) {
-        throw new IllegalArgumentException("Push cannot be negative!");
+        throw new IllegalArgumentException("Push cannot be negative (line " + line + ").");
       }
       num |= argNum;
     } else if (pargs.trim().startsWith("$lbl.")) {
@@ -199,12 +205,12 @@ public class Assembler {
       // If it's a label (look it up)
       final String[] lbls = pargs.split("\\.", 2);
       if (lbls.length != 2) {
-        throw new IllegalArgumentException("Invalid label!");
+        throw new IllegalArgumentException("Invalid label (line " + line + ").");
       }
       final String lbl = lbls[1];
       final Short lblValue = labels.get(lbl);
       if (lblValue == null) {
-        throw new IllegalArgumentException("Referenced label does not exist!");
+        throw new IllegalArgumentException("Referenced label does not exist (line " + line + ").");
       }
       num |= (short) lblValue;
     } else {
@@ -325,18 +331,48 @@ public class Assembler {
     short num = Opcodes.IO;
     
     final String[] opTokens = str.split(" ", 2);
+    if (opTokens.length < 2) {
+      throw new IllegalArgumentException("Invalid I/O instruction syntax (line " + line + ").");
+    }
     
     // Get the interface number and check its range
-    final short pid;
+    short pid = -1;
     final int commaIdx = opTokens[1].indexOf(',');
+    
+    // For two arguments
     if (commaIdx > 0) {
       
-      // For two arguments
-      pid = Short.parseShort(opTokens[1].trim().substring(0, commaIdx));
+      final String regStr = opTokens[1].trim().toLowerCase().substring(0, commaIdx).trim();
+      
+      try {
+        pid = Short.parseShort(regStr);
+      } catch (NumberFormatException nfe) {
+        
+        // Test if it's a config option
+        final String lookupStr = VariableFetcher.lookup(regStr);
+        if (lookupStr != null) {
+          pid = Short.decode(lookupStr);
+        } else {
+          throw new IllegalArgumentException("Push instruction's value is not valid (line " + line + ").");
+        }
+        
+      }
     } else {
       
       // For one argument
-      pid = Short.parseShort(opTokens[1].trim());
+      final String regStr = opTokens[1].trim().toLowerCase();
+      try {
+        pid = Short.parseShort(regStr);
+      } catch (NumberFormatException nfe) {
+        
+        // Test if it's a config option
+        final String lookupStr = VariableFetcher.lookup(regStr);
+        if (lookupStr != null) {
+          pid = Short.decode(lookupStr);
+        } else {
+          throw new IllegalArgumentException("Push instruction's value is not valid (line " + line + ").");
+        }
+      }
     }
     if (pid < 0 || pid > 7)
       throw new IllegalArgumentException("I/O interface to execute out of range (line " + line + ").");
@@ -345,19 +381,29 @@ public class Assembler {
     num |= (pid << 8);
     
     short regNum = 0;
+    String regToken = "";
+    
     switch (opTokens[0].trim()) {
       
       // I/O peripheral execute command
       case "ioex":
+        
+        // Check argument count
+        if (!opTokens[1].trim().matches("\\d{1,2}|\\$conf\\.\\w+\\.\\w+")) {
+          throw new IllegalArgumentException("Incorrect number of arguments for ioex (line " + line + ").");
+        }
+        
         num |= IOInstr.IOEX;
       break;
     
       // I/O peripheral set register command
       case "iosr":
         
+        regToken = opTokens[1].trim().substring(commaIdx + 1, opTokens[1].length()).trim();
+        
         // Get the register ID to write to.
         try {
-          regNum = Short.parseShort(opTokens[1].trim().substring(commaIdx + 1, opTokens[1].length()));
+          regNum = Short.parseShort(regToken);
         } catch (NumberFormatException nfe) {
           throw new IllegalArgumentException("I/O interface register is not a valid number (line " + line + ").");
         }
@@ -372,9 +418,11 @@ public class Assembler {
       // I/O peripheral get register value command
       case "iogr":
         
+        regToken = opTokens[1].trim().substring(commaIdx + 1, opTokens[1].length()).trim();
+        
         // Get the register ID to read from.
         try {
-          regNum = Short.parseShort(opTokens[1].trim().substring(commaIdx + 1, opTokens[1].length()));
+          regNum = Short.parseShort(regToken);
         } catch (NumberFormatException nfe) {
           throw new IllegalArgumentException("I/O interface register is not a valid number (line " + line + ").");
         }
@@ -384,7 +432,40 @@ public class Assembler {
         // Set peripheral ID bits
         num |= (regNum << 4);
       break;
+      case "iosd":
+        
+        regToken = opTokens[1].trim().substring(commaIdx + 1, opTokens[1].length()).trim();
+        
+        // Get the register ID to write to.
+        try {
+          regNum = Short.parseShort(regToken);
+        } catch (NumberFormatException nfe) {
+          throw new IllegalArgumentException("I/O interface register is not a valid number (line " + line + ").");
+        }
+        if (regNum < 0 || regNum > 15)
+          throw new IllegalArgumentException("I/O interface register out of range (line " + line + ").");
+        
+        // Set peripheral ID and write mode bits
+        num |= (regNum << 4) | IOInstr.IOSR | IOInstr.IODW;
+      break;
+      case "iogd":
+        
+        regToken = opTokens[1].trim().substring(commaIdx + 1, opTokens[1].length()).trim();
+        
+        // Get the register ID to read from.
+        try {
+          regNum = Short.parseShort(regToken);
+        } catch (NumberFormatException nfe) {
+          throw new IllegalArgumentException("I/O interface register is not a valid number (line " + line + ").");
+        }
+        if (regNum < 0 || regNum > 15)
+          throw new IllegalArgumentException("I/O interface register out of range (line " + line + ").");
+        
+        // Set peripheral ID bits
+        num |= (regNum << 4) | IOInstr.IODW;
+      break;
       default:
+        throw new IllegalArgumentException("Invalid I/O command (line " + line + ").");
     }
     
     return num;
@@ -398,9 +479,10 @@ public class Assembler {
    * @return the two bytes that make up this instruction.
    */
   private static final short parseSys(final String str, final int line) {
+    
     short num = Opcodes.SYS;
     
-    // TODO: Write SYS instruction parser.
+    // TODO: Write SYS instruction parser when I figure out how I want them
     
     return num;
   }
@@ -413,10 +495,13 @@ public class Assembler {
    */
   private static final void writeToFile(final ArrayList<Short> instr, final String fname) {
     
+    // Get a handle to the output file
     final File binFile = new File(fname + ".bin");
     DataOutputStream bout = null;
     try {
       bout = new DataOutputStream(new FileOutputStream(binFile));
+      
+      // Write it to file
       for (short val : instr) {
         bout.writeShort(val);
       }

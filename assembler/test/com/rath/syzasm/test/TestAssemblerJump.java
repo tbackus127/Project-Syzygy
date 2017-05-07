@@ -9,7 +9,7 @@ import org.junit.Test;
 import com.rath.syzasm.Assembler;
 
 
-public class TestJump {
+public class TestAssemblerJump {
   
   private static final HashMap<String, Short> jmpMap = new HashMap<String, Short>() {
 
