@@ -28,8 +28,7 @@ module ALU(
     input negB,
     input zeroB, 
     input negQ,
-    input inc,
-    input dir,
+    input arg,
     input rot,
     input arth,
     output [15:0] aluOut,
@@ -70,7 +69,7 @@ module ALU(
   RCAdder16B rca(
     .aIn(negAOut[15:0]),
     .bIn(negBOut[15:0]),
-    .cIn(inc),
+    .cIn(arg),
     .dOut(adderOut[15:0]),
     .cOut(overflow)
   );
@@ -81,7 +80,7 @@ module ALU(
     .dIn(negAOut[15:0]),
     .shAmt(negBOut[3:0]),
     .dOut(shifterOut[15:0]),
-    .dir(dir),
+    .dir(arg),
     .rot(rot),
     .arth(arth)
   );

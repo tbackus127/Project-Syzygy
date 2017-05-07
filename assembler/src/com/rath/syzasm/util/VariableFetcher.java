@@ -13,15 +13,16 @@ import java.util.Scanner;
  *
  */
 public class VariableFetcher {
-
+  
   /** The relative path to the config files' directory. */
   private static final String CONFIG_DIR = "../os/conf/";
-
-  private static final String CONFIG_DIR_TEST = "../../../circuitry/SyzygyB100/os/conf/";
-
+  
+  private static final String CONFIG_DIR_TEST_LP = "../../../circuitry/SyzygyB100/os/conf/";
+  private static final String CONFIG_DIR_TEST_DT = "../../../FPGA/SyzygyB100/os/conf/";
+  
   /** The variable map (format: "filename-variableName" -> "value") */
   private static final HashMap<String, String> varMap = buildVarMap();
-
+  
   /**
    * Performs a lookup using a config string in the assembly source.
    * 
@@ -29,26 +30,22 @@ public class VariableFetcher {
    * @return the value of the variable as a String.
    */
   public static final String lookup(final String confString) {
-
-    System.out.println("    Looking up \"" + confString + "\"...");
-
+    
     if (confString.trim().length() <= 0) {
-      System.out.println("    Looked up empty string.");
       return null;
     }
     
     // Get the file and variable name
     final String[] tokens = confString.split(".");
-    if(tokens.length < 3) {
-      System.out.println("    Lookup invalid.");
+    if (tokens.length < 3) {
       return null;
     }
     final String category = tokens[1].trim().toLowerCase();
     final String varName = tokens[2].trim().toLowerCase();
-
+    
     return varMap.get(category + "-" + varName);
   }
-
+  
   /**
    * Constructs the variable map.
    * 
@@ -56,18 +53,19 @@ public class VariableFetcher {
    */
   private static final HashMap<String, String> buildVarMap() {
     final HashMap<String, String> result = new HashMap<String, String>();
-
+    
     // Set to test directory if we're in Eclipse workbench
     String cfgDir = CONFIG_DIR;
-    if (!new File(cfgDir).exists()) cfgDir = CONFIG_DIR_TEST;
-
+    if (!new File(cfgDir).exists()) cfgDir = CONFIG_DIR_TEST_LP;
+    if (!new File(cfgDir).exists()) cfgDir = CONFIG_DIR_TEST_DT;
+    
     // Go through all config files
     final File[] confFiles = new File(cfgDir).listFiles();
     for (final File f : confFiles) {
       Scanner fscan = null;
       try {
         fscan = new Scanner(f);
-
+        
         // Scan through all lines
         while (fscan.hasNextLine()) {
           final String line = fscan.nextLine();
@@ -75,7 +73,7 @@ public class VariableFetcher {
           // Ignore comments
           if (line.startsWith("#")) continue;
           String[] tokens = line.split(" ");
-
+          
           // If it's a valid assignment
           if (tokens.length == 2) {
             final String fname = f.getName();
@@ -85,16 +83,14 @@ public class VariableFetcher {
             result.put(varKey, tokens[1].trim());
           }
         }
-
-      }
-      catch (FileNotFoundException e) {
+        
+      } catch (FileNotFoundException e) {
         e.printStackTrace();
-      }
-      finally {
+      } finally {
         fscan.close();
       }
     }
-
+    
     return result;
   }
 }
