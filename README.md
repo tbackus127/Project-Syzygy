@@ -85,7 +85,7 @@ io - Peripheral I/O operations
 
 ```
 
-# SyzOS (WIP!)
+# SyzOS (Currently planning; everything is tentative)
 
 An original minimal command line operating system for the Syzygy B100 CPU, written in SYZ assembly.
 
