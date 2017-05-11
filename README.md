@@ -3,8 +3,8 @@ A 16-bit CPU created with the Vivado development suite from Xilinx, written in V
 
 ## Architecture
 The B100, unlike its 8\-bit counterpart, the A100, has 16 registers available (R0\-RF):
-* R0: Instruction register
-* R1: Program counter
+* R0: Instruction register (not directly writeable)
+* R1: Program counter (not directly writeable)
 * R2: ALU accumulator, comparison register, push instruction destination
 * R3: Jump address
 * R4: Bits 0-15 of peripheral I/O
@@ -37,7 +37,7 @@ Branching operations
   g: Set R1 to the value in R3 if R0's value is greater than 0.
   
 ALU operations
-0011 _ppp abzq rff_
+0011 _ppp aaaa rff_
   p: Operation to perform:
     0: A (pass)
     1: A | B (logical OR)
@@ -47,10 +47,14 @@ ALU operations
     5: Count bits of A
     6: (unused)
     7: (unused)
-  a: Negate input A (does not overwrite contents of R6)
-  b: Negate input B (does not overwrite contents of R6)
-  z: Zero input B (does not overwrite contents of R6)
-  q: Negate output
+  a: Arithmetic arguments and shift amount
+    when p = 3: 
+      shift amount (0-15)
+    otherwise:
+      bit 3 (MSB): Negate input A (does not overwrite contents of R6)
+      bit 2: Negate input B (does not overwrite contents of R6)
+      bit 1: Zero input B (does not overwrite contents of R6)
+      bit 0 (LSB): Negate output
   r: Operation argument:
     when p=2: Increment result of addition
     when p=3: Shift right instead of left
@@ -85,7 +89,30 @@ io - Peripheral I/O operations
 
 An original minimal command line operating system for the Syzygy B100 CPU, written in SYZ assembly.
 
-### Planned features
+## Memory layout
+
+* 0x0000: Stack frame pointer
+* 0x0001 - 0x000F: (unknown)
+* 0x0010 - 0x1FFF: OS Instructions
+* 0x2000 - 0x2FFF: Call stack (4KB)
+* 0x3000 - 0x3FFF: Allocation tracker (4KB, but only need 2KB)
+* 0x4000 - 0x7FFF: Program memory (16KB, loaded from SD card when a program is ran)
+* 0x8000 - 0xFFFF: Heap (32KB)
+
+### Call stack frame
+
+Measured in offset (16-bit words) from address in stack pointer
+
+* 0: Return address
+* 2: Return value's address
+* 4: Number of arguments
+* 6: Arguments pointer (to heap)
+* 8: Number of local variables
+* A: Variables pointer (to heap)
+* C: (unknown)
+* E: (unknown)
+
+## Planned features
 * Create and edit text files
 * Boots from SD card; not hard-coded on FPGA
 * Assemble and run programs within the operating system
