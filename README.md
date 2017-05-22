@@ -37,7 +37,7 @@ Branching operations
   g: Set R1 to the value in R3 if R0's value is greater than 0.
   
 ALU operations
-0011 _ppp aaaa rff_
+0011 _ppp abzn rff_
   p: Operation to perform:
     0: A (pass)
     1: A | B (logical OR)
@@ -47,14 +47,10 @@ ALU operations
     5: Count bits of A
     6: (unused)
     7: (unused)
-  a: Arithmetic arguments and shift amount
-    when p = 3: 
-      shift amount (0-15)
-    otherwise:
-      bit 3 (MSB): Negate input A (does not overwrite contents of R6)
-      bit 2: Negate input B (does not overwrite contents of R6)
-      bit 1: Zero input B (does not overwrite contents of R6)
-      bit 0 (LSB): Negate output
+  a: Negate input A (does not overwrite contents of R6)
+  b: Negate input B (does not overwrite contents of R6)
+  z: Zero input B (does not overwrite contents of R6)
+  n: Negate output
   r: Operation argument:
     when p=2: Increment result of addition
     when p=3: Shift right instead of left
