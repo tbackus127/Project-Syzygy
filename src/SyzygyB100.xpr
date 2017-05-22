@@ -73,7 +73,6 @@
       <File Path="$PSRCDIR/sources_1/imports/Administrator/SevenSeg.v">
         <FileInfo>
           <Attr Name="UserDisabled" Val="1"/>
-          <Attr Name="AutoDisabled" Val="1"/>
           <Attr Name="ImportPath" Val="C:/Users/Administrator/SevenSeg.v"/>
           <Attr Name="ImportTime" Val="1483487820"/>
           <Attr Name="UsedIn" Val="synthesis"/>
@@ -84,7 +83,6 @@
       <File Path="$PSRCDIR/sources_1/imports/Administrator/InstructionReg.v">
         <FileInfo>
           <Attr Name="UserDisabled" Val="1"/>
-          <Attr Name="AutoDisabled" Val="1"/>
           <Attr Name="ImportPath" Val="C:/Users/Administrator/InstructionReg.v"/>
           <Attr Name="ImportTime" Val="1483485824"/>
           <Attr Name="UsedIn" Val="synthesis"/>
@@ -95,7 +93,6 @@
       <File Path="$PSRCDIR/sources_1/new/Debouncer.v">
         <FileInfo>
           <Attr Name="UserDisabled" Val="1"/>
-          <Attr Name="AutoDisabled" Val="1"/>
           <Attr Name="UsedIn" Val="synthesis"/>
           <Attr Name="UsedIn" Val="implementation"/>
           <Attr Name="UsedIn" Val="simulation"/>
@@ -104,7 +101,6 @@
       <File Path="$PSRCDIR/sources_1/imports/Administrator/InstructionRegControl.v">
         <FileInfo>
           <Attr Name="UserDisabled" Val="1"/>
-          <Attr Name="AutoDisabled" Val="1"/>
           <Attr Name="ImportPath" Val="C:/Users/Administrator/InstructionRegControl.v"/>
           <Attr Name="ImportTime" Val="1483488957"/>
           <Attr Name="UsedIn" Val="synthesis"/>

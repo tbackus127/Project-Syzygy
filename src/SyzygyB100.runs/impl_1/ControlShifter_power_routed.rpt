@@ -1,7 +1,7 @@
 Copyright 1986-2016 Xilinx, Inc. All Rights Reserved.
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 | Tool Version     : Vivado v.2016.2 (win64) Build 1577090 Thu Jun  2 16:32:40 MDT 2016
-| Date             : Sun Apr 02 22:21:28 2017
+| Date             : Mon May 22 19:35:18 2017
 | Host             : Compy running 64-bit Service Pack 1  (build 7601)
 | Command          : report_power -file ControlShifter_power_routed.rpt -pb ControlShifter_power_summary_routed.pb -rpx ControlShifter_power_routed.rpx
 | Design           : ControlShifter
@@ -30,12 +30,12 @@ Table of Contents
 ----------
 
 +--------------------------+-------+
-| Total On-Chip Power (W)  | 0.087 |
-| Dynamic (W)              | 0.015 |
+| Total On-Chip Power (W)  | 0.091 |
+| Dynamic (W)              | 0.019 |
 | Device Static (W)        | 0.072 |
 | Effective TJA (C/W)      | 5.0   |
-| Max Ambient (C)          | 84.6  |
-| Junction Temperature (C) | 25.4  |
+| Max Ambient (C)          | 84.5  |
+| Junction Temperature (C) | 25.5  |
 | Confidence Level         | Low   |
 | Setting File             | ---   |
 | Simulation Activity File | ---   |
@@ -51,11 +51,11 @@ Table of Contents
 +----------------+-----------+----------+-----------+-----------------+
 | Clocks         |     0.000 |        3 |       --- |             --- |
 | Slice Logic    |    <0.001 |       16 |       --- |             --- |
-|   LUT as Logic |    <0.001 |        8 |     20800 |            0.04 |
-| Signals        |    <0.001 |       21 |       --- |             --- |
-| I/O            |     0.015 |       21 |       106 |           19.81 |
+|   LUT as Logic |    <0.001 |       14 |     20800 |            0.07 |
+| Signals        |    <0.001 |       23 |       --- |             --- |
+| I/O            |     0.019 |       23 |       106 |           21.70 |
 | Static Power   |     0.072 |          |           |                 |
-| Total          |     0.087 |          |           |                 |
+| Total          |     0.091 |          |           |                 |
 +----------------+-----------+----------+-----------+-----------------+
 
 
@@ -67,7 +67,7 @@ Table of Contents
 +-----------+-------------+-----------+-------------+------------+
 | Vccint    |       1.000 |     0.010 |       0.000 |      0.010 |
 | Vccaux    |       1.800 |     0.013 |       0.001 |      0.013 |
-| Vcco33    |       3.300 |     0.005 |       0.004 |      0.001 |
+| Vcco33    |       3.300 |     0.006 |       0.005 |      0.001 |
 | Vcco25    |       2.500 |     0.000 |       0.000 |      0.000 |
 | Vcco18    |       1.800 |     0.000 |       0.000 |      0.000 |
 | Vcco15    |       1.500 |     0.000 |       0.000 |      0.000 |
@@ -132,7 +132,7 @@ Table of Contents
 +----------------+-----------+
 | Name           | Power (W) |
 +----------------+-----------+
-| ControlShifter |     0.015 |
+| ControlShifter |     0.019 |
 +----------------+-----------+
 
 

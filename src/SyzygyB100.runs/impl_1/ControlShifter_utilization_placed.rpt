@@ -1,7 +1,7 @@
 Copyright 1986-2016 Xilinx, Inc. All Rights Reserved.
 -------------------------------------------------------------------------------------------------------------------------
 | Tool Version : Vivado v.2016.2 (win64) Build 1577090 Thu Jun  2 16:32:40 MDT 2016
-| Date         : Sun Apr 02 22:21:12 2017
+| Date         : Mon May 22 19:35:00 2017
 | Host         : Compy running 64-bit Service Pack 1  (build 7601)
 | Command      : report_utilization -file ControlShifter_utilization_placed.rpt -pb ControlShifter_utilization_placed.pb
 | Design       : ControlShifter
@@ -31,8 +31,8 @@ Table of Contents
 +-------------------------+------+-------+-----------+-------+
 |        Site Type        | Used | Fixed | Available | Util% |
 +-------------------------+------+-------+-----------+-------+
-| Slice LUTs              |    8 |     0 |     20800 |  0.04 |
-|   LUT as Logic          |    8 |     0 |     20800 |  0.04 |
+| Slice LUTs              |   14 |     0 |     20800 |  0.07 |
+|   LUT as Logic          |   14 |     0 |     20800 |  0.07 |
 |   LUT as Memory         |    0 |     0 |      9600 |  0.00 |
 | Slice Registers         |    0 |     0 |     41600 |  0.00 |
 |   Register as Flip Flop |    0 |     0 |     41600 |  0.00 |
@@ -67,13 +67,13 @@ Table of Contents
 +--------------------------+------+-------+-----------+-------+
 |         Site Type        | Used | Fixed | Available | Util% |
 +--------------------------+------+-------+-----------+-------+
-| Slice                    |    3 |     0 |      8150 |  0.04 |
-|   SLICEL                 |    3 |     0 |           |       |
-|   SLICEM                 |    0 |     0 |           |       |
-| LUT as Logic             |    8 |     0 |     20800 |  0.04 |
+| Slice                    |    6 |     0 |      8150 |  0.07 |
+|   SLICEL                 |    5 |     0 |           |       |
+|   SLICEM                 |    1 |     0 |           |       |
+| LUT as Logic             |   14 |     0 |     20800 |  0.07 |
 |   using O5 output only   |    0 |       |           |       |
-|   using O6 output only   |    0 |       |           |       |
-|   using O5 and O6        |    8 |       |           |       |
+|   using O6 output only   |   12 |       |           |       |
+|   using O5 and O6        |    2 |       |           |       |
 | LUT as Memory            |    0 |     0 |      9600 |  0.00 |
 |   LUT as Distributed RAM |    0 |     0 |           |       |
 |   LUT as Shift Register  |    0 |     0 |           |       |
@@ -112,9 +112,9 @@ Table of Contents
 +-----------------------------+------+-------+-----------+-------+
 |          Site Type          | Used | Fixed | Available | Util% |
 +-----------------------------+------+-------+-----------+-------+
-| Bonded IOB                  |   21 |    21 |       106 | 19.81 |
-|   IOB Master Pads           |    9 |       |           |       |
-|   IOB Slave Pads            |   11 |       |           |       |
+| Bonded IOB                  |   23 |    23 |       106 | 21.70 |
+|   IOB Master Pads           |   10 |       |           |       |
+|   IOB Slave Pads            |   12 |       |           |       |
 | Bonded IPADs                |    0 |     0 |        10 |  0.00 |
 | Bonded OPADs                |    0 |     0 |         4 |  0.00 |
 | PHY_CONTROL                 |    0 |     0 |         5 |  0.00 |
@@ -174,10 +174,10 @@ Table of Contents
 | Ref Name | Used | Functional Category |
 +----------+------+---------------------+
 | OBUF     |   16 |                  IO |
-| LUT5     |   12 |                 LUT |
-| IBUF     |    5 |                  IO |
-| LUT4     |    2 |                 LUT |
-| LUT3     |    2 |                 LUT |
+| LUT6     |   12 |                 LUT |
+| IBUF     |    7 |                  IO |
+| LUT5     |    3 |                 LUT |
+| LUT4     |    1 |                 LUT |
 +----------+------+---------------------+
 
 

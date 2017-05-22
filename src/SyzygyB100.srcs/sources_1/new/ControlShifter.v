@@ -30,7 +30,7 @@ module ControlShifter(
     .dIn(16'b0110011001100110),
     .shAmt(sw[3:0]),
     .dOut(led[15:0]),
-    .dir(sw[6]),
+    .dir(sw[4]),
     .rot(sw[5]),
     .arth(sw[6])
   );
