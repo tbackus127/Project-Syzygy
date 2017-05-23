@@ -1,16 +1,23 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<GenRun Id="synth_1" LaunchPart="xc7a35tcpg236-1" LaunchTime="1495496028">
-  <File Type="RDS-PROPCONSTRS" Name="ControlShifter_drc_synth.rpt"/>
-  <File Type="PA-TCL" Name="ControlShifter.tcl"/>
-  <File Type="RDS-RDS" Name="ControlShifter.vds"/>
-  <File Type="RDS-UTIL" Name="ControlShifter_utilization_synth.rpt"/>
-  <File Type="RDS-UTIL-PB" Name="ControlShifter_utilization_synth.pb"/>
-  <File Type="RDS-DCP" Name="ControlShifter.dcp"/>
-  <File Type="VDS-TIMINGSUMMARY" Name="ControlShifter_timing_summary_synth.rpt"/>
-  <File Type="VDS-TIMING-PB" Name="ControlShifter_timing_summary_synth.pb"/>
+<GenRun Id="synth_1" LaunchPart="xc7a35tcpg236-1" LaunchTime="1495505238">
+  <File Type="RDS-PROPCONSTRS" Name="ALUControl_drc_synth.rpt"/>
+  <File Type="PA-TCL" Name="ALUControl.tcl"/>
+  <File Type="RDS-RDS" Name="ALUControl.vds"/>
+  <File Type="RDS-UTIL" Name="ALUControl_utilization_synth.rpt"/>
+  <File Type="RDS-UTIL-PB" Name="ALUControl_utilization_synth.pb"/>
+  <File Type="RDS-DCP" Name="ALUControl.dcp"/>
+  <File Type="VDS-TIMINGSUMMARY" Name="ALUControl_timing_summary_synth.rpt"/>
+  <File Type="VDS-TIMING-PB" Name="ALUControl_timing_summary_synth.pb"/>
   <FileSet Name="sources" Type="DesignSrcs" RelSrcDir="$PSRCDIR/sources_1">
     <Filter Type="Srcs"/>
     <File Path="$PSRCDIR/sources_1/new/Mux2to1.v">
+      <FileInfo>
+        <Attr Name="UsedIn" Val="synthesis"/>
+        <Attr Name="UsedIn" Val="implementation"/>
+        <Attr Name="UsedIn" Val="simulation"/>
+      </FileInfo>
+    </File>
+    <File Path="$PSRCDIR/sources_1/new/HalfAdder.v">
       <FileInfo>
         <Attr Name="UsedIn" Val="synthesis"/>
         <Attr Name="UsedIn" Val="implementation"/>
@@ -24,6 +31,49 @@
         <Attr Name="UsedIn" Val="simulation"/>
       </FileInfo>
     </File>
+    <File Path="$PSRCDIR/sources_1/imports/new/FullAdder.v">
+      <FileInfo>
+        <Attr Name="ImportPath" Val="$PSRCDIR/sources_1/new/FullAdder.v"/>
+        <Attr Name="ImportTime" Val="1491348663"/>
+        <Attr Name="UsedIn" Val="synthesis"/>
+        <Attr Name="UsedIn" Val="implementation"/>
+        <Attr Name="UsedIn" Val="simulation"/>
+      </FileInfo>
+    </File>
+    <File Path="$PSRCDIR/sources_1/new/Mux16B8to1.v">
+      <FileInfo>
+        <Attr Name="UsedIn" Val="synthesis"/>
+        <Attr Name="UsedIn" Val="implementation"/>
+        <Attr Name="UsedIn" Val="simulation"/>
+      </FileInfo>
+    </File>
+    <File Path="$PSRCDIR/sources_1/imports/new/RCAdder16B.v">
+      <FileInfo>
+        <Attr Name="ImportPath" Val="$PSRCDIR/sources_1/new/RCAdder16B.v"/>
+        <Attr Name="ImportTime" Val="1491348663"/>
+        <Attr Name="UsedIn" Val="synthesis"/>
+        <Attr Name="UsedIn" Val="implementation"/>
+        <Attr Name="UsedIn" Val="simulation"/>
+      </FileInfo>
+    </File>
+    <File Path="$PSRCDIR/sources_1/imports/new/Neg16B.v">
+      <FileInfo>
+        <Attr Name="ImportPath" Val="$PSRCDIR/sources_1/new/Neg16B.v"/>
+        <Attr Name="ImportTime" Val="1491348663"/>
+        <Attr Name="UsedIn" Val="synthesis"/>
+        <Attr Name="UsedIn" Val="implementation"/>
+        <Attr Name="UsedIn" Val="simulation"/>
+      </FileInfo>
+    </File>
+    <File Path="$PSRCDIR/sources_1/imports/new/BitCounter16B.v">
+      <FileInfo>
+        <Attr Name="ImportPath" Val="$PSRCDIR/sources_1/new/BitCounter16B.v"/>
+        <Attr Name="ImportTime" Val="1491348663"/>
+        <Attr Name="UsedIn" Val="synthesis"/>
+        <Attr Name="UsedIn" Val="implementation"/>
+        <Attr Name="UsedIn" Val="simulation"/>
+      </FileInfo>
+    </File>
     <File Path="$PSRCDIR/sources_1/new/BarrelShifter16B.v">
       <FileInfo>
         <Attr Name="UsedIn" Val="synthesis"/>
@@ -31,7 +81,7 @@
         <Attr Name="UsedIn" Val="simulation"/>
       </FileInfo>
     </File>
-    <File Path="$PSRCDIR/sources_1/new/ControlShifter.v">
+    <File Path="$PSRCDIR/sources_1/new/Mux16B2to1.v">
       <FileInfo>
         <Attr Name="UsedIn" Val="synthesis"/>
         <Attr Name="UsedIn" Val="implementation"/>
@@ -40,9 +90,49 @@
     </File>
     <File Path="$PSRCDIR/sources_1/imports/Administrator/SevenSeg.v">
       <FileInfo>
-        <Attr Name="UserDisabled" Val="1"/>
         <Attr Name="ImportPath" Val="C:/Users/Administrator/SevenSeg.v"/>
         <Attr Name="ImportTime" Val="1483487820"/>
+        <Attr Name="UsedIn" Val="synthesis"/>
+        <Attr Name="UsedIn" Val="implementation"/>
+        <Attr Name="UsedIn" Val="simulation"/>
+      </FileInfo>
+    </File>
+    <File Path="$PSRCDIR/sources_1/new/Debouncer.v">
+      <FileInfo>
+        <Attr Name="UsedIn" Val="synthesis"/>
+        <Attr Name="UsedIn" Val="implementation"/>
+        <Attr Name="UsedIn" Val="simulation"/>
+      </FileInfo>
+    </File>
+    <File Path="$PSRCDIR/sources_1/imports/new/ALU.v">
+      <FileInfo>
+        <Attr Name="ImportPath" Val="$PSRCDIR/sources_1/new/ALU.v"/>
+        <Attr Name="ImportTime" Val="1491350548"/>
+        <Attr Name="UsedIn" Val="synthesis"/>
+        <Attr Name="UsedIn" Val="implementation"/>
+        <Attr Name="UsedIn" Val="simulation"/>
+      </FileInfo>
+    </File>
+    <File Path="$PSRCDIR/sources_1/new/ALUControl.v">
+      <FileInfo>
+        <Attr Name="UsedIn" Val="synthesis"/>
+        <Attr Name="UsedIn" Val="implementation"/>
+        <Attr Name="UsedIn" Val="simulation"/>
+      </FileInfo>
+    </File>
+    <File Path="$PSRCDIR/sources_1/imports/new/SyzygyB100.v">
+      <FileInfo>
+        <Attr Name="UserDisabled" Val="1"/>
+        <Attr Name="ImportPath" Val="$PSRCDIR/sources_1/new/SyzygyB100.v"/>
+        <Attr Name="ImportTime" Val="1491353739"/>
+        <Attr Name="UsedIn" Val="synthesis"/>
+        <Attr Name="UsedIn" Val="implementation"/>
+        <Attr Name="UsedIn" Val="simulation"/>
+      </FileInfo>
+    </File>
+    <File Path="$PSRCDIR/sources_1/new/ControlShifter.v">
+      <FileInfo>
+        <Attr Name="UserDisabled" Val="1"/>
         <Attr Name="UsedIn" Val="synthesis"/>
         <Attr Name="UsedIn" Val="implementation"/>
         <Attr Name="UsedIn" Val="simulation"/>
@@ -53,14 +143,6 @@
         <Attr Name="UserDisabled" Val="1"/>
         <Attr Name="ImportPath" Val="C:/Users/Administrator/InstructionReg.v"/>
         <Attr Name="ImportTime" Val="1483485824"/>
-        <Attr Name="UsedIn" Val="synthesis"/>
-        <Attr Name="UsedIn" Val="implementation"/>
-        <Attr Name="UsedIn" Val="simulation"/>
-      </FileInfo>
-    </File>
-    <File Path="$PSRCDIR/sources_1/new/Debouncer.v">
-      <FileInfo>
-        <Attr Name="UserDisabled" Val="1"/>
         <Attr Name="UsedIn" Val="synthesis"/>
         <Attr Name="UsedIn" Val="implementation"/>
         <Attr Name="UsedIn" Val="simulation"/>
@@ -78,7 +160,7 @@
     </File>
     <Config>
       <Option Name="DesignMode" Val="RTL"/>
-      <Option Name="TopModule" Val="ControlShifter"/>
+      <Option Name="TopModule" Val="ALUControl"/>
     </Config>
   </FileSet>
   <FileSet Name="constrs_in" Type="Constrs" RelSrcDir="$PSRCDIR/constrs_1">

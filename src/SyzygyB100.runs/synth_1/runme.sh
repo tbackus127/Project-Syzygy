@@ -40,4 +40,4 @@ EAStep()
      fi
 }
 
-EAStep vivado -log ControlShifter.vds -m64 -mode batch -messageDb vivado.pb -notrace -source ControlShifter.tcl
+EAStep vivado -log ALUControl.vds -m64 -mode batch -messageDb vivado.pb -notrace -source ALUControl.tcl

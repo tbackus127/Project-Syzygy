@@ -1,65 +1,72 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<GenRun Id="impl_1" LaunchPart="xc7a35tcpg236-1" LaunchTime="1495496075">
-  <File Type="OPT-DCP" Name="ControlShifter_opt.dcp"/>
-  <File Type="ROUTE-STATUS-PB" Name="ControlShifter_route_status.pb"/>
-  <File Type="PA-TCL" Name="ControlShifter.tcl"/>
-  <File Type="RDI-RDI" Name="ControlShifter.vdi"/>
-  <File Type="PWROPT-DRC" Name="ControlShifter_drc_pwropted.rpt"/>
-  <File Type="OPT-METHODOLOGY-DRC" Name="ControlShifter_methodology_drc_opted.rpt"/>
-  <File Type="INIT-TIMING" Name="ControlShifter_timing_summary_init.rpt"/>
-  <File Type="OPT-DRC" Name="ControlShifter_drc_opted.rpt"/>
-  <File Type="PWROPT-DCP" Name="ControlShifter_pwropt.dcp"/>
-  <File Type="OPT-HWDEF" Name="ControlShifter.hwdef"/>
-  <File Type="OPT-TIMING" Name="ControlShifter_timing_summary_opted.rpt"/>
-  <File Type="PWROPT-TIMING" Name="ControlShifter_timing_summary_pwropted.rpt"/>
-  <File Type="PLACE-DCP" Name="ControlShifter_placed.dcp"/>
-  <File Type="PLACE-IO" Name="ControlShifter_io_placed.rpt"/>
-  <File Type="PLACE-CLK" Name="ControlShifter_clock_utilization_placed.rpt"/>
-  <File Type="PLACE-UTIL" Name="ControlShifter_utilization_placed.rpt"/>
-  <File Type="PLACE-UTIL-PB" Name="ControlShifter_utilization_placed.pb"/>
-  <File Type="PLACE-CTRL" Name="ControlShifter_control_sets_placed.rpt"/>
-  <File Type="PLACE-SIMILARITY" Name="ControlShifter_incremental_reuse_placed.rpt"/>
-  <File Type="PLACE-PRE-SIMILARITY" Name="ControlShifter_incremental_reuse_pre_placed.rpt"/>
-  <File Type="PLACE-TIMING" Name="ControlShifter_timing_summary_placed.rpt"/>
-  <File Type="POSTPLACE-PWROPT-DCP" Name="ControlShifter_postplace_pwropt.dcp"/>
-  <File Type="POSTPLACE-PWROPT-TIMING" Name="ControlShifter_timing_summary_postplace_pwropted.rpt"/>
-  <File Type="PHYSOPT-DCP" Name="ControlShifter_physopt.dcp"/>
-  <File Type="PHYSOPT-DRC" Name="ControlShifter_drc_physopted.rpt"/>
-  <File Type="PHYSOPT-TIMING" Name="ControlShifter_timing_summary_physopted.rpt"/>
-  <File Type="ROUTE-DCP" Name="ControlShifter_routed.dcp"/>
-  <File Type="ROUTE-BLACKBOX-DCP" Name="ControlShifter_routed_bb.dcp"/>
-  <File Type="ROUTE-DRC" Name="ControlShifter_drc_routed.rpt"/>
-  <File Type="ROUTE-DRC-PB" Name="ControlShifter_drc_routed.pb"/>
-  <File Type="ROUTE-METHODOLOGY-DRC" Name="ControlShifter_methodology_drc_routed.rpt"/>
-  <File Type="BG-BIT" Name="ControlShifter.bit"/>
-  <File Type="ROUTE-METHODOLOGY-DRC-PB" Name="ControlShifter_methodology_drc_routed.pb"/>
-  <File Type="ROUTE-PWR" Name="ControlShifter_power_routed.rpt"/>
-  <File Type="ROUTE-PWR-SUM" Name="ControlShifter_power_summary_routed.pb"/>
-  <File Type="ROUTE-PWR-RPX" Name="ControlShifter_power_routed.rpx"/>
-  <File Type="ROUTE-STATUS" Name="ControlShifter_route_status.rpt"/>
-  <File Type="ROUTE-TIMINGSUMMARY" Name="ControlShifter_timing_summary_routed.rpt"/>
-  <File Type="ROUTE-TIMING-PB" Name="ControlShifter_timing_summary_routed.pb"/>
-  <File Type="ROUTE-TIMING-RPX" Name="ControlShifter_timing_summary_routed.rpx"/>
-  <File Type="ROUTE-SIMILARITY" Name="ControlShifter_incremental_reuse_routed.rpt"/>
-  <File Type="ROUTE-CLK" Name="ControlShifter_clock_utilization_routed.rpt"/>
-  <File Type="POSTROUTE-PHYSOPT-DCP" Name="ControlShifter_postroute_physopt.dcp"/>
-  <File Type="POSTROUTE-PHYSOPT-BLACKBOX-DCP" Name="ControlShifter_postroute_physopt_bb.dcp"/>
-  <File Type="POSTROUTE-PHYSOPT-TIMING" Name="ControlShifter_timing_summary_postroute_physopted.rpt"/>
-  <File Type="POSTROUTE-PHYSOPT-TIMING-PB" Name="ControlShifter_timing_summary_postroute_physopted.pb"/>
-  <File Type="POSTROUTE-PHYSOPT-TIMING-RPX" Name="ControlShifter_timing_summary_postroute_physopted.rpx"/>
-  <File Type="BG-BIN" Name="ControlShifter.bin"/>
-  <File Type="BITSTR-MSK" Name="ControlShifter.msk"/>
-  <File Type="BITSTR-RBT" Name="ControlShifter.rbt"/>
-  <File Type="BITSTR-NKY" Name="ControlShifter.nky"/>
-  <File Type="BITSTR-BMM" Name="ControlShifter_bd.bmm"/>
-  <File Type="BITSTR-MMI" Name="ControlShifter.mmi"/>
-  <File Type="BITSTR-SYSDEF" Name="ControlShifter.sysdef"/>
-  <File Type="BG-BGN" Name="ControlShifter.bgn"/>
-  <File Type="BG-DRC" Name="ControlShifter.drc"/>
+<GenRun Id="impl_1" LaunchPart="xc7a35tcpg236-1" LaunchTime="1495505311">
+  <File Type="OPT-DCP" Name="ALUControl_opt.dcp"/>
+  <File Type="ROUTE-STATUS-PB" Name="ALUControl_route_status.pb"/>
+  <File Type="PA-TCL" Name="ALUControl.tcl"/>
+  <File Type="RDI-RDI" Name="ALUControl.vdi"/>
+  <File Type="PWROPT-DRC" Name="ALUControl_drc_pwropted.rpt"/>
+  <File Type="OPT-METHODOLOGY-DRC" Name="ALUControl_methodology_drc_opted.rpt"/>
+  <File Type="INIT-TIMING" Name="ALUControl_timing_summary_init.rpt"/>
+  <File Type="OPT-DRC" Name="ALUControl_drc_opted.rpt"/>
+  <File Type="PWROPT-DCP" Name="ALUControl_pwropt.dcp"/>
+  <File Type="OPT-HWDEF" Name="ALUControl.hwdef"/>
+  <File Type="OPT-TIMING" Name="ALUControl_timing_summary_opted.rpt"/>
+  <File Type="PWROPT-TIMING" Name="ALUControl_timing_summary_pwropted.rpt"/>
+  <File Type="PLACE-DCP" Name="ALUControl_placed.dcp"/>
+  <File Type="PLACE-IO" Name="ALUControl_io_placed.rpt"/>
+  <File Type="PLACE-CLK" Name="ALUControl_clock_utilization_placed.rpt"/>
+  <File Type="PLACE-UTIL" Name="ALUControl_utilization_placed.rpt"/>
+  <File Type="PLACE-UTIL-PB" Name="ALUControl_utilization_placed.pb"/>
+  <File Type="PLACE-CTRL" Name="ALUControl_control_sets_placed.rpt"/>
+  <File Type="PLACE-SIMILARITY" Name="ALUControl_incremental_reuse_placed.rpt"/>
+  <File Type="PLACE-PRE-SIMILARITY" Name="ALUControl_incremental_reuse_pre_placed.rpt"/>
+  <File Type="PLACE-TIMING" Name="ALUControl_timing_summary_placed.rpt"/>
+  <File Type="POSTPLACE-PWROPT-DCP" Name="ALUControl_postplace_pwropt.dcp"/>
+  <File Type="POSTPLACE-PWROPT-TIMING" Name="ALUControl_timing_summary_postplace_pwropted.rpt"/>
+  <File Type="PHYSOPT-DCP" Name="ALUControl_physopt.dcp"/>
+  <File Type="PHYSOPT-DRC" Name="ALUControl_drc_physopted.rpt"/>
+  <File Type="PHYSOPT-TIMING" Name="ALUControl_timing_summary_physopted.rpt"/>
+  <File Type="ROUTE-DCP" Name="ALUControl_routed.dcp"/>
+  <File Type="ROUTE-BLACKBOX-DCP" Name="ALUControl_routed_bb.dcp"/>
+  <File Type="ROUTE-DRC" Name="ALUControl_drc_routed.rpt"/>
+  <File Type="ROUTE-DRC-PB" Name="ALUControl_drc_routed.pb"/>
+  <File Type="ROUTE-METHODOLOGY-DRC" Name="ALUControl_methodology_drc_routed.rpt"/>
+  <File Type="BG-BIT" Name="ALUControl.bit"/>
+  <File Type="ROUTE-METHODOLOGY-DRC-PB" Name="ALUControl_methodology_drc_routed.pb"/>
+  <File Type="ROUTE-PWR" Name="ALUControl_power_routed.rpt"/>
+  <File Type="ROUTE-PWR-SUM" Name="ALUControl_power_summary_routed.pb"/>
+  <File Type="ROUTE-PWR-RPX" Name="ALUControl_power_routed.rpx"/>
+  <File Type="ROUTE-STATUS" Name="ALUControl_route_status.rpt"/>
+  <File Type="ROUTE-TIMINGSUMMARY" Name="ALUControl_timing_summary_routed.rpt"/>
+  <File Type="ROUTE-TIMING-PB" Name="ALUControl_timing_summary_routed.pb"/>
+  <File Type="ROUTE-TIMING-RPX" Name="ALUControl_timing_summary_routed.rpx"/>
+  <File Type="ROUTE-SIMILARITY" Name="ALUControl_incremental_reuse_routed.rpt"/>
+  <File Type="ROUTE-CLK" Name="ALUControl_clock_utilization_routed.rpt"/>
+  <File Type="POSTROUTE-PHYSOPT-DCP" Name="ALUControl_postroute_physopt.dcp"/>
+  <File Type="POSTROUTE-PHYSOPT-BLACKBOX-DCP" Name="ALUControl_postroute_physopt_bb.dcp"/>
+  <File Type="POSTROUTE-PHYSOPT-TIMING" Name="ALUControl_timing_summary_postroute_physopted.rpt"/>
+  <File Type="POSTROUTE-PHYSOPT-TIMING-PB" Name="ALUControl_timing_summary_postroute_physopted.pb"/>
+  <File Type="POSTROUTE-PHYSOPT-TIMING-RPX" Name="ALUControl_timing_summary_postroute_physopted.rpx"/>
+  <File Type="BG-BIN" Name="ALUControl.bin"/>
+  <File Type="BITSTR-MSK" Name="ALUControl.msk"/>
+  <File Type="BITSTR-RBT" Name="ALUControl.rbt"/>
+  <File Type="BITSTR-NKY" Name="ALUControl.nky"/>
+  <File Type="BITSTR-BMM" Name="ALUControl_bd.bmm"/>
+  <File Type="BITSTR-MMI" Name="ALUControl.mmi"/>
+  <File Type="BITSTR-SYSDEF" Name="ALUControl.sysdef"/>
+  <File Type="BG-BGN" Name="ALUControl.bgn"/>
+  <File Type="BG-DRC" Name="ALUControl.drc"/>
   <File Type="WBT-USG" Name="usage_statistics_webtalk.html"/>
   <FileSet Name="sources" Type="DesignSrcs" RelSrcDir="$PSRCDIR/sources_1">
     <Filter Type="Srcs"/>
     <File Path="$PSRCDIR/sources_1/new/Mux2to1.v">
+      <FileInfo>
+        <Attr Name="UsedIn" Val="synthesis"/>
+        <Attr Name="UsedIn" Val="implementation"/>
+        <Attr Name="UsedIn" Val="simulation"/>
+      </FileInfo>
+    </File>
+    <File Path="$PSRCDIR/sources_1/new/HalfAdder.v">
       <FileInfo>
         <Attr Name="UsedIn" Val="synthesis"/>
         <Attr Name="UsedIn" Val="implementation"/>
@@ -73,6 +80,49 @@
         <Attr Name="UsedIn" Val="simulation"/>
       </FileInfo>
     </File>
+    <File Path="$PSRCDIR/sources_1/imports/new/FullAdder.v">
+      <FileInfo>
+        <Attr Name="ImportPath" Val="$PSRCDIR/sources_1/new/FullAdder.v"/>
+        <Attr Name="ImportTime" Val="1491348663"/>
+        <Attr Name="UsedIn" Val="synthesis"/>
+        <Attr Name="UsedIn" Val="implementation"/>
+        <Attr Name="UsedIn" Val="simulation"/>
+      </FileInfo>
+    </File>
+    <File Path="$PSRCDIR/sources_1/new/Mux16B8to1.v">
+      <FileInfo>
+        <Attr Name="UsedIn" Val="synthesis"/>
+        <Attr Name="UsedIn" Val="implementation"/>
+        <Attr Name="UsedIn" Val="simulation"/>
+      </FileInfo>
+    </File>
+    <File Path="$PSRCDIR/sources_1/imports/new/RCAdder16B.v">
+      <FileInfo>
+        <Attr Name="ImportPath" Val="$PSRCDIR/sources_1/new/RCAdder16B.v"/>
+        <Attr Name="ImportTime" Val="1491348663"/>
+        <Attr Name="UsedIn" Val="synthesis"/>
+        <Attr Name="UsedIn" Val="implementation"/>
+        <Attr Name="UsedIn" Val="simulation"/>
+      </FileInfo>
+    </File>
+    <File Path="$PSRCDIR/sources_1/imports/new/Neg16B.v">
+      <FileInfo>
+        <Attr Name="ImportPath" Val="$PSRCDIR/sources_1/new/Neg16B.v"/>
+        <Attr Name="ImportTime" Val="1491348663"/>
+        <Attr Name="UsedIn" Val="synthesis"/>
+        <Attr Name="UsedIn" Val="implementation"/>
+        <Attr Name="UsedIn" Val="simulation"/>
+      </FileInfo>
+    </File>
+    <File Path="$PSRCDIR/sources_1/imports/new/BitCounter16B.v">
+      <FileInfo>
+        <Attr Name="ImportPath" Val="$PSRCDIR/sources_1/new/BitCounter16B.v"/>
+        <Attr Name="ImportTime" Val="1491348663"/>
+        <Attr Name="UsedIn" Val="synthesis"/>
+        <Attr Name="UsedIn" Val="implementation"/>
+        <Attr Name="UsedIn" Val="simulation"/>
+      </FileInfo>
+    </File>
     <File Path="$PSRCDIR/sources_1/new/BarrelShifter16B.v">
       <FileInfo>
         <Attr Name="UsedIn" Val="synthesis"/>
@@ -80,7 +130,7 @@
         <Attr Name="UsedIn" Val="simulation"/>
       </FileInfo>
     </File>
-    <File Path="$PSRCDIR/sources_1/new/ControlShifter.v">
+    <File Path="$PSRCDIR/sources_1/new/Mux16B2to1.v">
       <FileInfo>
         <Attr Name="UsedIn" Val="synthesis"/>
         <Attr Name="UsedIn" Val="implementation"/>
@@ -89,9 +139,49 @@
     </File>
     <File Path="$PSRCDIR/sources_1/imports/Administrator/SevenSeg.v">
       <FileInfo>
-        <Attr Name="UserDisabled" Val="1"/>
         <Attr Name="ImportPath" Val="C:/Users/Administrator/SevenSeg.v"/>
         <Attr Name="ImportTime" Val="1483487820"/>
+        <Attr Name="UsedIn" Val="synthesis"/>
+        <Attr Name="UsedIn" Val="implementation"/>
+        <Attr Name="UsedIn" Val="simulation"/>
+      </FileInfo>
+    </File>
+    <File Path="$PSRCDIR/sources_1/new/Debouncer.v">
+      <FileInfo>
+        <Attr Name="UsedIn" Val="synthesis"/>
+        <Attr Name="UsedIn" Val="implementation"/>
+        <Attr Name="UsedIn" Val="simulation"/>
+      </FileInfo>
+    </File>
+    <File Path="$PSRCDIR/sources_1/imports/new/ALU.v">
+      <FileInfo>
+        <Attr Name="ImportPath" Val="$PSRCDIR/sources_1/new/ALU.v"/>
+        <Attr Name="ImportTime" Val="1491350548"/>
+        <Attr Name="UsedIn" Val="synthesis"/>
+        <Attr Name="UsedIn" Val="implementation"/>
+        <Attr Name="UsedIn" Val="simulation"/>
+      </FileInfo>
+    </File>
+    <File Path="$PSRCDIR/sources_1/new/ALUControl.v">
+      <FileInfo>
+        <Attr Name="UsedIn" Val="synthesis"/>
+        <Attr Name="UsedIn" Val="implementation"/>
+        <Attr Name="UsedIn" Val="simulation"/>
+      </FileInfo>
+    </File>
+    <File Path="$PSRCDIR/sources_1/imports/new/SyzygyB100.v">
+      <FileInfo>
+        <Attr Name="UserDisabled" Val="1"/>
+        <Attr Name="ImportPath" Val="$PSRCDIR/sources_1/new/SyzygyB100.v"/>
+        <Attr Name="ImportTime" Val="1491353739"/>
+        <Attr Name="UsedIn" Val="synthesis"/>
+        <Attr Name="UsedIn" Val="implementation"/>
+        <Attr Name="UsedIn" Val="simulation"/>
+      </FileInfo>
+    </File>
+    <File Path="$PSRCDIR/sources_1/new/ControlShifter.v">
+      <FileInfo>
+        <Attr Name="UserDisabled" Val="1"/>
         <Attr Name="UsedIn" Val="synthesis"/>
         <Attr Name="UsedIn" Val="implementation"/>
         <Attr Name="UsedIn" Val="simulation"/>
@@ -102,14 +192,6 @@
         <Attr Name="UserDisabled" Val="1"/>
         <Attr Name="ImportPath" Val="C:/Users/Administrator/InstructionReg.v"/>
         <Attr Name="ImportTime" Val="1483485824"/>
-        <Attr Name="UsedIn" Val="synthesis"/>
-        <Attr Name="UsedIn" Val="implementation"/>
-        <Attr Name="UsedIn" Val="simulation"/>
-      </FileInfo>
-    </File>
-    <File Path="$PSRCDIR/sources_1/new/Debouncer.v">
-      <FileInfo>
-        <Attr Name="UserDisabled" Val="1"/>
         <Attr Name="UsedIn" Val="synthesis"/>
         <Attr Name="UsedIn" Val="implementation"/>
         <Attr Name="UsedIn" Val="simulation"/>
@@ -127,7 +209,7 @@
     </File>
     <Config>
       <Option Name="DesignMode" Val="RTL"/>
-      <Option Name="TopModule" Val="ControlShifter"/>
+      <Option Name="TopModule" Val="ALUControl"/>
     </Config>
   </FileSet>
   <FileSet Name="constrs_in" Type="Constrs" RelSrcDir="$PSRCDIR/constrs_1">

@@ -23,7 +23,7 @@ eval( EAInclude(ISEJScriptLib) );
 
 
 ISEStep( "vivado",
-         "-log ControlShifter.vds -m64 -mode batch -messageDb vivado.pb -notrace -source ControlShifter.tcl" );
+         "-log ALUControl.vds -m64 -mode batch -messageDb vivado.pb -notrace -source ALUControl.tcl" );
 
 
 
