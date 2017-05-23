@@ -1,6 +1,0 @@
-INFO: [VRFC 10-2263] Analyzing Verilog file "G:/Development/FPGA/SyzygyB100/src/SyzygyB100.srcs/sources_1/new/Mux2to1.v" into library xil_defaultlib
-INFO: [VRFC 10-311] analyzing module Mux2to1
-INFO: [VRFC 10-2263] Analyzing Verilog file "G:/Development/FPGA/SyzygyB100/src/SyzygyB100.srcs/sources_1/new/BarrelShifter16B.v" into library xil_defaultlib
-INFO: [VRFC 10-311] analyzing module BarrelShifter16B
-INFO: [VRFC 10-2263] Analyzing Verilog file "G:/Development/FPGA/SyzygyB100/src/SyzygyB100.sim/sim_1/behav/glbl.v" into library xil_defaultlib
-INFO: [VRFC 10-311] analyzing module glbl
