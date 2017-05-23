@@ -29,8 +29,8 @@ module ALU(
     input zeroB, 
     input negQ,
     input arg,
-    input rot,
     input arth,
+    input rot,
     output [15:0] aluOut
   );
   
@@ -63,7 +63,7 @@ module ALU(
   wire [15:0] adderOut;
   wire [15:0] shifterOut;
   wire [15:0] xorOut;
-  wire [15:0] countOut;
+  wire [4:0] countOut;
   
   // Operation: OR
   assign orOut[15:0] = negAOut[15:0] | negBOut[15:0];
@@ -78,7 +78,6 @@ module ALU(
   );
   
   // Operation: Shift
-  // TODO: Implement rotation and arithmetic shift
   BarrelShifter16B shft(
     .dIn(negAOut[15:0]),
     .shAmt(negBOut[3:0]),
@@ -92,7 +91,6 @@ module ALU(
   assign xorOut[15:0] = negAOut[15:0] ^ negBOut[15:0];
   
   // Operation: Bit count
-  // TODO: Make bit counter
   BitCounter16B counter(
     .dIn(negAOut[15:0]),
     .dOut(countOut[4:0])
@@ -106,7 +104,7 @@ module ALU(
     .dIn2(adderOut[15:0]),
     .dIn3(shifterOut[15:0]),
     .dIn4(xorOut[15:0]),
-    .dIn5({12'b000000000000, countOut[3:0]}),
+    .dIn5({11'b00000000000, countOut[4:0]}),
     .dIn6(16'b0000000000000000),
     .dIn7(16'b0000000000000000),
     .sel(op[2:0]),

@@ -74,7 +74,7 @@ module ALUControl(
   end
   
   // ALU connections
-  wire [15:0] aluOut;
+  wire[15:0] aluOut;
   ALU alu(
     .aIn(regA[15:0]),
     .bIn(regB[15:0]),
@@ -84,8 +84,8 @@ module ALUControl(
     .zeroB(regOp[5]),
     .negQ(regOp[4]),
     .arg(regOp[3]),
-    .rot(regOp[2]),
-    .arth(regOp[1]),
+    .arth(regOp[2]),
+    .rot(regOp[1]),
     .aluOut(aluOut[15:0])
   );
   
@@ -115,6 +115,6 @@ module ALUControl(
     .dp(dp)
   );
   
-  assign led[15:0] = aluOut[15:0];
+  assign led[15:0] = sw[15:0];
   
 endmodule

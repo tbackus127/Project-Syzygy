@@ -561,7 +561,7 @@ module BarrelShifter16B(
     .rev(dir),
     .dOut(rev2Out[15:0])
   );
-  assign rev2Out[14:0] = dOut[14:0];
+  assign dOut[14:0] = rev2Out[14:0];
   
   // Arithmetic shift, sign bit preservation
   Mux2to1 arthMux(

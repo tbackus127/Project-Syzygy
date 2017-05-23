@@ -3,11 +3,11 @@
 bin/
 tmp/
 ignore/
-src/SyzygyB100.cache
-src/SyzygyB100.hw
-src/SyzygyB100.ip_user_files
-src/SyzygyB100.runs
-src/SyzygyB100.sim
+src/SyzygyB100.cache/*
+src/SyzygyB100.hw/*
+src/SyzygyB100.ip_user_files/*
+src/SyzygyB100.runs/*
+src/SyzygyB100.sim/*
 *.tmp
 *.xpr
 *.bak
