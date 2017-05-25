@@ -1,6 +1,7 @@
 
 package com.rath.syzsim.syzbgui;
 
+import java.awt.Color;
 import java.awt.Dimension;
 
 import javax.swing.JLabel;
@@ -39,6 +40,7 @@ public class RegisterPanel extends JPanel {
 
   public RegisterPanel(final Dimension size, final SyzInternals si) {
     super();
+    setBackground(Color.GREEN);
     this.size = size;
     setSize(getPreferredSize());
 

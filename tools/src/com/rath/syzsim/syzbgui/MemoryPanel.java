@@ -2,6 +2,7 @@
 package com.rath.syzsim.syzbgui;
 
 import java.awt.BorderLayout;
+import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.event.KeyEvent;
@@ -17,6 +18,8 @@ import javax.swing.ListSelectionModel;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 
+import com.rath.syzasm.Assembler;
+import com.rath.syzasm.Disassembler;
 import com.rath.syzsim.syzbcore.SyzInternals;
 import com.rath.syzsim.syzbcore.SyzOps;
 
@@ -36,6 +39,7 @@ public class MemoryPanel extends JPanel {
 
   public MemoryPanel(final Dimension size, final SyzInternals si) {
     super();
+    setBackground(Color.CYAN);
     this.size = size;
     setSize(getPreferredSize());
     this.internals = si;
@@ -75,7 +79,7 @@ public class MemoryPanel extends JPanel {
 
     // Default memory values
     for (int i = 0; i < 65536; i++) {
-      this.memList.add(i, SyzOps.toHex(i) + ": 0");
+      this.memList.add(i, SyzOps.toHex(i) + ": 0x0000 (NO-OP)");
     }
 
     // Continue list setup
@@ -117,19 +121,33 @@ public class MemoryPanel extends JPanel {
       @Override
       public void keyReleased(KeyEvent evt) {
 
+        // Ensure bounds
         if (memIndex < 0 || memIndex > 65535)
           memIndex = 0;
+
+        // On Enter key
         if (evt.getKeyCode() == KeyEvent.VK_ENTER) {
 
-          // Parse byte entry
-          short b = 0;
-          try {
-            b = Short.decode(memField.getText());
-          } catch (NumberFormatException nfe) {
-            b = 0;
+          final String entry = memField.getText();
+          short value = 0;
+
+          // If it's a number set it to the raw numeric value
+          if (Assembler.isNumber(entry)) {
+            value = Short.decode(entry);
+          } else {
+
+            // Or if it's a valid instruction, set the index to the instruction's value
+            try {
+              value = Assembler.parseInstruction(entry, null, 0);
+            } catch (IllegalArgumentException iae) {
+              value = 0;
+            }
           }
-          internals.setMem((short) memIndex, b);
-          memList.setElementAt(SyzOps.toHex(memIndex) + ":  " + SyzOps.getBinaryString(b) + "  (" + b + ")", memIndex);
+
+          // Update the list and internals
+          internals.setMem(memIndex, value);
+          memList.setElementAt(
+              SyzOps.toHex(memIndex) + ": 0x" + toHex(value) + " (" + Disassembler.disassemble(value) + ")", memIndex);
           memField.setText(null);
           list.setSelectedIndex(++memIndex);
         }
@@ -140,5 +158,23 @@ public class MemoryPanel extends JPanel {
 
     };
     this.memField.addKeyListener(instrListener);
+  }
+
+  /**
+   * Converts a short to its String representation.
+   * 
+   * @param val the short to convert.
+   * @return the String representation of the short.
+   */
+  public static final String toHex(final short val) {
+
+    String conv = Integer.toHexString(val).toUpperCase();
+    if (conv.length() > 4) {
+      conv = conv.substring(4);
+    }
+    for (int i = conv.length(); i < 4; i++) {
+      conv = "0" + conv;
+    }
+    return conv;
   }
 }

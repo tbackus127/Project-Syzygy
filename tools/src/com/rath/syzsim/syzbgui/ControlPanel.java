@@ -1,6 +1,7 @@
 
 package com.rath.syzsim.syzbgui;
 
+import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -19,6 +20,7 @@ public class ControlPanel extends JPanel {
   
   public ControlPanel(final Dimension size, final SyzInternals si) {
     super();
+    setBackground(Color.PINK);
     this.size = size;
     setSize(getPreferredSize());
     this.internals = si;

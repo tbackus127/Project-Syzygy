@@ -112,7 +112,7 @@ public class SyzOps {
    * @param n the number to convert.
    * @return a zero-padded hexadecimal number as a String.
    */
-  public static final String toHex(int n) {
+  public static final String toHex(final int n) {
 
     String conv = Integer.toHexString(n).toUpperCase();
     for (int i = conv.length(); i < 4; i++) {
