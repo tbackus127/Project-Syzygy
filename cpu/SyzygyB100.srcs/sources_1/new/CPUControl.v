@@ -3,9 +3,9 @@
 // Company: 
 // Engineer: 
 // 
-// Create Date: 05/22/2017 07:49:10 PM
+// Create Date: 05/24/2017 05:28:05 PM
 // Design Name: 
-// Module Name: ALUControl
+// Module Name: CPUControl
 // Project Name: 
 // Target Devices: 
 // Tool Versions: 
@@ -20,30 +20,67 @@
 //////////////////////////////////////////////////////////////////////////////////
 
 
-module ALUControl(
+module CPUControl(
+    input clk,
     input [15:0] sw,
     input btnL,
-    input btnR,
     input btnC,
-    input clk,
+    input btnR,
     output [15:0] led,
     output [6:0] seg,
-    output [3:0] an
+    output [3:0] an,
+    output dp
   );
   
-  reg [15:0] regA;
-  reg [15:0] regB;
-  reg [15:0] regOp;
+  // Main CPU connections
+  reg [15:0] regInstrIn;
+  wire [15:0] cpuOut;
+  SyzygyB100 cpu(
+    .clk(clk),
+    .instrIn(regInstrIn[15:0]),
+    .dOut(cpuOut[15:0])
+  );
   
+  // 7-segment display connections
+  reg [15:0] regSSDisp;
+  SevSeg ss(
+    .clk(clk),
+    .valIn(regSSDisp[15:0]),
+    .segs(seg[6:0]),
+    .anodes(an[3:0]),
+    .dp(dp)
+  );
+  
+  // Left button connections
   wire buttonLeft;
-  wire buttonRight;
+  Debouncer dbL(
+    .clk(clk),
+    .in(btnL),
+    .out(buttonLeft)
+  );
+  
+  // Center button connections
   wire buttonCenter;
+  Debouncer dbC(
+    .clk(clk),
+    .in(btnC),
+    .out(buttonCenter)
+  );
+  
+  // Right button connections
+  wire buttonRight;
+  Debouncer dbR(
+    .clk(clk),
+    .in(btnR),
+    .out(buttonRight)
+  );
   
   // Button flags (only activate once; not reset until released)
   reg buttonLPressed = 1'b0;
   reg buttonCPressed = 1'b0;
   reg buttonRPressed = 1'b0;
   
+  // Button behavior
   always @ (posedge clk) begin
       
     // Reset button flags
@@ -54,67 +91,29 @@ module ALUControl(
     if(buttonRight == 1'b0)
       buttonRPressed <= 1'b0;
     
-    // Left button -- Set A to switch value
+    // Left button -- BEHAVIOR DESCRIPTION HERE 
     if(buttonLPressed == 1'b0 & buttonLeft == 1'b1) begin
-      regA [15:0] <= sw[15:0];
+      
+      // DO STUFF HERE
+      
       buttonLPressed <= 1'b1;
     end
     
-    // Center button -- Perform ALU operation and display on 7seg
+    // Center button -- BEHAVIOR DESCRIPTION HERE
     else if(buttonCPressed == 1'b0 & buttonCenter == 1'b1) begin
-      regOp [15:0] <= sw[15:0];
+      
+      // DO STUFF HERE
+          
       buttonCPressed <= 1'b1;
     end
     
-    // Right button -- Set B to switch value
+    // Right button -- BEHAVIOR DESCRIPTION HERE
     else if(buttonRPressed == 1'b0 & buttonRight == 1'b1) begin
-      regB [15:0] <= sw[15:0];
+      
+      // DO STUFF HERE
+          
       buttonRPressed <= 1'b1;
     end
   end
-  
-  // ALU connections
-  wire[15:0] aluOut;
-  ALU alu(
-    .aIn(regA[15:0]),
-    .bIn(regB[15:0]),
-    .op(regOp[10:8]),
-    .negA(regOp[7]),
-    .negB(regOp[6]),
-    .zeroB(regOp[5]),
-    .negQ(regOp[4]),
-    .arg(regOp[3]),
-    .arth(regOp[2]),
-    .rot(regOp[1]),
-    .aluOut(aluOut[15:0])
-  );
-  
-  // Button debouncers
-  Debouncer dbL(
-    .clock(clk),
-    .in(btnL),
-    .out(buttonLeft)  
-  );
-  Debouncer dbC(
-    .clock(clk),
-    .in(btnC),
-    .out(buttonCenter)  
-  );
-  Debouncer dbR(
-    .clock(clk),
-    .in(btnR),
-    .out(buttonRight)  
-  );
-  
-  // 7-Segment display decoder
-  SevSeg ss(
-    .clk(clk),
-    .valIn(aluOut[15:0]),
-    .segs(seg[6:0]),
-    .anodes(an[3:0]),
-    .dp(dp)
-  );
-  
-  assign led[15:0] = sw[15:0];
   
 endmodule
