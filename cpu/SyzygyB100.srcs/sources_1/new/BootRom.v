@@ -3,9 +3,9 @@
 // Company: 
 // Engineer: 
 // 
-// Create Date: 01/03/2017 11:59:05 PM
+// Create Date: 05/25/2017 01:58:13 PM
 // Design Name: 
-// Module Name: Debouncer
+// Module Name: BootRom
 // Project Name: 
 // Target Devices: 
 // Tool Versions: 
@@ -20,29 +20,24 @@
 //////////////////////////////////////////////////////////////////////////////////
 
 
-module Debouncer(
+module BootRom(
     input clk,
-    input in,
-    output out
+    input res,
+    input [2:0] addr,
+    output reg [15:0] instrOut
   );
   
-  // 10ms at 300MHz
-  parameter LIMIT = 3000000;
-  
-  reg [22:0] count = 0;
-  reg state = 1'b0;
-  
-  always @ (posedge clk) begin
-    if(in != state && count < LIMIT)
-      count <= count + 1;
-    else if (count == LIMIT) begin
-      state <= in;
-      count <= 0;
-    end
-    else
-      count <= 0;
+  always @ (clk or addr) begin
+    case(addr)
+      0: instrOut = 16'h8007;
+      1: instrOut = 16'h1260;
+      2: instrOut = 16'h8006;
+      3: instrOut = 16'h1270;
+      4: instrOut = 16'h3200;
+      5: instrOut = 16'h1280;
+      6: instrOut = 16'h0000;
+      7: instrOut = 16'h0000;
+    endcase
   end
-    
-  assign out = state;
   
 endmodule

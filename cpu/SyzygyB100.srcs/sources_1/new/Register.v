@@ -26,7 +26,8 @@ module SyzFETRegister(
     input read,
     input write,
     input asyncReset,
-    output [15:0] dOut
+    output [15:0] dOut,
+    output [15:0] dOut2
   );
 
   reg [15:0] data;
@@ -37,5 +38,6 @@ module SyzFETRegister(
   end
   
   assign dOut[15:0] = data[15:0] & {15{read}};
+  assign dOut2[15:0] = data[15:0] & {15{read}};
   
 endmodule

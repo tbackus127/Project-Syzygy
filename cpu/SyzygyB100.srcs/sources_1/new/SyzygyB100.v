@@ -21,15 +21,22 @@
 
 module SyzygyB100(
     input clk,
-    input [15:0] instrIn,
-    output [15:0] dOut
+    input en,
+    input res,
+    input [15:0] extInstrIn,
+    output [15:0] extDOut,
+    output [31:0] extPerDOut,
+    output [3:0] extPerSel,
+    output extPerModeAcc,
+    output extPerModeExec
   );
   
   // Data bus
   wire [15:0] wDataBus;
   
-  // Reset lines
+  // Register reset lines
   wire [15:0] wRegReset;
+  assign wRegReset [15:0] = {15{res}};
   
   //----------------------------------------------------------------------------
   // Instruction Decoder
@@ -43,7 +50,7 @@ module SyzygyB100(
   wire [2:0] wJumpCondition;
   wire wReadEn;
   wire wWriteEn;
-  wire wPeriphMode;
+  wire [1:0] wPeriphMode;
   
   // Instruction Decoder connections
   InstructionDecoder instrDec(
@@ -56,9 +63,11 @@ module SyzygyB100(
     .jumpCondition(wJumpCondition[2:0]),
     .aluOp(wALUInstr[10:8]),
     .aluArgs(wALUInstr[7:0]),
-    .periphSelect(wPeriphSel[3:0]),
-    .periphMode(wPeriphMode)
+    .periphSelect(extPerSel[3:0]),
+    .periphMode(wPeriphMode[1:0])
   );
+  assign extPerModeAcc = wPeriphMode[0];
+  assign extPerModeExec = wPeriphMode[1];
   
   // Register read (source) decoder
   wire [15:0] wRegReadExp;
@@ -77,40 +86,93 @@ module SyzygyB100(
   );
 
   //----------------------------------------------------------------------------
+  // Boot ROM
+  //----------------------------------------------------------------------------
+  wire [15:0] wBootROMOut;
+  BootRom brom (
+    .clk(clk),
+    .res(res),
+    .addr(wCounterOut[2:0]),
+    .instrOut(wBootROMOut[15:0])
+  );
+
+  //----------------------------------------------------------------------------
   // Registers
   //----------------------------------------------------------------------------
   
   // R0: Instruction Register
   wire [15:0] wInstrRegOut;
+  wire [15:0] wInstrRegIn;
   SyzFETRegister regInstr(
-    .dIn(instrIn[15:0]),
+    .dIn(wInstrRegIn[15:0]),
     .clk(clk),
-    .read(),
-    .write(),
+    .read(wRegReadExp[0]),
+    .write(wRegWriteExp[0]),
     .asyncReset(wRegReset[0]),
-    .dOut(wInstrRegOut[15:0])    
+    .dOut(wInstrRegOut[15:0]),    
+    .dOut2(extDOut[15:0])
+  );
+  Mux16B2to1 muxInstrReg(
+    .aIn(wBootROMOut[15:0]),
+    .bIn(extInstrIn[15:0]),
+    .sel(),
+    .dOut(wInstrRegIn[15:0])
   );
   
   // R1: Program Counter
-  wire [15:0] wProgCountOut;
-  SyzFETRegister regProgCount(
-    .dIn(),
+  wire [15:0] wR3JumpAddr;
+  wire [15:0] wCounterOut;
+  wire wJmpEn;
+  Counter16B pc (
     .clk(clk),
-    .read(),
-    .write(),
+    .en(en),
+    .res(res),
+    .valIn(wR3JumpAddr[15:0]),
+    .set(wJmpEn),
+    .valOut(wCounterOut[15:0])
+  );
+  SyzFETRegister regProgCount(
+    .dIn(wCounterOut[15:0]),
+    .clk(clk),
+    .read(wRegReadExp[1]),
+    .write(wRegWriteExp[1]),
     .asyncReset(wRegReset[1]),
-    .dOut(wProgCountOut[15:0])
+    .dOut(),
+    .dOut2()
   );
   
   // R2: Accumulator
+  wire [15:0] wALUOut;
+  wire [15:0] wAccMuxStep;
+  wire [15:0] wAccumIn;
+  wire [15:0] wCompIn;
+  Mux16B2to1 muxAccSel(
+    .aIn(wDataBus[15:0]),
+    .bIn(wAccMuxStep[15:0]),
+    .sel(),
+    .dOut(wAccumIn[15:0])
+  );
+  Mux16B2to1 muxAccOp(
+    .aIn(wPushVal[15:0]),
+    .bIn(wALUOut[15:0]),
+    .sel(),
+    .dOut(wAccMuxStep[15:0])
+  );
   SyzFETRegister regAccum(
-    // TODO: Figure out how to make this input from data bus OR ALU output
-    .dIn(wDataBus[15:0]),
+    .dIn(wAccumIn[15:0]),
     .clk(clk),
-    .read(),
-    .write(),
+    .read(wRegReadExp[2]),
+    .write(wRegWriteExp[2]),
     .asyncReset(wRegReset[2]),
-    .dOut(wDataBus[15:0])
+    .dOut(wDataBus[15:0]),
+    .dOut2(wCompIn[15:0])
+  );
+  Comparator cmp(
+    .dIn(wCompIn[15:0]),
+    .lt(wJumpCondition[2]),
+    .eq(wJumpCondition[1]),
+    .gt(wJumpCondition[0]),
+    .jmpEn(wJmpEn)
   );
   
   // R3: Jump Address
@@ -120,17 +182,20 @@ module SyzygyB100(
     .read(wRegReadExp[3]),
     .write(wRegWriteExp[3]),
     .asyncReset(wRegReset[3]),
-    .dOut(wDataBus[15:0])
+    .dOut(wDataBus[15:0]),
+    .dOut2(wR3JumpAddr[15:0])
   );
   
   // R4: I/O LSB
+  wire [31:0] wIOOut;
   SyzFETRegister regIOLSB(
     .dIn(wDataBus[15:0]),
     .clk(clk),
     .read(wRegReadExp[4]),
     .write(wRegWriteExp[4]),
     .asyncReset(wRegReset[4]),
-    .dOut(wDataBus[15:0])
+    .dOut(wDataBus[15:0]),
+    .dOut2(wIOOut[15:0])
   );
   
   // R5: I/O MSB
@@ -140,8 +205,10 @@ module SyzygyB100(
     .read(wRegReadExp[5]),
     .write(wRegWriteExp[5]),
     .asyncReset(wRegReset[5]),
-    .dOut(wDataBus[15:0])
+    .dOut(wDataBus[15:0]),
+    .dOut2(wIOOut[31:16])
   );
+  assign extPerDOut[31:0] = wIOOut[31:0];
   
   // R6: ALU A
   wire [15:0] wALUAin;
@@ -151,8 +218,8 @@ module SyzygyB100(
     .read(wRegReadExp[6]),
     .write(wRegWriteExp[6]),
     .asyncReset(wRegReset[6]),
-    .dOut(wALUAin[15:0])
-    // TODO: Find out how to send to ALU AND data bus!
+    .dOut(wDataBus[15:0]),
+    .dOut2(wALUAin[15:0])
   );
   
   // R7: ALU B
@@ -163,8 +230,8 @@ module SyzygyB100(
     .read(wRegReadExp[7]),
     .write(wRegWriteExp[7]),
     .asyncReset(wRegReset[7]),
-    .dOut(wALUBin[15:0])
-    // TODO: Find out how to send to ALU AND data bus!
+    .dOut(wDataBus[15:0]),
+    .dOut2(wALUBin[15:0])
   );
   
   //----------------------------------------------------------------------------
@@ -173,7 +240,6 @@ module SyzygyB100(
   
   // ALU connections
   wire [11:0] wALUInstr;
-  wire [15:0] wALUOut;
   ALU alu(
     .aIn(wALUAin[15:0]),
     .bIn(wALUBin[15:0]),

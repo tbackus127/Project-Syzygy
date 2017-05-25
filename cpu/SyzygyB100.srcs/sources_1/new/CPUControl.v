@@ -37,9 +37,16 @@ module CPUControl(
   wire [15:0] cpuOut;
   SyzygyB100 cpu(
     .clk(clk),
-    .instrIn(regInstrIn[15:0]),
-    .dOut(cpuOut[15:0])
+    .en(),
+    .res(),
+    .extInstrIn(regInstrIn[15:0]),
+    .extDOut(cpuOut[15:0]),
+    .extPerDOut(),
+    .extPerSel(),
+    .extPerModeAcc(),
+    .extPerModeExec()
   );
+  assign led[15:0] = cpuOut[15:0];
   
   // 7-segment display connections
   reg [15:0] regSSDisp;

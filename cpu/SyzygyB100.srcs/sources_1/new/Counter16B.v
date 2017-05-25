@@ -3,9 +3,9 @@
 // Company: 
 // Engineer: 
 // 
-// Create Date: 01/03/2017 11:59:05 PM
+// Create Date: 05/25/2017 12:47:38 PM
 // Design Name: 
-// Module Name: Debouncer
+// Module Name: Counter16B
 // Project Name: 
 // Target Devices: 
 // Tool Versions: 
@@ -20,29 +20,30 @@
 //////////////////////////////////////////////////////////////////////////////////
 
 
-module Debouncer(
+module Counter16B(
     input clk,
-    input in,
-    output out
+    input en,
+    input res,
+    input [15:0] valIn,
+    input set,
+    output reg [15:0] valOut
   );
   
-  // 10ms at 300MHz
-  parameter LIMIT = 3000000;
-  
-  reg [22:0] count = 0;
-  reg state = 1'b0;
-  
   always @ (posedge clk) begin
-    if(in != state && count < LIMIT)
-      count <= count + 1;
-    else if (count == LIMIT) begin
-      state <= in;
-      count <= 0;
-    end
-    else
-      count <= 0;
-  end
     
-  assign out = state;
+    // Count up
+    if(en) valOut = valOut + 1;
+    
+  end
+  
+  always @ (set or res) begin
+    
+    // Zero if reset (async)
+    if(res) valOut = 16'b0000000000000000;
+    
+    // Set value (jump, async)
+    else if(set) valOut[15:0] = valIn[15:0];
+  
+  end
   
 endmodule
