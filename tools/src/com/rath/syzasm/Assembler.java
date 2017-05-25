@@ -199,6 +199,7 @@ public class Assembler {
     // Decode the argument
     short num = Opcodes.PUSH;
 
+    // If the argument is a normal number
     if (isNumber(pargs)) {
 
       // If it's just a normal number
@@ -206,10 +207,16 @@ public class Assembler {
       if (argNum < 0) {
         throw new IllegalArgumentException("Push cannot be negative (line " + line + ").");
       }
-      num |= argNum;
+      num = (short) (num | argNum);
+
+      // If it's a label reference 
     } else if (pargs.trim().startsWith("$lbl.")) {
 
-      // If it's a label (look it up)
+      if (labels == null) {
+        throw new IllegalArgumentException("Label map is null!");
+      }
+
+      // Look the label up if it exists
       final String[] lbls = pargs.split("\\.", 2);
       if (lbls.length != 2) {
         throw new IllegalArgumentException("Invalid label (line " + line + ").");
@@ -220,9 +227,9 @@ public class Assembler {
         throw new IllegalArgumentException("Referenced label does not exist (line " + line + ").");
       }
       num |= (short) lblValue;
-    } else {
 
       // Otherwise, it's probably a config value, so look it up
+    } else {
       final String lookupStr = VariableFetcher.lookup(pargs);
       if (lookupStr != null) {
         num |= Short.decode(lookupStr);
@@ -524,7 +531,7 @@ public class Assembler {
    * @param str the String to check.
    * @return true if the string is valid; false if not.
    */
-  private static final boolean isNumber(final String str) {
+  public static final boolean isNumber(final String str) {
 
     try {
       Short.decode(str);
