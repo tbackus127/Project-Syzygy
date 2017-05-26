@@ -2,7 +2,7 @@
 package com.rath.syzasm.vals;
 
 /**
- * This class contains constants associated with system instructions.
+ * This class contains bitmask constants associated with system instructions.
  * 
  * @author Tim Backus tbackus127@gmail.com
  */

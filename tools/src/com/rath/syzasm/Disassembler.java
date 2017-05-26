@@ -3,6 +3,12 @@ package com.rath.syzasm;
 
 import java.util.HashMap;
 
+/**
+ * This class will decode SyzB machine code into its human-readable assembly language.
+ * 
+ * @author Tim Backus tbackus127@gmail.com
+ *
+ */
 public class Disassembler {
   
   /**
@@ -43,6 +49,12 @@ public class Disassembler {
     }
   };
   
+  /**
+   * Decodes a 16-bit machine instruction into SyzB assembly.
+   * 
+   * @param val the instruction as a short.
+   * @return the assembly String.
+   */
   public static final String disassemble(final short val) {
     
     String result = "NO-OP";
@@ -186,11 +198,11 @@ public class Disassembler {
             result += "n";
           }
           
-        // Look up the op's alias if it exists
-        if(ALIASES.containsKey(result)) {
-          result = ALIASES.get(result);
-        }
-        
+          // Look up the op's alias if it exists
+          if (ALIASES.containsKey(result)) {
+            result = ALIASES.get(result);
+          }
+          
         break;
       
         // I/O instruction
@@ -248,16 +260,10 @@ public class Disassembler {
    */
   private static final short isolateBitRange(final short val, final short msb, final short lsb) {
     
-    System.out.println(String.format("V:%d, M:%d, L:%d", val, msb, lsb));
-    
     final short shiftAmt = (short) (16 - msb - 1);
     final short bitmask = (short) (0xffff >>> shiftAmt);
-    final short vMask = (short) (val & bitmask);
-    
-    System.out.println(String.format("S:%d, B:%d, V:%d", shiftAmt, bitmask, vMask));
-    
-    System.out.println("Res: " + (vMask >>> lsb));
-    return (short) (vMask >>> lsb);
+    final short valMasked = (short) (val & bitmask);
+    return (short) (valMasked >>> lsb);
     
   }
   

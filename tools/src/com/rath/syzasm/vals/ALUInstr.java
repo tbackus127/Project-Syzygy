@@ -23,7 +23,7 @@ public class ALUInstr {
     private static final long serialVersionUID = 1L;
     
     {
-      // JAVA, WHY DO I HAVE TO CAST TO A SHORT TO CREATE A SHORT!?
+      // JAVA, WHY DO I HAVE TO CAST TO A SHORT TO CREATE A SHORT OBJECT!?
       put("pass", new Short((short) 0x0000));
       put("or", new Short((short) 0x0100));
       put("add", new Short((short) 0x0200));

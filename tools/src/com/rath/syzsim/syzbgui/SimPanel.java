@@ -23,19 +23,25 @@ public class SimPanel extends JPanel {
   private final Dimension frameSize;
   private final ComponentPanel compPanel;
   private final MemoryPanel memPanel;
+  private final PeripheralPanel perPanel;
 
   public SimPanel(final Dimension dim, final SyzInternals si) {
     super();
     this.frameSize = dim;
 
-    final Dimension subPanelSize = new Dimension((int) this.frameSize.getWidth() / 3 - MARGIN_PANEL,
-        (int) this.frameSize.getHeight() - MARGIN_BOTTOM);
+    final int subPanelWidth = (int) this.frameSize.getWidth() / 3 - MARGIN_PANEL;
+    final int subPanelHeight = (int) this.frameSize.getHeight() - MARGIN_BOTTOM;
+    final int memoryPanelRed = 48;
 
-    this.compPanel = new ComponentPanel(subPanelSize, si);
+    this.compPanel = new ComponentPanel(new Dimension(subPanelWidth + (memoryPanelRed >> 1), subPanelHeight), si);
     add(compPanel, BorderLayout.CENTER);
 
-    this.memPanel = new MemoryPanel(subPanelSize, si);
+    this.memPanel = new MemoryPanel(new Dimension(subPanelWidth - memoryPanelRed, subPanelHeight), si);
     add(memPanel, BorderLayout.CENTER);
+    
+    this.perPanel = new PeripheralPanel(new Dimension(subPanelWidth + (memoryPanelRed >> 1), subPanelHeight), si);
+    add(perPanel, BorderLayout.CENTER);
+    
   }
 
   @Override

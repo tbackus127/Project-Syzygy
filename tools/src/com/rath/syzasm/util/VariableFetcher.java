@@ -54,7 +54,8 @@ public class VariableFetcher {
 
     final HashMap<String, String> result = new HashMap<String, String>();
 
-    // Set to test directory if we're in Eclipse workbench
+    // Set to test directory if we're in Eclipse's workbench
+    // TODO: Remove this later
     String cfgDir = CONFIG_DIR;
     if (!new File(cfgDir).exists())
       cfgDir = CONFIG_DIR_TEST_LP;
