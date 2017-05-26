@@ -18,6 +18,7 @@ public class TestAssemblerALU {
       put("pass", (short) 0x3000);
       put("zaddi", (short) 0x3228);
       put("lsr", (short) 0x3308);
+      put("lsl", (short) 0x3300);
       put("nnzasr", (short) 0x33ec);
       put("dec", (short) 0x3260);
       put("neg", (short) 0x3010);
