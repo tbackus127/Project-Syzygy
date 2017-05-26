@@ -27,8 +27,10 @@ module SyzygyB100(
     output [15:0] extDOut,
     output [31:0] extPerDOut,
     output [3:0] extPerSel,
+    output [3:0] extPerReg,
     output extPerModeAcc,
-    output extPerModeExec
+    output extPerModeExec,
+    output extPerMode32
   );
   
   // Data bus
@@ -48,9 +50,11 @@ module SyzygyB100(
   wire [3:0] wRegWriteSel;
   wire [3:0] wPeriphSel;
   wire [2:0] wJumpCondition;
+  wire [1:0] muxSel;
+  wire wAccSrcSelect;
+  wire wAccALUSrc;
   wire wReadEn;
   wire wWriteEn;
-  wire [1:0] wPeriphMode;
   
   // Instruction Decoder connections
   InstructionDecoder instrDec(
@@ -64,10 +68,14 @@ module SyzygyB100(
     .aluOp(wALUInstr[10:8]),
     .aluArgs(wALUInstr[7:0]),
     .periphSelect(extPerSel[3:0]),
-    .periphMode(wPeriphMode[1:0])
+    .periphReg(extPerReg[3:0]),
+    .periphMode(extPerModeAcc),
+    .periphExec(extPerModeExec),
+    .periph32(extPerMode32),
+    .accumMuxSelect(muxSel[1:0])
   );
-  assign extPerModeAcc = wPeriphMode[0];
-  assign extPerModeExec = wPeriphMode[1];
+  assign wAccSrcSelect = muxSel[1];
+  assign wAccALUSrc = muxSel[0];
   
   // Register read (source) decoder
   wire [15:0] wRegReadExp;
@@ -149,13 +157,13 @@ module SyzygyB100(
   Mux16B2to1 muxAccSel(
     .aIn(wDataBus[15:0]),
     .bIn(wAccMuxStep[15:0]),
-    .sel(),
+    .sel(wAccSrcSelect),
     .dOut(wAccumIn[15:0])
   );
   Mux16B2to1 muxAccOp(
     .aIn(wPushVal[15:0]),
     .bIn(wALUOut[15:0]),
-    .sel(),
+    .sel(wAccALUSrc),
     .dOut(wAccMuxStep[15:0])
   );
   SyzFETRegister regAccum(
@@ -255,14 +263,3 @@ module SyzygyB100(
   );
   
 endmodule
-
-
-
-
-
-
-
-
-
-
-

@@ -32,13 +32,17 @@ module CPUControl(
     output dp
   );
   
+  wire buttonCenter;
+  
   // Main CPU connections
   reg [15:0] regInstrIn;
+  reg [3:0] regSnoopReg;
+  
   wire [15:0] cpuOut;
   SyzygyB100 cpu(
-    .clk(clk),
-    .en(),
-    .res(),
+    .clk(sw[0]),
+    .en(sw[15]),
+    .res(buttonCenter),
     .extInstrIn(regInstrIn[15:0]),
     .extDOut(cpuOut[15:0]),
     .extPerDOut(),
@@ -67,7 +71,6 @@ module CPUControl(
   );
   
   // Center button connections
-  wire buttonCenter;
   Debouncer dbC(
     .clk(clk),
     .in(btnC),
@@ -84,7 +87,6 @@ module CPUControl(
   
   // Button flags (only activate once; not reset until released)
   reg buttonLPressed = 1'b0;
-  reg buttonCPressed = 1'b0;
   reg buttonRPressed = 1'b0;
   
   // Button behavior
@@ -93,25 +95,15 @@ module CPUControl(
     // Reset button flags
     if(buttonLeft == 1'b0)
       buttonLPressed <= 1'b0;
-    if(buttonCenter == 1'b0)
-      buttonCPressed <= 1'b0;
     if(buttonRight == 1'b0)
       buttonRPressed <= 1'b0;
     
-    // Left button -- BEHAVIOR DESCRIPTION HERE 
+    // Left button -- Sets the current instruction to switch value 
     if(buttonLPressed == 1'b0 & buttonLeft == 1'b1) begin
       
-      // DO STUFF HERE
+      regInstrIn[15:0] <= sw[15:0];
       
       buttonLPressed <= 1'b1;
-    end
-    
-    // Center button -- BEHAVIOR DESCRIPTION HERE
-    else if(buttonCPressed == 1'b0 & buttonCenter == 1'b1) begin
-      
-      // DO STUFF HERE
-          
-      buttonCPressed <= 1'b1;
     end
     
     // Right button -- BEHAVIOR DESCRIPTION HERE
