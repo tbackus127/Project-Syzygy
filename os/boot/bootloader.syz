@@ -2,7 +2,7 @@
 # Fetch SD Block 0
 push $conf.SD.GBLK
 copy 2, 4
-iosr $conf.SD, 0
+iosr $conf.PID.SD, 0
 ioex 3
 
 # Set memory instruction
