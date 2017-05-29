@@ -37,6 +37,8 @@ module InstructionDecoder(
     output reg [1:0] accumMuxSelect
   );
   
+  // Instruction decoder behavior description
+  // All outputs explicitly declared to prevent latching
   always @ (instrIn) begin
     
     // If it's a push instruction

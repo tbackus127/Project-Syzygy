@@ -22,22 +22,35 @@
 // Falling-Edge-Triggered register with async reset and set
 module SyzFETRegister(
     input [15:0] dIn,
-    input clk,
+    input clockSig,
     input read,
     input write,
     input asyncReset,
     output [15:0] dOut,
-    output [15:0] dOut2
+    output [15:0] dOut2,
+    output [15:0] debugOut
   );
 
   reg [15:0] data;
+  wire [15:0] wOutput;
 
-  always @ (posedge asyncReset or negedge clk) begin
-    if(asyncReset) data[15:0] <= 16'b0000000000000000;
-    else if(write) data[15:0] <= dIn[15:0];
+  // Reset on rising reset signal, set data on falling clock signal
+  always @ (posedge asyncReset or negedge clockSig) begin
+    if(asyncReset) begin
+      data[15:0] <= 16'h0000;
+    end else begin
+      if(write) begin
+        data[15:0] <= dIn[15:0];
+      end
+    end
   end
   
-  assign dOut[15:0] = data[15:0] & {15{read}};
-  assign dOut2[15:0] = data[15:0] & {15{read}};
+  // Only output if we get the read signal
+  assign wOutput[15:0] = (read) ? data[15:0] : 16'hZZZZ;
+  
+  // Clone the output to two standard outputs and one debug output
+  assign dOut[15:0] = wOutput[15:0];
+  assign dOut2[15:0] = wOutput[15:0];
+  assign debugOut[15:0] = wOutput[15:0];
   
 endmodule

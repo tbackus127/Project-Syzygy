@@ -21,29 +21,22 @@
 
 
 module Counter16B(
-    input clk,
+    input clockSig,
     input en,
-    input res,
     input [15:0] valIn,
     input set,
-    output reg [15:0] valOut
+    output [15:0] valOut,
+    output [15:0] debugOut
   );
   
-  always @ (posedge clk) begin
-    
-    // Count up
-    if(en) valOut = valOut + 1;
-    
+  reg [15:0] count;
+  
+  always @ (negedge clockSig) begin
+    if (set) count = valIn[15:0];
+    else if (en) count = count + 1;
   end
   
-  always @ (set or res) begin
-    
-    // Zero if reset (async)
-    if(res) valOut = 16'b0000000000000000;
-    
-    // Set value (jump, async)
-    else if(set) valOut[15:0] = valIn[15:0];
-  
-  end
+  assign debugOut[15:0] = count[15:0];
+  assign valOut[15:0] = count[15:0];
   
 endmodule

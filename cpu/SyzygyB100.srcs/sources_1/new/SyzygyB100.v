@@ -20,11 +20,13 @@
 //////////////////////////////////////////////////////////////////////////////////
 
 module SyzygyB100(
-    input clk,
+    input clockSig,
     input en,
     input res,
     input [15:0] extInstrIn,
+    input [3:0] extRegSel,
     output [15:0] extDOut,
+    output [15:0] extDOut2,
     output [31:0] extPerDOut,
     output [3:0] extPerSel,
     output [3:0] extPerReg,
@@ -45,7 +47,7 @@ module SyzygyB100(
   //----------------------------------------------------------------------------
   
   // Decoder signals
-  wire [15:0] wPushVal;
+  wire [14:0] wPushVal;
   wire [3:0] wRegReadSel;
   wire [3:0] wRegWriteSel;
   wire [3:0] wPeriphSel;
@@ -59,7 +61,7 @@ module SyzygyB100(
   // Instruction Decoder connections
   InstructionDecoder instrDec(
     .instrIn(wInstrRegOut[15:0]),
-    .pushVal(wPushVal[15:0]),
+    .pushVal(wPushVal[14:0]),
     .regReadSelect(wRegReadSel[3:0]),
     .readEn(wReadEn),
     .regWriteSelect(wRegWriteSel[3:0]),
@@ -98,27 +100,65 @@ module SyzygyB100(
   //----------------------------------------------------------------------------
   wire [15:0] wBootROMOut;
   BootRom brom (
-    .clk(clk),
-    .res(res),
+    .en(clockSig),
     .addr(wCounterOut[2:0]),
     .instrOut(wBootROMOut[15:0])
   );
 
   //----------------------------------------------------------------------------
-  // Registers
+  // Special Registers
   //----------------------------------------------------------------------------
+  
+  // Debug register select
+  wire [15:0] wDebugOut0;
+  wire [15:0] wDebugOut1;
+  wire [15:0] wDebugOut2;
+  wire [15:0] wDebugOut3;
+  wire [15:0] wDebugOut4;
+  wire [15:0] wDebugOut5;
+  wire [15:0] wDebugOut6;
+  wire [15:0] wDebugOut7;
+  wire [15:0] wDebugOut8;
+  wire [15:0] wDebugOut9;
+  wire [15:0] wDebugOut10;
+  wire [15:0] wDebugOut11;
+  wire [15:0] wDebugOut12;
+  wire [15:0] wDebugOut13;
+  wire [15:0] wDebugOut14;
+  wire [15:0] wDebugOut15;
+  Mux16B16to1 muxDebugSelect(
+    .dIn0(wDebugOut0[15:0]),
+    .dIn1(wDebugOut1[15:0]),
+    .dIn2(wDebugOut2[15:0]),
+    .dIn3(wDebugOut3[15:0]),
+    .dIn4(wDebugOut4[15:0]),
+    .dIn5(wDebugOut5[15:0]),
+    .dIn6(wDebugOut6[15:0]),
+    .dIn7(wDebugOut7[15:0]),
+    .dIn8(wDebugOut8[15:0]),
+    .dIn9(wDebugOut9[15:0]),
+    .dIn10(wDebugOut10[15:0]),
+    .dIn11(wDebugOut11[15:0]),
+    .dIn12(wDebugOut12[15:0]),
+    .dIn13(wDebugOut13[15:0]),
+    .dIn14(wDebugOut14[15:0]),
+    .dIn15(wDebugOut15[15:0]),
+    .sel(extRegSel[3:0]),
+    .dOut(extDOut2[15:0])
+  );
   
   // R0: Instruction Register
   wire [15:0] wInstrRegOut;
   wire [15:0] wInstrRegIn;
   SyzFETRegister regInstr(
     .dIn(wInstrRegIn[15:0]),
-    .clk(clk),
-    .read(wRegReadExp[0]),
-    .write(wRegWriteExp[0]),
+    .clockSig(clockSig),
+    .read(clockSig),
+    .write(en),
     .asyncReset(wRegReset[0]),
     .dOut(wInstrRegOut[15:0]),    
-    .dOut2(extDOut[15:0])
+    .dOut2(extDOut[15:0]),
+    .debugOut(wDebugOut0[15:0])
   );
   Mux16B2to1 muxInstrReg(
     .aIn(wBootROMOut[15:0]),
@@ -132,21 +172,12 @@ module SyzygyB100(
   wire [15:0] wCounterOut;
   wire wJmpEn;
   Counter16B pc (
-    .clk(clk),
+    .clockSig(clockSig),
     .en(en),
-    .res(res),
     .valIn(wR3JumpAddr[15:0]),
     .set(wJmpEn),
-    .valOut(wCounterOut[15:0])
-  );
-  SyzFETRegister regProgCount(
-    .dIn(wCounterOut[15:0]),
-    .clk(clk),
-    .read(wRegReadExp[1]),
-    .write(wRegWriteExp[1]),
-    .asyncReset(wRegReset[1]),
-    .dOut(),
-    .dOut2()
+    .valOut(wCounterOut[15:0]),
+    .debugOut(wDebugOut1[15:0])
   );
   
   // R2: Accumulator
@@ -161,19 +192,20 @@ module SyzygyB100(
     .dOut(wAccumIn[15:0])
   );
   Mux16B2to1 muxAccOp(
-    .aIn(wPushVal[15:0]),
+    .aIn({1'b0, wPushVal[14:0]}),
     .bIn(wALUOut[15:0]),
     .sel(wAccALUSrc),
     .dOut(wAccMuxStep[15:0])
   );
   SyzFETRegister regAccum(
     .dIn(wAccumIn[15:0]),
-    .clk(clk),
+    .clockSig(clockSig),
     .read(wRegReadExp[2]),
     .write(wRegWriteExp[2]),
     .asyncReset(wRegReset[2]),
     .dOut(wDataBus[15:0]),
-    .dOut2(wCompIn[15:0])
+    .dOut2(wCompIn[15:0]),
+    .debugOut(wDebugOut2[15:0])
   );
   Comparator cmp(
     .dIn(wCompIn[15:0]),
@@ -186,35 +218,38 @@ module SyzygyB100(
   // R3: Jump Address
   SyzFETRegister regJmpAddr(
     .dIn(wDataBus[15:0]),
-    .clk(clk),
+    .clockSig(clockSig),
     .read(wRegReadExp[3]),
     .write(wRegWriteExp[3]),
     .asyncReset(wRegReset[3]),
     .dOut(wDataBus[15:0]),
-    .dOut2(wR3JumpAddr[15:0])
+    .dOut2(wR3JumpAddr[15:0]),
+    .debugOut(wDebugOut3[15:0])
   );
   
   // R4: I/O LSB
   wire [31:0] wIOOut;
   SyzFETRegister regIOLSB(
     .dIn(wDataBus[15:0]),
-    .clk(clk),
+    .clockSig(clockSig),
     .read(wRegReadExp[4]),
     .write(wRegWriteExp[4]),
     .asyncReset(wRegReset[4]),
     .dOut(wDataBus[15:0]),
-    .dOut2(wIOOut[15:0])
+    .dOut2(wIOOut[15:0]),
+    .debugOut(wDebugOut4[15:0])
   );
   
   // R5: I/O MSB
   SyzFETRegister regIOMSB(
     .dIn(wDataBus[15:0]),
-    .clk(clk),
+    .clockSig(clockSig),
     .read(wRegReadExp[5]),
     .write(wRegWriteExp[5]),
     .asyncReset(wRegReset[5]),
     .dOut(wDataBus[15:0]),
-    .dOut2(wIOOut[31:16])
+    .dOut2(wIOOut[31:16]),
+    .debugOut(wDebugOut5[15:0])
   );
   assign extPerDOut[31:0] = wIOOut[31:0];
   
@@ -222,25 +257,128 @@ module SyzygyB100(
   wire [15:0] wALUAin;
   SyzFETRegister regALUA(
     .dIn(wDataBus[15:0]),
-    .clk(clk),
+    .clockSig(clockSig),
     .read(wRegReadExp[6]),
     .write(wRegWriteExp[6]),
     .asyncReset(wRegReset[6]),
     .dOut(wDataBus[15:0]),
-    .dOut2(wALUAin[15:0])
+    .dOut2(wALUAin[15:0]),
+    .debugOut(wDebugOut6[15:0])
   );
   
   // R7: ALU B
   wire [15:0] wALUBin;
   SyzFETRegister regALUB(
     .dIn(wDataBus[15:0]),
-    .clk(clk),
+    .clockSig(clockSig),
     .read(wRegReadExp[7]),
     .write(wRegWriteExp[7]),
     .asyncReset(wRegReset[7]),
     .dOut(wDataBus[15:0]),
-    .dOut2(wALUBin[15:0])
+    .dOut2(wALUBin[15:0]),
+    .debugOut(wDebugOut7[15:0])
   );
+  
+  //----------------------------------------------------------------------------
+  // General-Purpose Registers
+  //----------------------------------------------------------------------------
+  
+  // R8
+  SyzFETRegister regR8(
+    .dIn(wDataBus[15:0]),
+    .clockSig(clockSig),
+    .read(wRegReadExp[8]),
+    .write(wRegWriteExp[8]),
+    .asyncReset(wRegReset[8]),
+    .dOut(wDataBus[15:0]),
+    .dOut2(),
+    .debugOut(wDebugOut8[15:0])
+  );
+  
+  // R9
+  SyzFETRegister regR9(
+    .dIn(wDataBus[15:0]),
+    .clockSig(clockSig),
+    .read(wRegReadExp[9]),
+    .write(wRegWriteExp[9]),
+    .asyncReset(wRegReset[9]),
+    .dOut(wDataBus[15:0]),
+    .dOut2(),
+    .debugOut(wDebugOut9[15:0])
+  );
+  
+  // R10
+  SyzFETRegister regR10(
+    .dIn(wDataBus[15:0]),
+    .clockSig(clockSig),
+    .read(wRegReadExp[10]),
+    .write(wRegWriteExp[10]),
+    .asyncReset(wRegReset[10]),
+    .dOut(wDataBus[15:0]),
+    .dOut2(),
+    .debugOut(wDebugOut10[15:0])
+  );
+  
+  // R11
+  SyzFETRegister regR11(
+    .dIn(wDataBus[15:0]),
+    .clockSig(clockSig),
+    .read(wRegReadExp[11]),
+    .write(wRegWriteExp[11]),
+    .asyncReset(wRegReset[11]),
+    .dOut(wDataBus[15:0]),
+    .dOut2(),
+    .debugOut(wDebugOut11[15:0])
+  );
+  
+  // R12
+  SyzFETRegister regR12(
+    .dIn(wDataBus[15:0]),
+    .clockSig(clockSig),
+    .read(wRegReadExp[12]),
+    .write(wRegWriteExp[12]),
+    .asyncReset(wRegReset[12]),
+    .dOut(wDataBus[15:0]),
+    .dOut2(),
+    .debugOut(wDebugOut12[15:0])
+  );
+  
+  // R13
+  SyzFETRegister regR13(
+    .dIn(wDataBus[15:0]),
+    .clockSig(clockSig),
+    .read(wRegReadExp[13]),
+    .write(wRegWriteExp[13]),
+    .asyncReset(wRegReset[13]),
+    .dOut(wDataBus[15:0]),
+    .dOut2(),
+    .debugOut(wDebugOut13[15:0])
+  );
+  
+  // R14
+  SyzFETRegister regR14(
+    .dIn(wDataBus[15:0]),
+    .clockSig(clockSig),
+    .read(wRegReadExp[14]),
+    .write(wRegWriteExp[14]),
+    .asyncReset(wRegReset[14]),
+    .dOut(wDataBus[15:0]),
+    .dOut2(),
+    .debugOut(wDebugOut14[15:0])
+  );
+  
+  // R15
+  SyzFETRegister regR15(
+    .dIn(wDataBus[15:0]),
+    .clockSig(clockSig),
+    .read(wRegReadExp[15]),
+    .write(wRegWriteExp[15]),
+    .asyncReset(wRegReset[15]),
+    .dOut(wDataBus[15:0]),
+    .dOut2(),
+    .debugOut(wDebugOut15[15:0])
+  );
+  
   
   //----------------------------------------------------------------------------
   // ALU

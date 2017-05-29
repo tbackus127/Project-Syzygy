@@ -32,38 +32,41 @@ module CPUControl(
     output dp
   );
   
+  // Debounced button connections
+  wire buttonLeft;
   wire buttonCenter;
+  wire buttonRight;
   
-  // Main CPU connections
-  reg [15:0] regInstrIn;
-  reg [3:0] regSnoopReg;
-  
-  wire [15:0] cpuOut;
+  // CPU connection
+  wire [15:0] wCpuOut;
+  wire [15:0] wCpuOut2;
   SyzygyB100 cpu(
-    .clk(sw[0]),
+    .clockSig(clk),
     .en(sw[15]),
     .res(buttonCenter),
-    .extInstrIn(regInstrIn[15:0]),
-    .extDOut(cpuOut[15:0]),
+    .extInstrIn(),
+    .extRegSel(sw[4:1]),
+    .extDOut(wCpuOut[15:0]),
+    .extDOut2(wCpuOut2[15:0]),
     .extPerDOut(),
     .extPerSel(),
+    .extPerReg(),
     .extPerModeAcc(),
-    .extPerModeExec()
+    .extPerModeExec(),
+    .extPerMode32()
   );
-  assign led[15:0] = cpuOut[15:0];
+  assign led[15:0] = wCpuOut[15:0];
   
   // 7-segment display connections
-  reg [15:0] regSSDisp;
   SevSeg ss(
     .clk(clk),
-    .valIn(regSSDisp[15:0]),
+    .valIn(wCpuOut2[15:0]),
     .segs(seg[6:0]),
     .anodes(an[3:0]),
     .dp(dp)
   );
   
   // Left button connections
-  wire buttonLeft;
   Debouncer dbL(
     .clk(clk),
     .in(btnL),
@@ -78,7 +81,6 @@ module CPUControl(
   );
   
   // Right button connections
-  wire buttonRight;
   Debouncer dbR(
     .clk(clk),
     .in(btnR),
@@ -101,7 +103,7 @@ module CPUControl(
     // Left button -- Sets the current instruction to switch value 
     if(buttonLPressed == 1'b0 & buttonLeft == 1'b1) begin
       
-      regInstrIn[15:0] <= sw[15:0];
+      // DO STUFF HERE
       
       buttonLPressed <= 1'b1;
     end
