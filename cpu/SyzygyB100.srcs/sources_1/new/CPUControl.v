@@ -87,34 +87,4 @@ module CPUControl(
     .out(buttonRight)
   );
   
-  // Button flags (only activate once; not reset until released)
-  reg buttonLPressed = 1'b0;
-  reg buttonRPressed = 1'b0;
-  
-  // Button behavior
-  always @ (posedge clk) begin
-      
-    // Reset button flags
-    if(buttonLeft == 1'b0)
-      buttonLPressed <= 1'b0;
-    if(buttonRight == 1'b0)
-      buttonRPressed <= 1'b0;
-    
-    // Left button -- Sets the current instruction to switch value 
-    if(buttonLPressed == 1'b0 & buttonLeft == 1'b1) begin
-      
-      // DO STUFF HERE
-      
-      buttonLPressed <= 1'b1;
-    end
-    
-    // Right button -- BEHAVIOR DESCRIPTION HERE
-    else if(buttonRPressed == 1'b0 & buttonRight == 1'b1) begin
-      
-      // DO STUFF HERE
-          
-      buttonRPressed <= 1'b1;
-    end
-  end
-  
 endmodule

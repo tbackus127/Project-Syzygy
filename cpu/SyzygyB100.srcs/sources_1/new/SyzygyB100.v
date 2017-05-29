@@ -101,7 +101,7 @@ module SyzygyB100(
   wire [15:0] wBootROMOut;
   BootRom brom (
     .en(clockSig),
-    .addr(wCounterOut[2:0]),
+    .addr(wCounterOut[3:0]),
     .instrOut(wBootROMOut[15:0])
   );
 
