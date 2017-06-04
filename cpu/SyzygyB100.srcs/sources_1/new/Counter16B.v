@@ -32,8 +32,8 @@ module Counter16B(
   reg [15:0] count;
   
   always @ (negedge clockSig) begin
-    if (set) count = valIn[15:0];
-    else if (en) count = count + 1;
+    if(set) count[15:0] <= valIn[15:0];
+    else if (en) count[15:0] <= count[15:0] + 1'b1;
   end
   
   assign debugOut[15:0] = count[15:0];

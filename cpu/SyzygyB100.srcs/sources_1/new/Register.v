@@ -33,6 +33,13 @@ module SyzFETRegister(
 
   reg [15:0] data;
   wire [15:0] wOutput;
+  
+  wire [15:0] wBuf;
+  Buffer16B buf0 (
+    .dIn(dIn[15:0]),
+    .dOut(wBuf[15:0])
+  );
+  
 
   // Reset on rising reset signal, set data on falling clock signal
   always @ (posedge asyncReset or negedge clockSig) begin
@@ -40,7 +47,7 @@ module SyzFETRegister(
       data[15:0] <= 16'h0000;
     end else begin
       if(write) begin
-        data[15:0] <= dIn[15:0];
+        data[15:0] <= wBuf[15:0];
       end
     end
   end

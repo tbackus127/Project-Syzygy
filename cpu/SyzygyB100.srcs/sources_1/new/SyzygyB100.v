@@ -56,13 +56,16 @@ module SyzygyB100(
   wire wAccSrcSelect;
   wire wAccALUSrc;
   wire wReadEn;
+  wire wReadFromR3;
   wire wWriteEn;
+  wire [15:0] wInstrRegOut;
   
   // Instruction Decoder connections
   InstructionDecoder instrDec(
     .instrIn(wInstrRegOut[15:0]),
     .pushVal(wPushVal[14:0]),
     .regReadSelect(wRegReadSel[3:0]),
+    .regReadFromR3(wReadFromR3),
     .readEn(wReadEn),
     .regWriteSelect(wRegWriteSel[3:0]),
     .writeEn(wWriteEn),
@@ -101,7 +104,7 @@ module SyzygyB100(
   wire [15:0] wBootROMOut;
   BootRom brom (
     .en(clockSig),
-    .addr(wCounterOut[2:0]),
+    .addr(wCounterOut[3:0]),
     .instrOut(wBootROMOut[15:0])
   );
 
@@ -146,25 +149,14 @@ module SyzygyB100(
     .sel(extRegSel[3:0]),
     .dOut(extDOut2[15:0])
   );
+  assign wDebugOut0[15:0] = wInstrRegOut[15:0];
   
   // R0: Instruction Register
-  wire [15:0] wInstrRegOut;
-  wire [15:0] wInstrRegIn;
-  SyzFETRegister regInstr(
-    .dIn(wInstrRegIn[15:0]),
-    .clockSig(clockSig),
-    .read(clockSig),
-    .write(en),
-    .asyncReset(wRegReset[0]),
-    .dOut(wInstrRegOut[15:0]),    
-    .dOut2(extDOut[15:0]),
-    .debugOut(wDebugOut0[15:0])
-  );
   Mux16B2to1 muxInstrReg(
     .aIn(wBootROMOut[15:0]),
     .bIn(extInstrIn[15:0]),
-    .sel(),
-    .dOut(wInstrRegIn[15:0])
+    .sel(1'b1),
+    .dOut(wInstrRegOut[15:0])
   );
   
   // R1: Program Counter
@@ -179,6 +171,7 @@ module SyzygyB100(
     .valOut(wCounterOut[15:0]),
     .debugOut(wDebugOut1[15:0])
   );
+  assign extDOut[15:0] = wCounterOut[15:0];
   
   // R2: Accumulator
   wire [15:0] wALUOut;
@@ -219,7 +212,7 @@ module SyzygyB100(
   SyzFETRegister regJmpAddr(
     .dIn(wDataBus[15:0]),
     .clockSig(clockSig),
-    .read(wRegReadExp[3]),
+    .read(wRegReadExp[3] | wReadFromR3),
     .write(wRegWriteExp[3]),
     .asyncReset(wRegReset[3]),
     .dOut(wDataBus[15:0]),

@@ -22,17 +22,17 @@
 
 module InstructionReg(
     input clk,
-    input [7:0] address,
-    input [15:0] data_in,
-    output [15:0] data_out
+    input [3:0] addr,
+    input [15:0] dIn,
+    output [15:0] dOut
   );
     
-  reg [15:0] mem [0:255];
+  reg [15:0] mem [0:15];
   
   always @ (posedge clk) begin
-    mem[address] = data_in;
+    mem[addr] = dIn;
   end
   
-  assign data_out[15:0] = mem[address];
+  assign dOut[15:0] = mem[addr];
   
 endmodule

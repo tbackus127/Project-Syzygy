@@ -25,9 +25,6 @@ module Neg16B(
     output [15:0] dOut
   );
   
-  genvar i;
-  for(i = 0; i < 16; i = i + 1) begin
-    assign dOut[i] = dIn[i] ^ sel;
-  end
+  assign dOut[15:0] = dIn[15:0] ^ {16{sel}};
   
 endmodule
