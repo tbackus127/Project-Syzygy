@@ -22,29 +22,47 @@
 
 module BootRom(
     input en,
-    input [3:0] addr,
+    input [5:0] addr,
     output reg [15:0] instrOut
   );
   
   always @ (en or addr) begin
     if(en) begin
       case(addr)
-        0: instrOut[15:0] = 16'h3060;   // push 65535 (actually -1, npass)
-        1: instrOut[15:0] = 16'h1260;   // copy 2, 6
-        2: instrOut[15:0] = 16'h800a;   // push $lbl.delEnd
-        3: instrOut[15:0] = 16'h1230;   // copy 2, 3
-        4: instrOut[15:0] = 16'h3260;   // dec
-        5: instrOut[15:0] = 16'h1260;   // copy 2, 6
-        6: instrOut[15:0] = 16'h2400;   // jeq
-        7: instrOut[15:0] = 16'h8002;   // push $lbl.delStart
-        8: instrOut[15:0] = 16'h1230;   // copy 2, 3
-        9: instrOut[15:0] = 16'h8e00;   // jmp
-        10: instrOut[15:0] = 16'h1860;  // copy 8, 6
-        11: instrOut[15:0] = 16'h3228;  // inc
-        12: instrOut[15:0] = 16'h1280;  // copy 2, 8
-        13: instrOut[15:0] = 16'h8000;  // push $lbl.start
-        14: instrOut[15:0] = 16'h1230;  // copy 2, 3
-        15: instrOut[15:0] = 16'h8e00;  // jmp
+        0: instrOut[15:0] = 16'h8000;
+        1: instrOut[15:0] = 16'h1260;
+        2: instrOut[15:0] = 16'h3260;
+        3: instrOut[15:0] = 16'h1240;
+        4: instrOut[15:0] = 16'h801b;
+        5: instrOut[15:0] = 16'h1230;
+        6: instrOut[15:0] = 16'h1420;
+        7: instrOut[15:0] = 16'h2400;
+        8: instrOut[15:0] = 16'h8000;
+        9: instrOut[15:0] = 16'h1260;
+        10: instrOut[15:0] = 16'h3260;
+        11: instrOut[15:0] = 16'h1260;
+        12: instrOut[15:0] = 16'h8015;
+        13: instrOut[15:0] = 16'h1230;
+        14: instrOut[15:0] = 16'h1620;
+        15: instrOut[15:0] = 16'h2400;
+        16: instrOut[15:0] = 16'h3260;
+        17: instrOut[15:0] = 16'h1260;
+        18: instrOut[15:0] = 16'h800c;
+        19: instrOut[15:0] = 16'h1230;
+        20: instrOut[15:0] = 16'h2e00;
+        21: instrOut[15:0] = 16'h1460;
+        22: instrOut[15:0] = 16'h3260;
+        23: instrOut[15:0] = 16'h1240;
+        24: instrOut[15:0] = 16'h8004;
+        25: instrOut[15:0] = 16'h1230;
+        26: instrOut[15:0] = 16'h2e00;
+        27: instrOut[15:0] = 16'h1860;
+        28: instrOut[15:0] = 16'h3228;
+        29: instrOut[15:0] = 16'h1280;
+        30: instrOut[15:0] = 16'h8000;
+        31: instrOut[15:0] = 16'h1230;
+        32: instrOut[15:0] = 16'h2e00;
+        default: instrOut[15:0] = 16'h0000;
       endcase
     end else begin
       instrOut[15:0] = 16'h0000;

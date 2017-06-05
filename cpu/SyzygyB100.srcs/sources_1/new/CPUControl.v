@@ -19,11 +19,11 @@
 // 
 //////////////////////////////////////////////////////////////////////////////////
 
-
 module CPUControl(
     input clk,
     input [15:0] sw,
     input btnL,
+    input btnR,
     input btnC,
     input btnU,
     input btnD,
@@ -40,12 +40,14 @@ module CPUControl(
   
   // Debounced button connections
   wire buttonLeft;    // Clock step
+  wire buttonRight;   // Toggle RAM-Fetch (or external debugging) Mode
   wire buttonCenter;  // Write instruction
   wire buttonUp;      // Set snoop register
   wire buttonDown;    // Reset everything
   
-  // Whether each button is pressed
+  // Holds each button's state
   reg buttonLPressed = 1'b0;
+  reg buttonRPressed = 1'b0;
   reg buttonCPressed = 1'b0;
   reg buttonUPressed = 1'b0;
   reg buttonDPressed = 1'b0;
@@ -59,13 +61,19 @@ module CPUControl(
   // Current instruction
   reg [15:0] regInstr;
   
+  // Toggle RAM-Fetch mode instead of with ROM
+  reg vonNeuMode;
+  
   // CPU connection
   wire [15:0] wCPUPCOut;
   wire [15:0] wCpuRegOut;
+  wire clockSignal;
+  assign clockSignal = (vonNeuMode) ? clkState : clk ;
   SyzygyB100 cpu(
-    .clockSig(clkState),
+    .clockSig(clockSignal),
     .en(1'b1),
     .res(buttonDPressed),
+    .vonNeuMode(vonNeuMode),
     .extInstrIn(regInstr[15:0]),
     .extRegSel(regSel[3:0]),
     .extDOut(wCPUPCOut[15:0]),
@@ -95,6 +103,13 @@ module CPUControl(
     .out(buttonLeft)
   );
   
+  // Left button connections
+  Debouncer dbR(
+    .clk(clk),
+    .in(btnR),
+    .out(buttonRight)
+  );
+  
   // Center button connections
   Debouncer dbC(
     .clk(clk),
@@ -119,6 +134,7 @@ module CPUControl(
   always @ (posedge clk) begin
     
     if(buttonLeft == 1'b0) buttonLPressed <= 1'b0;
+    if(buttonRight == 1'b0) buttonRPressed <= 1'b0;
     if(buttonCenter == 1'b0) buttonCPressed <= 1'b0;
     if(buttonUp == 1'b0) buttonUPressed <= 1'b0;
     if(buttonDown == 1'b0) buttonDPressed <= 1'b0;
@@ -131,6 +147,16 @@ module CPUControl(
         clkState <= 1'b1;
       end
       buttonLPressed <= 1'b1;
+    end
+    
+    // External instruction mode (Toggled on rising-edge)
+    if(buttonRPressed == 1'b0 & buttonRight == 1'b1) begin
+      if(vonNeuMode == 1'b1) begin
+        vonNeuMode <= 1'b0;
+      end else begin
+        vonNeuMode <= 1'b1;
+      end
+      buttonRPressed <= 1'b1;
     end
     
     // Write instruction to instruction register

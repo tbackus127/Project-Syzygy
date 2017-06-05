@@ -23,6 +23,7 @@ module SyzygyB100(
     input clockSig,
     input en,
     input res,
+    input vonNeuMode,
     input [15:0] extInstrIn,
     input [3:0] extRegSel,
     output [15:0] extDOut,
@@ -104,7 +105,7 @@ module SyzygyB100(
   wire [15:0] wBootROMOut;
   BootRom brom (
     .en(clockSig),
-    .addr(wCounterOut[3:0]),
+    .addr(wCounterOut[5:0]),
     .instrOut(wBootROMOut[15:0])
   );
 
@@ -155,7 +156,7 @@ module SyzygyB100(
   Mux16B2to1 muxInstrReg(
     .aIn(wBootROMOut[15:0]),
     .bIn(extInstrIn[15:0]),
-    .sel(1'b1),
+    .sel(vonNeuMode),
     .dOut(wInstrRegOut[15:0])
   );
   
