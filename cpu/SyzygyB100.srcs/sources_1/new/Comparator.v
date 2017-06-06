@@ -28,14 +28,21 @@ module Comparator(
     output jmpEn
   );
   
+  wire [15:0] wBuf;
+  Buffer16B buf0(
+    .dIn(dIn[15:0]),
+    .dOut(wBuf[15:0])
+  );
+  
+  
   wire zero;
-  assign zero = |dIn[15:0];
+  assign zero = ~(|wBuf[15:0]);
   
   wire neg;
-  assign neg = ~dIn[15];
+  assign neg = wBuf[15];
   
   wire pos;
-  assign pos = ~zero & ~neg;
+  assign pos = (~zero) & (~neg);
   
   assign jmpEn = (neg & lt) | (zero & eq) | (pos & gt);
   

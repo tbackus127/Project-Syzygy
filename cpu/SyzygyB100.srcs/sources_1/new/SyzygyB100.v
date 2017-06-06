@@ -57,7 +57,6 @@ module SyzygyB100(
   wire wAccSrcSelect;
   wire wAccALUSrc;
   wire wReadEn;
-  wire wReadFromR3;
   wire wWriteEn;
   wire [15:0] wInstrRegOut;
   
@@ -66,7 +65,6 @@ module SyzygyB100(
     .instrIn(wInstrRegOut[15:0]),
     .pushVal(wPushVal[14:0]),
     .regReadSelect(wRegReadSel[3:0]),
-    .regReadFromR3(wReadFromR3),
     .readEn(wReadEn),
     .regWriteSelect(wRegWriteSel[3:0]),
     .writeEn(wWriteEn),
@@ -103,10 +101,12 @@ module SyzygyB100(
   // Boot ROM
   //----------------------------------------------------------------------------
   wire [15:0] wBootROMOut;
+  wire [15:0] wDebugOut0;
   BootRom brom (
     .en(clockSig),
     .addr(wCounterOut[5:0]),
-    .instrOut(wBootROMOut[15:0])
+    .instrOut(wBootROMOut[15:0]),
+    .debugOut(wDebugOut0[15:0])
   );
 
   //----------------------------------------------------------------------------
@@ -114,7 +114,6 @@ module SyzygyB100(
   //----------------------------------------------------------------------------
   
   // Debug register select
-  wire [15:0] wDebugOut0;
   wire [15:0] wDebugOut1;
   wire [15:0] wDebugOut2;
   wire [15:0] wDebugOut3;
@@ -150,7 +149,6 @@ module SyzygyB100(
     .sel(extRegSel[3:0]),
     .dOut(extDOut2[15:0])
   );
-  assign wDebugOut0[15:0] = wInstrRegOut[15:0];
   
   // R0: Instruction Register
   Mux16B2to1 muxInstrReg(
@@ -169,6 +167,7 @@ module SyzygyB100(
     .en(en),
     .valIn(wR3JumpAddr[15:0]),
     .set(wJmpEn),
+    .res(res),
     .valOut(wCounterOut[15:0]),
     .debugOut(wDebugOut1[15:0])
   );
@@ -191,7 +190,7 @@ module SyzygyB100(
     .sel(wAccALUSrc),
     .dOut(wAccMuxStep[15:0])
   );
-  SyzFETRegister regAccum(
+  SyzFETAccumulator regAccum(
     .dIn(wAccumIn[15:0]),
     .clockSig(clockSig),
     .read(wRegReadExp[2]),
@@ -213,7 +212,7 @@ module SyzygyB100(
   SyzFETRegister regJmpAddr(
     .dIn(wDataBus[15:0]),
     .clockSig(clockSig),
-    .read(wRegReadExp[3] | wReadFromR3),
+    .read(wRegReadExp[3]),
     .write(wRegWriteExp[3]),
     .asyncReset(wRegReset[3]),
     .dOut(wDataBus[15:0]),
@@ -379,7 +378,7 @@ module SyzygyB100(
   //----------------------------------------------------------------------------
   
   // ALU connections
-  wire [11:0] wALUInstr;
+  wire [10:0] wALUInstr;
   ALU alu(
     .aIn(wALUAin[15:0]),
     .bIn(wALUBin[15:0]),

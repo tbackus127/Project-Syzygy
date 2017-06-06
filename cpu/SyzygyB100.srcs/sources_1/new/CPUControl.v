@@ -85,7 +85,7 @@ module CPUControl(
     .extPerModeExec(),
     .extPerMode32()
   );
-  assign led[15:0] = sw[15:0];
+  assign led[15:0] = deshortedSwitch[15:0];
   
   // 7-segment display connections
   SevSeg ss(

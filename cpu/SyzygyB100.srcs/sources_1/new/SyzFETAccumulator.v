@@ -3,9 +3,9 @@
 // Company: 
 // Engineer: 
 // 
-// Create Date: 05/24/2017 06:25:07 PM
+// Create Date: 06/06/2017 12:49:49 AM
 // Design Name: 
-// Module Name: Register
+// Module Name: SyzFETAccumulator
 // Project Name: 
 // Target Devices: 
 // Tool Versions: 
@@ -19,8 +19,9 @@
 // 
 //////////////////////////////////////////////////////////////////////////////////
 
+
 // Falling-Edge-Triggered register with async reset and set
-module SyzFETRegister(
+module SyzFETAccumulator(
     input [15:0] dIn,
     input clockSig,
     input read,
@@ -51,12 +52,14 @@ module SyzFETRegister(
     end
   end
   
+  // Always output for the comparator input
+  assign dOut2[15:0] = data[15:0];
+  
   // Only output if we get the read signal
   assign wOutput[15:0] = (read) ? data[15:0] : 16'hZZZZ;
   
-  // Clone the output to two standard outputs and one debug output
+  // Clone the output to the standard output and the debug output
   assign dOut[15:0] = wOutput[15:0];
-  assign dOut2[15:0] = wOutput[15:0];
   assign debugOut[15:0] = wOutput[15:0];
   
 endmodule

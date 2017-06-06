@@ -23,7 +23,6 @@ module InstructionDecoder(
     input [15:0] instrIn,
     output reg [14:0] pushVal,
     output reg [3:0] regReadSelect,
-    output reg regReadFromR3,
     output reg readEn,
     output reg [3:0] regWriteSelect,
     output reg writeEn,
@@ -47,7 +46,6 @@ module InstructionDecoder(
       
       pushVal[14:0] <= instrIn[14:0];
       regReadSelect[3:0] <= 4'b0000;
-      regReadFromR3 <= 1'b0;
       readEn <= 1'b0;
       regWriteSelect[3:0] <= 4'b0010;
       writeEn <= 1'b1;
@@ -71,7 +69,6 @@ module InstructionDecoder(
         3'b000: begin
           pushVal[14:0] <= 15'b000000000000000;
           regReadSelect[3:0] <= 4'b0000;
-          regReadFromR3 <= 1'b0;
           readEn <= 1'b0;
           regWriteSelect[3:0] <= 4'b0000;
           writeEn <= 1'b0;
@@ -90,7 +87,6 @@ module InstructionDecoder(
         3'b001: begin
           pushVal[14:0] <= 15'b000000000000000;
           regReadSelect[3:0] <= instrIn[11:8];
-          regReadFromR3 <= 1'b0;
           regWriteSelect[3:0] <= instrIn[7:4];
           readEn <= 1'b1;
           writeEn <= 1'b1;
@@ -108,8 +104,7 @@ module InstructionDecoder(
         // Jump
         3'b010: begin
           pushVal[14:0] <= 15'b000000000000000;
-          regReadSelect[3:0] <= 4'b0010;
-          regReadFromR3 <= 1'b1;
+          regReadSelect[3:0] <= 4'b0011;
           readEn <= 1'b1;
           regWriteSelect[3:0] <= 4'b0001;
           writeEn <= 1'b1;
@@ -128,7 +123,6 @@ module InstructionDecoder(
         3'b011: begin
           pushVal[14:0] <= 15'b000000000000000;
           regReadSelect[3:0] <= 4'b0000;
-          regReadFromR3 <= 1'b0;
           readEn <= 1'b0;
           regWriteSelect[3:0] <= 4'b0010;
           writeEn <= 1'b1;
@@ -147,7 +141,6 @@ module InstructionDecoder(
         3'b100: begin
           pushVal[14:0] <= 15'b000000000000000;
           regReadSelect[3:0] <= 4'b0100;
-          regReadFromR3 <= 1'b0;
           readEn <= 1'b1;
           regWriteSelect[3:0] <= 4'b0000;
           writeEn <= 1'b0;
@@ -166,7 +159,6 @@ module InstructionDecoder(
         3'b101: begin 
           pushVal[14:0] <= 15'b000000000000000;
           regReadSelect[3:0] <= 4'b0000;
-          regReadFromR3 <= 1'b0;
           readEn <= 1'b0;
           regWriteSelect[3:0] <= 4'b0000;
           writeEn <= 1'b0;
@@ -185,7 +177,6 @@ module InstructionDecoder(
         3'b110: begin 
           pushVal[14:0] <= 15'b000000000000000;
           regReadSelect[3:0] <= 4'b0000;
-          regReadFromR3 <= 1'b0;
           readEn <= 1'b0;
           regWriteSelect[3:0] <= 4'b0000;
           writeEn <= 1'b0;
@@ -204,7 +195,6 @@ module InstructionDecoder(
         3'b111: begin
           pushVal[14:0] <= 15'b000000000000000;
           regReadSelect[3:0] <= 4'b0000;
-          regReadFromR3 <= 1'b0;
           readEn <= 1'b0;
           regWriteSelect[3:0] <= 4'b0000;
           writeEn <= 1'b0;
