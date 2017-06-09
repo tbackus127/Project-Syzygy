@@ -30,7 +30,7 @@ module Counter16B(
     output [15:0] debugOut
   );
   
-  reg [15:0] count;
+  reg [15:0] count = 16'h0000;
   
   // Delay set and data lines to prevent reading from next number before register
   //   is set

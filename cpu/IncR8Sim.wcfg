@@ -1,0 +1,841 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<wave_config>
+   <wave_state>
+   </wave_state>
+   <db_ref_list>
+      <db_ref path="CPUControl_time_impl.wdb" id="1">
+         <top_modules>
+            <top_module name="CPUControl" />
+            <top_module name="glbl" />
+         </top_modules>
+      </db_ref>
+   </db_ref_list>
+   <zoom_setting>
+      <ZoomStartTime time="2425950000fs"></ZoomStartTime>
+      <ZoomEndTime time="2494450001fs"></ZoomEndTime>
+      <Cursor1Time time="2450050000fs"></Cursor1Time>
+   </zoom_setting>
+   <WVObjectSize size="116" />
+   <wvobject fp_name="/CPUControl/clk" type="logic">
+      <obj_property name="DisplayName">label</obj_property>
+      <obj_property name="ElementShortName">clk</obj_property>
+      <obj_property name="ObjectShortName">clk</obj_property>
+      <obj_property name="label">MAIN CLOCK</obj_property>
+   </wvobject>
+   <wvobject fp_name="/CPUControl/cpu/clockSig" type="logic">
+      <obj_property name="DisplayName">label</obj_property>
+      <obj_property name="ElementShortName">clockSig</obj_property>
+      <obj_property name="ObjectShortName">clockSig</obj_property>
+      <obj_property name="label">CPU Clock</obj_property>
+   </wvobject>
+   <wvobject fp_name="/CPUControl/vonNeuMode" type="logic">
+      <obj_property name="DisplayName">label</obj_property>
+      <obj_property name="ElementShortName">vonNeuMode</obj_property>
+      <obj_property name="ObjectShortName">vonNeuMode</obj_property>
+      <obj_property name="label">VNMode</obj_property>
+      <obj_property name="CustomSignalColor">#FFFF00</obj_property>
+      <obj_property name="UseCustomSignalColor">true</obj_property>
+   </wvobject>
+   <wvobject fp_name="/CPUControl/clkState" type="logic">
+      <obj_property name="DisplayName">label</obj_property>
+      <obj_property name="ElementShortName">clkState</obj_property>
+      <obj_property name="ObjectShortName">clkState</obj_property>
+      <obj_property name="label">Clock State</obj_property>
+   </wvobject>
+   <wvobject fp_name="/CPUControl/buttonCPressed" type="logic">
+      <obj_property name="DisplayName">label</obj_property>
+      <obj_property name="ElementShortName">buttonCPressed</obj_property>
+      <obj_property name="ObjectShortName">buttonCPressed</obj_property>
+      <obj_property name="label">Button C</obj_property>
+   </wvobject>
+   <wvobject fp_name="/CPUControl/buttonDPressed" type="logic">
+      <obj_property name="DisplayName">label</obj_property>
+      <obj_property name="ElementShortName">buttonDPressed</obj_property>
+      <obj_property name="ObjectShortName">buttonDPressed</obj_property>
+      <obj_property name="label">Button V</obj_property>
+   </wvobject>
+   <wvobject fp_name="/CPUControl/buttonLPressed" type="logic">
+      <obj_property name="DisplayName">label</obj_property>
+      <obj_property name="ElementShortName">buttonLPressed</obj_property>
+      <obj_property name="ObjectShortName">buttonLPressed</obj_property>
+      <obj_property name="label">Button &lt;</obj_property>
+   </wvobject>
+   <wvobject fp_name="/CPUControl/buttonRPressed" type="logic">
+      <obj_property name="DisplayName">label</obj_property>
+      <obj_property name="ElementShortName">buttonRPressed</obj_property>
+      <obj_property name="ObjectShortName">buttonRPressed</obj_property>
+      <obj_property name="label">Button &gt;</obj_property>
+   </wvobject>
+   <wvobject fp_name="/CPUControl/buttonUPressed" type="logic">
+      <obj_property name="DisplayName">label</obj_property>
+      <obj_property name="ElementShortName">buttonUPressed</obj_property>
+      <obj_property name="ObjectShortName">buttonUPressed</obj_property>
+      <obj_property name="label">Button ^</obj_property>
+   </wvobject>
+   <wvobject fp_name="/CPUControl/regInstr" type="array">
+      <obj_property name="DisplayName">label</obj_property>
+      <obj_property name="ElementShortName">regInstr[15:0]</obj_property>
+      <obj_property name="ObjectShortName">regInstr[15:0]</obj_property>
+      <obj_property name="label">Manual Instr</obj_property>
+   </wvobject>
+   <wvobject fp_name="/CPUControl/regSel" type="array">
+      <obj_property name="DisplayName">label</obj_property>
+      <obj_property name="ElementShortName">regSel[3:0]</obj_property>
+      <obj_property name="ObjectShortName">regSel[3:0]</obj_property>
+      <obj_property name="label">Reg Select</obj_property>
+   </wvobject>
+   <wvobject type="divider" fp_name="divider138">
+      <obj_property name="label">Instruction Decoder</obj_property>
+      <obj_property name="DisplayName">label</obj_property>
+      <obj_property name="BkColor">#D2691E</obj_property>
+   </wvobject>
+   <wvobject fp_name="/CPUControl/cpu/instrDec/instrIn" type="array">
+      <obj_property name="DisplayName">label</obj_property>
+      <obj_property name="ElementShortName">instrIn[15:0]</obj_property>
+      <obj_property name="ObjectShortName">instrIn[15:0]</obj_property>
+      <obj_property name="label">Input</obj_property>
+      <obj_property name="CustomSignalColor">#00FFFF</obj_property>
+      <obj_property name="UseCustomSignalColor">true</obj_property>
+   </wvobject>
+   <wvobject fp_name="/CPUControl/cpu/instrDec/pushVal" type="array">
+      <obj_property name="DisplayName">label</obj_property>
+      <obj_property name="ElementShortName">pushVal[14:0]</obj_property>
+      <obj_property name="ObjectShortName">pushVal[14:0]</obj_property>
+      <obj_property name="label">Push Value</obj_property>
+      <obj_property name="CustomSignalColor">#FF00FF</obj_property>
+      <obj_property name="UseCustomSignalColor">true</obj_property>
+   </wvobject>
+   <wvobject fp_name="/CPUControl/cpu/instrDec/readEn" type="logic">
+      <obj_property name="DisplayName">label</obj_property>
+      <obj_property name="ElementShortName">readEn</obj_property>
+      <obj_property name="ObjectShortName">readEn</obj_property>
+      <obj_property name="label">Read Enabled</obj_property>
+      <obj_property name="CustomSignalColor">#FFFF00</obj_property>
+      <obj_property name="UseCustomSignalColor">true</obj_property>
+   </wvobject>
+   <wvobject fp_name="/CPUControl/cpu/instrDec/writeEn" type="logic">
+      <obj_property name="DisplayName">label</obj_property>
+      <obj_property name="ElementShortName">writeEn</obj_property>
+      <obj_property name="ObjectShortName">writeEn</obj_property>
+      <obj_property name="label">Write Enabled</obj_property>
+      <obj_property name="CustomSignalColor">#FFFF00</obj_property>
+      <obj_property name="UseCustomSignalColor">true</obj_property>
+   </wvobject>
+   <wvobject fp_name="/CPUControl/cpu/instrDec/regReadSelect" type="array">
+      <obj_property name="DisplayName">label</obj_property>
+      <obj_property name="ElementShortName">regReadSelect[3:0]</obj_property>
+      <obj_property name="ObjectShortName">regReadSelect[3:0]</obj_property>
+      <obj_property name="label">Read Select</obj_property>
+      <obj_property name="CustomSignalColor">#FFFF00</obj_property>
+      <obj_property name="UseCustomSignalColor">true</obj_property>
+   </wvobject>
+   <wvobject fp_name="/CPUControl/cpu/instrDec/regWriteSelect" type="array">
+      <obj_property name="DisplayName">label</obj_property>
+      <obj_property name="ElementShortName">regWriteSelect[3:0]</obj_property>
+      <obj_property name="ObjectShortName">regWriteSelect[3:0]</obj_property>
+      <obj_property name="label">Write Select</obj_property>
+      <obj_property name="CustomSignalColor">#FFFF00</obj_property>
+      <obj_property name="UseCustomSignalColor">true</obj_property>
+   </wvobject>
+   <wvobject fp_name="/CPUControl/cpu/instrDec/aluOp" type="array">
+      <obj_property name="DisplayName">label</obj_property>
+      <obj_property name="ElementShortName">aluOp[2:0]</obj_property>
+      <obj_property name="ObjectShortName">aluOp[2:0]</obj_property>
+      <obj_property name="label">ALU Operation</obj_property>
+      <obj_property name="CustomSignalColor">#00FFFF</obj_property>
+      <obj_property name="UseCustomSignalColor">true</obj_property>
+   </wvobject>
+   <wvobject fp_name="/CPUControl/cpu/instrDec/aluArgs" type="array">
+      <obj_property name="DisplayName">label</obj_property>
+      <obj_property name="ElementShortName">aluArgs[7:0]</obj_property>
+      <obj_property name="ObjectShortName">aluArgs[7:0]</obj_property>
+      <obj_property name="label">ALU Arguments</obj_property>
+      <obj_property name="CustomSignalColor">#00FFFF</obj_property>
+      <obj_property name="UseCustomSignalColor">true</obj_property>
+   </wvobject>
+   <wvobject fp_name="/CPUControl/cpu/instrDec/accumMuxSelect" type="array">
+      <obj_property name="DisplayName">label</obj_property>
+      <obj_property name="ElementShortName">accumMuxSelect[1:0]</obj_property>
+      <obj_property name="ObjectShortName">accumMuxSelect[1:0]</obj_property>
+      <obj_property name="label">Accumulator Select</obj_property>
+      <obj_property name="CustomSignalColor">#FFFF00</obj_property>
+      <obj_property name="UseCustomSignalColor">true</obj_property>
+   </wvobject>
+   <wvobject fp_name="/CPUControl/cpu/instrDec/jumpCondition" type="array">
+      <obj_property name="DisplayName">label</obj_property>
+      <obj_property name="ElementShortName">jumpCondition[2:0]</obj_property>
+      <obj_property name="ObjectShortName">jumpCondition[2:0]</obj_property>
+      <obj_property name="label">Jump Condition</obj_property>
+      <obj_property name="CustomSignalColor">#FFFF00</obj_property>
+      <obj_property name="UseCustomSignalColor">true</obj_property>
+      <obj_property name="isExpanded"></obj_property>
+   </wvobject>
+   <wvobject type="divider" fp_name="divider146">
+      <obj_property name="label">Program Counter</obj_property>
+      <obj_property name="DisplayName">label</obj_property>
+      <obj_property name="BkColor">#00FF00</obj_property>
+   </wvobject>
+   <wvobject fp_name="/CPUControl/cpu/en" type="logic">
+      <obj_property name="DisplayName">label</obj_property>
+      <obj_property name="ElementShortName">en</obj_property>
+      <obj_property name="ObjectShortName">en</obj_property>
+      <obj_property name="label">Enable</obj_property>
+      <obj_property name="CustomSignalColor">#FFFF00</obj_property>
+      <obj_property name="UseCustomSignalColor">true</obj_property>
+   </wvobject>
+   <wvobject fp_name="/CPUControl/cpu/pc/clockSig" type="logic">
+      <obj_property name="DisplayName">label</obj_property>
+      <obj_property name="ElementShortName">clockSig</obj_property>
+      <obj_property name="ObjectShortName">clockSig</obj_property>
+      <obj_property name="label">Clock</obj_property>
+   </wvobject>
+   <wvobject fp_name="/CPUControl/cpu/pc/valIn" type="array">
+      <obj_property name="DisplayName">label</obj_property>
+      <obj_property name="ElementShortName">valIn[15:0]</obj_property>
+      <obj_property name="ObjectShortName">valIn[15:0]</obj_property>
+      <obj_property name="label">Jump Value</obj_property>
+      <obj_property name="CustomSignalColor">#FF00FF</obj_property>
+      <obj_property name="UseCustomSignalColor">true</obj_property>
+   </wvobject>
+   <wvobject fp_name="/CPUControl/cpu/pc/set" type="logic">
+      <obj_property name="DisplayName">label</obj_property>
+      <obj_property name="ElementShortName">set</obj_property>
+      <obj_property name="ObjectShortName">set</obj_property>
+      <obj_property name="label">Set</obj_property>
+      <obj_property name="CustomSignalColor">#FFFF00</obj_property>
+      <obj_property name="UseCustomSignalColor">true</obj_property>
+   </wvobject>
+   <wvobject fp_name="/CPUControl/cpu/pc/debugOut" type="array">
+      <obj_property name="DisplayName">label</obj_property>
+      <obj_property name="ElementShortName">debugOut[15:0]</obj_property>
+      <obj_property name="ObjectShortName">debugOut[15:0]</obj_property>
+      <obj_property name="label">Count</obj_property>
+      <obj_property name="CustomSignalColor">#FF00FF</obj_property>
+      <obj_property name="UseCustomSignalColor">true</obj_property>
+   </wvobject>
+   <wvobject type="divider" fp_name="divider235">
+      <obj_property name="label">Boot ROM</obj_property>
+      <obj_property name="DisplayName">label</obj_property>
+      <obj_property name="BkColor">#FF00FF</obj_property>
+   </wvobject>
+   <wvobject fp_name="/CPUControl/cpu/brom/addr" type="array">
+      <obj_property name="DisplayName">label</obj_property>
+      <obj_property name="ElementShortName">addr[5:0]</obj_property>
+      <obj_property name="ObjectShortName">addr[5:0]</obj_property>
+      <obj_property name="label">Instruction #</obj_property>
+      <obj_property name="CustomSignalColor">#FF00FF</obj_property>
+      <obj_property name="UseCustomSignalColor">true</obj_property>
+   </wvobject>
+   <wvobject fp_name="/CPUControl/cpu/brom/en" type="logic">
+      <obj_property name="DisplayName">label</obj_property>
+      <obj_property name="ElementShortName">en</obj_property>
+      <obj_property name="ObjectShortName">en</obj_property>
+      <obj_property name="label">Read</obj_property>
+      <obj_property name="CustomSignalColor">#FFFF00</obj_property>
+      <obj_property name="UseCustomSignalColor">true</obj_property>
+   </wvobject>
+   <wvobject fp_name="/CPUControl/cpu/brom/instrOut" type="array">
+      <obj_property name="DisplayName">label</obj_property>
+      <obj_property name="ElementShortName">instrOut[15:0]</obj_property>
+      <obj_property name="ObjectShortName">instrOut[15:0]</obj_property>
+      <obj_property name="label">Output</obj_property>
+      <obj_property name="CustomSignalColor">#00FFFF</obj_property>
+      <obj_property name="UseCustomSignalColor">true</obj_property>
+   </wvobject>
+   <wvobject type="divider" fp_name="divider284">
+      <obj_property name="label">ALU Src Mux (Mux0)</obj_property>
+      <obj_property name="DisplayName">label</obj_property>
+      <obj_property name="BkColor">#DCDCDC</obj_property>
+   </wvobject>
+   <wvobject fp_name="/CPUControl/cpu/muxAccOp/aIn" type="array">
+      <obj_property name="DisplayName">label</obj_property>
+      <obj_property name="ElementShortName">aIn[15:0]</obj_property>
+      <obj_property name="ObjectShortName">aIn[15:0]</obj_property>
+      <obj_property name="label">Push Value</obj_property>
+      <obj_property name="CustomSignalColor">#FF00FF</obj_property>
+      <obj_property name="UseCustomSignalColor">true</obj_property>
+   </wvobject>
+   <wvobject fp_name="/CPUControl/cpu/muxAccOp/bIn" type="array">
+      <obj_property name="DisplayName">label</obj_property>
+      <obj_property name="ElementShortName">bIn[15:0]</obj_property>
+      <obj_property name="ObjectShortName">bIn[15:0]</obj_property>
+      <obj_property name="label">ALU Output</obj_property>
+      <obj_property name="CustomSignalColor">#FF00FF</obj_property>
+      <obj_property name="UseCustomSignalColor">true</obj_property>
+   </wvobject>
+   <wvobject fp_name="/CPUControl/cpu/muxAccOp/sel" type="logic">
+      <obj_property name="DisplayName">label</obj_property>
+      <obj_property name="ElementShortName">sel</obj_property>
+      <obj_property name="ObjectShortName">sel</obj_property>
+      <obj_property name="label">Select</obj_property>
+      <obj_property name="CustomSignalColor">#FFFF00</obj_property>
+      <obj_property name="UseCustomSignalColor">true</obj_property>
+   </wvobject>
+   <wvobject fp_name="/CPUControl/cpu/muxAccOp/dOut" type="array">
+      <obj_property name="DisplayName">label</obj_property>
+      <obj_property name="ElementShortName">dOut[15:0]</obj_property>
+      <obj_property name="ObjectShortName">dOut[15:0]</obj_property>
+      <obj_property name="label">Output</obj_property>
+      <obj_property name="CustomSignalColor">#FF00FF</obj_property>
+      <obj_property name="UseCustomSignalColor">true</obj_property>
+   </wvobject>
+   <wvobject type="divider" fp_name="divider289">
+      <obj_property name="label">Acc Src Mux (Mux1)</obj_property>
+      <obj_property name="DisplayName">label</obj_property>
+      <obj_property name="BkColor">#DCDCDC</obj_property>
+   </wvobject>
+   <wvobject fp_name="/CPUControl/cpu/muxAccSel/aIn" type="array">
+      <obj_property name="DisplayName">label</obj_property>
+      <obj_property name="ElementShortName">aIn[15:0]</obj_property>
+      <obj_property name="ObjectShortName">aIn[15:0]</obj_property>
+      <obj_property name="label">Data Bus</obj_property>
+      <obj_property name="CustomSignalColor">#FF00FF</obj_property>
+      <obj_property name="UseCustomSignalColor">true</obj_property>
+   </wvobject>
+   <wvobject fp_name="/CPUControl/cpu/muxAccSel/bIn" type="array">
+      <obj_property name="DisplayName">label</obj_property>
+      <obj_property name="ElementShortName">bIn[15:0]</obj_property>
+      <obj_property name="ObjectShortName">bIn[15:0]</obj_property>
+      <obj_property name="label">Mux0 Out</obj_property>
+      <obj_property name="CustomSignalColor">#FF00FF</obj_property>
+      <obj_property name="UseCustomSignalColor">true</obj_property>
+   </wvobject>
+   <wvobject fp_name="/CPUControl/cpu/muxAccSel/sel" type="logic">
+      <obj_property name="DisplayName">label</obj_property>
+      <obj_property name="ElementShortName">sel</obj_property>
+      <obj_property name="ObjectShortName">sel</obj_property>
+      <obj_property name="label">Select</obj_property>
+      <obj_property name="CustomSignalColor">#FFFF00</obj_property>
+      <obj_property name="UseCustomSignalColor">true</obj_property>
+   </wvobject>
+   <wvobject fp_name="/CPUControl/cpu/muxAccSel/dOut" type="array">
+      <obj_property name="DisplayName">label</obj_property>
+      <obj_property name="ElementShortName">dOut[15:0]</obj_property>
+      <obj_property name="ObjectShortName">dOut[15:0]</obj_property>
+      <obj_property name="label">Output</obj_property>
+      <obj_property name="CustomSignalColor">#FF00FF</obj_property>
+      <obj_property name="UseCustomSignalColor">true</obj_property>
+   </wvobject>
+   <wvobject type="divider" fp_name="divider248">
+      <obj_property name="label">Comparator</obj_property>
+      <obj_property name="DisplayName">label</obj_property>
+      <obj_property name="BkColor">#DCDCDC</obj_property>
+   </wvobject>
+   <wvobject fp_name="/CPUControl/cpu/cmp/dIn" type="array">
+      <obj_property name="DisplayName">label</obj_property>
+      <obj_property name="ElementShortName">dIn[15:0]</obj_property>
+      <obj_property name="ObjectShortName">dIn[15:0]</obj_property>
+      <obj_property name="label">Input</obj_property>
+      <obj_property name="CustomSignalColor">#FF00FF</obj_property>
+      <obj_property name="UseCustomSignalColor">true</obj_property>
+   </wvobject>
+   <wvobject fp_name="/CPUControl/cpu/cmp/lt" type="logic">
+      <obj_property name="DisplayName">label</obj_property>
+      <obj_property name="ElementShortName">lt</obj_property>
+      <obj_property name="ObjectShortName">lt</obj_property>
+      <obj_property name="label">If &lt; 0</obj_property>
+      <obj_property name="CustomSignalColor">#FFFF00</obj_property>
+      <obj_property name="UseCustomSignalColor">true</obj_property>
+   </wvobject>
+   <wvobject fp_name="/CPUControl/cpu/cmp/eq" type="logic">
+      <obj_property name="DisplayName">label</obj_property>
+      <obj_property name="ElementShortName">eq</obj_property>
+      <obj_property name="ObjectShortName">eq</obj_property>
+      <obj_property name="label">If = 0</obj_property>
+      <obj_property name="CustomSignalColor">#FFFF00</obj_property>
+      <obj_property name="UseCustomSignalColor">true</obj_property>
+   </wvobject>
+   <wvobject fp_name="/CPUControl/cpu/cmp/gt" type="logic">
+      <obj_property name="DisplayName">label</obj_property>
+      <obj_property name="ElementShortName">gt</obj_property>
+      <obj_property name="ObjectShortName">gt</obj_property>
+      <obj_property name="label">If &gt; 0</obj_property>
+      <obj_property name="CustomSignalColor">#FFFF00</obj_property>
+      <obj_property name="UseCustomSignalColor">true</obj_property>
+   </wvobject>
+   <wvobject fp_name="/CPUControl/cpu/cmp/jmpEn" type="logic">
+      <obj_property name="DisplayName">label</obj_property>
+      <obj_property name="ElementShortName">jmpEn</obj_property>
+      <obj_property name="ObjectShortName">jmpEn</obj_property>
+      <obj_property name="label">Jump OK</obj_property>
+      <obj_property name="CustomSignalColor">#FFFF00</obj_property>
+      <obj_property name="UseCustomSignalColor">true</obj_property>
+   </wvobject>
+   <wvobject type="divider" fp_name="divider168">
+      <obj_property name="label">Accumulator (R2)</obj_property>
+      <obj_property name="DisplayName">label</obj_property>
+      <obj_property name="BkColor">#00FFFF</obj_property>
+   </wvobject>
+   <wvobject fp_name="/CPUControl/cpu/regAccum/dOut2" type="array">
+      <obj_property name="DisplayName">label</obj_property>
+      <obj_property name="ElementShortName">dOut2[15:0]</obj_property>
+      <obj_property name="ObjectShortName">dOut2[15:0]</obj_property>
+      <obj_property name="label">Value</obj_property>
+      <obj_property name="CustomSignalColor">#FF00FF</obj_property>
+      <obj_property name="UseCustomSignalColor">true</obj_property>
+   </wvobject>
+   <wvobject fp_name="/CPUControl/cpu/regAccum/dIn" type="array">
+      <obj_property name="DisplayName">label</obj_property>
+      <obj_property name="ElementShortName">dIn[15:0]</obj_property>
+      <obj_property name="ObjectShortName">dIn[15:0]</obj_property>
+      <obj_property name="label">Input</obj_property>
+      <obj_property name="CustomSignalColor">#FF00FF</obj_property>
+      <obj_property name="UseCustomSignalColor">true</obj_property>
+   </wvobject>
+   <wvobject fp_name="/CPUControl/cpu/regAccum/clockSig" type="logic">
+      <obj_property name="DisplayName">label</obj_property>
+      <obj_property name="ElementShortName">clockSig</obj_property>
+      <obj_property name="ObjectShortName">clockSig</obj_property>
+      <obj_property name="label">Clock</obj_property>
+   </wvobject>
+   <wvobject fp_name="/CPUControl/cpu/regAccum/read" type="logic">
+      <obj_property name="DisplayName">label</obj_property>
+      <obj_property name="ElementShortName">read</obj_property>
+      <obj_property name="ObjectShortName">read</obj_property>
+      <obj_property name="label">Read</obj_property>
+      <obj_property name="CustomSignalColor">#FFFF00</obj_property>
+      <obj_property name="UseCustomSignalColor">true</obj_property>
+   </wvobject>
+   <wvobject fp_name="/CPUControl/cpu/regAccum/write" type="logic">
+      <obj_property name="DisplayName">label</obj_property>
+      <obj_property name="ElementShortName">write</obj_property>
+      <obj_property name="ObjectShortName">write</obj_property>
+      <obj_property name="label">Write</obj_property>
+      <obj_property name="CustomSignalColor">#FFFF00</obj_property>
+      <obj_property name="UseCustomSignalColor">true</obj_property>
+   </wvobject>
+   <wvobject fp_name="/CPUControl/cpu/regAccum/dOut" type="array">
+      <obj_property name="DisplayName">label</obj_property>
+      <obj_property name="ElementShortName">dOut[15:0]</obj_property>
+      <obj_property name="ObjectShortName">dOut[15:0]</obj_property>
+      <obj_property name="label">Output</obj_property>
+      <obj_property name="CustomSignalColor">#FF00FF</obj_property>
+      <obj_property name="UseCustomSignalColor">true</obj_property>
+   </wvobject>
+   <wvobject type="divider" fp_name="divider184">
+      <obj_property name="label">Jump Address (R3)</obj_property>
+      <obj_property name="DisplayName">label</obj_property>
+      <obj_property name="BkColor">#FFFF00</obj_property>
+   </wvobject>
+   <wvobject fp_name="/CPUControl/cpu/regJmpAddr/dOut2" type="array">
+      <obj_property name="DisplayName">label</obj_property>
+      <obj_property name="ElementShortName">dOut2[15:0]</obj_property>
+      <obj_property name="ObjectShortName">dOut2[15:0]</obj_property>
+      <obj_property name="label">Value</obj_property>
+      <obj_property name="CustomSignalColor">#FF00FF</obj_property>
+      <obj_property name="UseCustomSignalColor">true</obj_property>
+   </wvobject>
+   <wvobject fp_name="/CPUControl/cpu/regJmpAddr/dIn" type="array">
+      <obj_property name="DisplayName">label</obj_property>
+      <obj_property name="ElementShortName">dIn[15:0]</obj_property>
+      <obj_property name="ObjectShortName">dIn[15:0]</obj_property>
+      <obj_property name="label">Input</obj_property>
+      <obj_property name="CustomSignalColor">#FF00FF</obj_property>
+      <obj_property name="UseCustomSignalColor">true</obj_property>
+   </wvobject>
+   <wvobject fp_name="/CPUControl/cpu/regJmpAddr/clockSig" type="logic">
+      <obj_property name="DisplayName">label</obj_property>
+      <obj_property name="ElementShortName">clockSig</obj_property>
+      <obj_property name="ObjectShortName">clockSig</obj_property>
+      <obj_property name="label">Clock</obj_property>
+   </wvobject>
+   <wvobject fp_name="/CPUControl/cpu/regJmpAddr/read" type="logic">
+      <obj_property name="DisplayName">label</obj_property>
+      <obj_property name="ElementShortName">read</obj_property>
+      <obj_property name="ObjectShortName">read</obj_property>
+      <obj_property name="label">Read</obj_property>
+      <obj_property name="CustomSignalColor">#FFFF00</obj_property>
+      <obj_property name="UseCustomSignalColor">true</obj_property>
+   </wvobject>
+   <wvobject fp_name="/CPUControl/cpu/regJmpAddr/write" type="logic">
+      <obj_property name="DisplayName">label</obj_property>
+      <obj_property name="ElementShortName">write</obj_property>
+      <obj_property name="ObjectShortName">write</obj_property>
+      <obj_property name="label">Write</obj_property>
+      <obj_property name="CustomSignalColor">#FFFF00</obj_property>
+      <obj_property name="UseCustomSignalColor">true</obj_property>
+   </wvobject>
+   <wvobject fp_name="/CPUControl/cpu/regJmpAddr/dOut" type="array">
+      <obj_property name="DisplayName">label</obj_property>
+      <obj_property name="ElementShortName">dOut[15:0]</obj_property>
+      <obj_property name="ObjectShortName">dOut[15:0]</obj_property>
+      <obj_property name="label">Output</obj_property>
+      <obj_property name="CustomSignalColor">#FF00FF</obj_property>
+      <obj_property name="UseCustomSignalColor">true</obj_property>
+   </wvobject>
+   <wvobject type="divider" fp_name="divider191">
+      <obj_property name="label">I/O LSB (R4)</obj_property>
+      <obj_property name="DisplayName">label</obj_property>
+      <obj_property name="BkColor">#008080</obj_property>
+   </wvobject>
+   <wvobject fp_name="/CPUControl/cpu/regIOLSB/debugOut" type="array">
+      <obj_property name="DisplayName">label</obj_property>
+      <obj_property name="ElementShortName">debugOut[15:0]</obj_property>
+      <obj_property name="ObjectShortName">debugOut[15:0]</obj_property>
+      <obj_property name="label">Value</obj_property>
+      <obj_property name="CustomSignalColor">#FF00FF</obj_property>
+      <obj_property name="UseCustomSignalColor">true</obj_property>
+   </wvobject>
+   <wvobject fp_name="/CPUControl/cpu/regIOLSB/dIn" type="array">
+      <obj_property name="DisplayName">label</obj_property>
+      <obj_property name="ElementShortName">dIn[15:0]</obj_property>
+      <obj_property name="ObjectShortName">dIn[15:0]</obj_property>
+      <obj_property name="label">Input</obj_property>
+      <obj_property name="CustomSignalColor">#FF00FF</obj_property>
+      <obj_property name="UseCustomSignalColor">true</obj_property>
+   </wvobject>
+   <wvobject fp_name="/CPUControl/cpu/regIOLSB/clockSig" type="logic">
+      <obj_property name="DisplayName">label</obj_property>
+      <obj_property name="ElementShortName">clockSig</obj_property>
+      <obj_property name="ObjectShortName">clockSig</obj_property>
+      <obj_property name="label">Clock</obj_property>
+   </wvobject>
+   <wvobject fp_name="/CPUControl/cpu/regIOLSB/read" type="logic">
+      <obj_property name="DisplayName">label</obj_property>
+      <obj_property name="ElementShortName">read</obj_property>
+      <obj_property name="ObjectShortName">read</obj_property>
+      <obj_property name="label">Read</obj_property>
+      <obj_property name="CustomSignalColor">#FFFF00</obj_property>
+      <obj_property name="UseCustomSignalColor">true</obj_property>
+   </wvobject>
+   <wvobject fp_name="/CPUControl/cpu/regIOLSB/write" type="logic">
+      <obj_property name="DisplayName">label</obj_property>
+      <obj_property name="ElementShortName">write</obj_property>
+      <obj_property name="ObjectShortName">write</obj_property>
+      <obj_property name="label">Write</obj_property>
+      <obj_property name="CustomSignalColor">#FFFF00</obj_property>
+      <obj_property name="UseCustomSignalColor">true</obj_property>
+   </wvobject>
+   <wvobject fp_name="/CPUControl/cpu/regIOLSB/dOut" type="array">
+      <obj_property name="DisplayName">label</obj_property>
+      <obj_property name="ElementShortName">dOut[15:0]</obj_property>
+      <obj_property name="ObjectShortName">dOut[15:0]</obj_property>
+      <obj_property name="label">Output</obj_property>
+      <obj_property name="CustomSignalColor">#FF00FF</obj_property>
+      <obj_property name="UseCustomSignalColor">true</obj_property>
+   </wvobject>
+   <wvobject type="divider" fp_name="divider199">
+      <obj_property name="label">I/O MSB (R5)</obj_property>
+      <obj_property name="DisplayName">label</obj_property>
+      <obj_property name="BkColor">#008080</obj_property>
+   </wvobject>
+   <wvobject fp_name="/CPUControl/cpu/regIOMSB/debugOut" type="array">
+      <obj_property name="DisplayName">label</obj_property>
+      <obj_property name="ElementShortName">debugOut[15:0]</obj_property>
+      <obj_property name="ObjectShortName">debugOut[15:0]</obj_property>
+      <obj_property name="label">Value</obj_property>
+      <obj_property name="CustomSignalColor">#FF00FF</obj_property>
+      <obj_property name="UseCustomSignalColor">true</obj_property>
+   </wvobject>
+   <wvobject fp_name="/CPUControl/cpu/regIOMSB/dIn" type="array">
+      <obj_property name="DisplayName">label</obj_property>
+      <obj_property name="ElementShortName">dIn[15:0]</obj_property>
+      <obj_property name="ObjectShortName">dIn[15:0]</obj_property>
+      <obj_property name="label">Input</obj_property>
+      <obj_property name="CustomSignalColor">#FF00FF</obj_property>
+      <obj_property name="UseCustomSignalColor">true</obj_property>
+   </wvobject>
+   <wvobject fp_name="/CPUControl/cpu/regIOMSB/clockSig" type="logic">
+      <obj_property name="DisplayName">label</obj_property>
+      <obj_property name="ElementShortName">clockSig</obj_property>
+      <obj_property name="ObjectShortName">clockSig</obj_property>
+      <obj_property name="label">Clock</obj_property>
+   </wvobject>
+   <wvobject fp_name="/CPUControl/cpu/regIOMSB/read" type="logic">
+      <obj_property name="DisplayName">label</obj_property>
+      <obj_property name="ElementShortName">read</obj_property>
+      <obj_property name="ObjectShortName">read</obj_property>
+      <obj_property name="label">Read</obj_property>
+      <obj_property name="CustomSignalColor">#FFFF00</obj_property>
+      <obj_property name="UseCustomSignalColor">true</obj_property>
+   </wvobject>
+   <wvobject fp_name="/CPUControl/cpu/regIOMSB/write" type="logic">
+      <obj_property name="DisplayName">label</obj_property>
+      <obj_property name="ElementShortName">write</obj_property>
+      <obj_property name="ObjectShortName">write</obj_property>
+      <obj_property name="label">Write</obj_property>
+      <obj_property name="CustomSignalColor">#FFFF00</obj_property>
+      <obj_property name="UseCustomSignalColor">true</obj_property>
+   </wvobject>
+   <wvobject fp_name="/CPUControl/cpu/regIOMSB/dOut" type="array">
+      <obj_property name="DisplayName">label</obj_property>
+      <obj_property name="ElementShortName">dOut[15:0]</obj_property>
+      <obj_property name="ObjectShortName">dOut[15:0]</obj_property>
+      <obj_property name="label">Output</obj_property>
+      <obj_property name="CustomSignalColor">#FF00FF</obj_property>
+      <obj_property name="UseCustomSignalColor">true</obj_property>
+   </wvobject>
+   <wvobject type="divider" fp_name="divider206">
+      <obj_property name="label">ALU A (R6)</obj_property>
+      <obj_property name="DisplayName">label</obj_property>
+      <obj_property name="BkColor">#FFA500</obj_property>
+   </wvobject>
+   <wvobject fp_name="/CPUControl/cpu/regALUA/debugOut" type="array">
+      <obj_property name="DisplayName">label</obj_property>
+      <obj_property name="ElementShortName">debugOut[15:0]</obj_property>
+      <obj_property name="ObjectShortName">debugOut[15:0]</obj_property>
+      <obj_property name="label">Value</obj_property>
+      <obj_property name="CustomSignalColor">#FF00FF</obj_property>
+      <obj_property name="UseCustomSignalColor">true</obj_property>
+   </wvobject>
+   <wvobject fp_name="/CPUControl/cpu/regALUA/dIn" type="array">
+      <obj_property name="DisplayName">label</obj_property>
+      <obj_property name="ElementShortName">dIn[15:0]</obj_property>
+      <obj_property name="ObjectShortName">dIn[15:0]</obj_property>
+      <obj_property name="label">Input</obj_property>
+      <obj_property name="CustomSignalColor">#FF00FF</obj_property>
+      <obj_property name="UseCustomSignalColor">true</obj_property>
+   </wvobject>
+   <wvobject fp_name="/CPUControl/cpu/regALUA/clockSig" type="logic">
+      <obj_property name="DisplayName">label</obj_property>
+      <obj_property name="ElementShortName">clockSig</obj_property>
+      <obj_property name="ObjectShortName">clockSig</obj_property>
+      <obj_property name="label">Clock</obj_property>
+   </wvobject>
+   <wvobject fp_name="/CPUControl/cpu/regALUA/read" type="logic">
+      <obj_property name="DisplayName">label</obj_property>
+      <obj_property name="ElementShortName">read</obj_property>
+      <obj_property name="ObjectShortName">read</obj_property>
+      <obj_property name="label">Read</obj_property>
+      <obj_property name="CustomSignalColor">#FFFF00</obj_property>
+      <obj_property name="UseCustomSignalColor">true</obj_property>
+   </wvobject>
+   <wvobject fp_name="/CPUControl/cpu/regALUA/write" type="logic">
+      <obj_property name="DisplayName">label</obj_property>
+      <obj_property name="ElementShortName">write</obj_property>
+      <obj_property name="ObjectShortName">write</obj_property>
+      <obj_property name="label">Write</obj_property>
+      <obj_property name="CustomSignalColor">#FFFF00</obj_property>
+      <obj_property name="UseCustomSignalColor">true</obj_property>
+   </wvobject>
+   <wvobject fp_name="/CPUControl/cpu/regALUA/dOut" type="array">
+      <obj_property name="DisplayName">label</obj_property>
+      <obj_property name="ElementShortName">dOut[15:0]</obj_property>
+      <obj_property name="ObjectShortName">dOut[15:0]</obj_property>
+      <obj_property name="label">Output</obj_property>
+      <obj_property name="CustomSignalColor">#FF00FF</obj_property>
+      <obj_property name="UseCustomSignalColor">true</obj_property>
+   </wvobject>
+   <wvobject type="divider" fp_name="divider213">
+      <obj_property name="label">ALU B (R7)</obj_property>
+      <obj_property name="DisplayName">label</obj_property>
+      <obj_property name="BkColor">#FFA500</obj_property>
+   </wvobject>
+   <wvobject fp_name="/CPUControl/cpu/regALUB/debugOut" type="array">
+      <obj_property name="DisplayName">label</obj_property>
+      <obj_property name="ElementShortName">debugOut[15:0]</obj_property>
+      <obj_property name="ObjectShortName">debugOut[15:0]</obj_property>
+      <obj_property name="label">Value</obj_property>
+      <obj_property name="CustomSignalColor">#FF00FF</obj_property>
+      <obj_property name="UseCustomSignalColor">true</obj_property>
+   </wvobject>
+   <wvobject fp_name="/CPUControl/cpu/regALUB/dIn" type="array">
+      <obj_property name="DisplayName">label</obj_property>
+      <obj_property name="ElementShortName">dIn[15:0]</obj_property>
+      <obj_property name="ObjectShortName">dIn[15:0]</obj_property>
+      <obj_property name="label">Input</obj_property>
+      <obj_property name="CustomSignalColor">#FF00FF</obj_property>
+      <obj_property name="UseCustomSignalColor">true</obj_property>
+   </wvobject>
+   <wvobject fp_name="/CPUControl/cpu/regALUB/clockSig" type="logic">
+      <obj_property name="DisplayName">label</obj_property>
+      <obj_property name="ElementShortName">clockSig</obj_property>
+      <obj_property name="ObjectShortName">clockSig</obj_property>
+      <obj_property name="label">Clock</obj_property>
+   </wvobject>
+   <wvobject fp_name="/CPUControl/cpu/regALUB/read" type="logic">
+      <obj_property name="DisplayName">label</obj_property>
+      <obj_property name="ElementShortName">read</obj_property>
+      <obj_property name="ObjectShortName">read</obj_property>
+      <obj_property name="label">Read</obj_property>
+      <obj_property name="CustomSignalColor">#FFFF00</obj_property>
+      <obj_property name="UseCustomSignalColor">true</obj_property>
+   </wvobject>
+   <wvobject fp_name="/CPUControl/cpu/regALUB/write" type="logic">
+      <obj_property name="DisplayName">label</obj_property>
+      <obj_property name="ElementShortName">write</obj_property>
+      <obj_property name="ObjectShortName">write</obj_property>
+      <obj_property name="label">Write</obj_property>
+      <obj_property name="CustomSignalColor">#FFFF00</obj_property>
+      <obj_property name="UseCustomSignalColor">true</obj_property>
+   </wvobject>
+   <wvobject fp_name="/CPUControl/cpu/regALUB/dOut" type="array">
+      <obj_property name="DisplayName">label</obj_property>
+      <obj_property name="ElementShortName">dOut[15:0]</obj_property>
+      <obj_property name="ObjectShortName">dOut[15:0]</obj_property>
+      <obj_property name="label">Output</obj_property>
+      <obj_property name="CustomSignalColor">#FF00FF</obj_property>
+      <obj_property name="UseCustomSignalColor">true</obj_property>
+   </wvobject>
+   <wvobject type="divider" fp_name="divider220">
+      <obj_property name="label">GP0 (R8)</obj_property>
+      <obj_property name="DisplayName">label</obj_property>
+      <obj_property name="BkColor">#808000</obj_property>
+   </wvobject>
+   <wvobject fp_name="/CPUControl/cpu/regR8/debugOut" type="array">
+      <obj_property name="DisplayName">label</obj_property>
+      <obj_property name="ElementShortName">debugOut[15:0]</obj_property>
+      <obj_property name="ObjectShortName">debugOut[15:0]</obj_property>
+      <obj_property name="label">Value</obj_property>
+   </wvobject>
+   <wvobject fp_name="/CPUControl/cpu/regR8/dIn" type="array">
+      <obj_property name="DisplayName">label</obj_property>
+      <obj_property name="ElementShortName">dIn[15:0]</obj_property>
+      <obj_property name="ObjectShortName">dIn[15:0]</obj_property>
+      <obj_property name="label">Input</obj_property>
+      <obj_property name="CustomSignalColor">#FF00FF</obj_property>
+      <obj_property name="UseCustomSignalColor">true</obj_property>
+   </wvobject>
+   <wvobject fp_name="/CPUControl/cpu/regR8/clockSig" type="logic">
+      <obj_property name="DisplayName">label</obj_property>
+      <obj_property name="ElementShortName">clockSig</obj_property>
+      <obj_property name="ObjectShortName">clockSig</obj_property>
+      <obj_property name="label">Clock</obj_property>
+   </wvobject>
+   <wvobject fp_name="/CPUControl/cpu/regR8/read" type="logic">
+      <obj_property name="DisplayName">label</obj_property>
+      <obj_property name="ElementShortName">read</obj_property>
+      <obj_property name="ObjectShortName">read</obj_property>
+      <obj_property name="label">Read</obj_property>
+      <obj_property name="CustomSignalColor">#FFFF00</obj_property>
+      <obj_property name="UseCustomSignalColor">true</obj_property>
+   </wvobject>
+   <wvobject fp_name="/CPUControl/cpu/regR8/write" type="logic">
+      <obj_property name="DisplayName">label</obj_property>
+      <obj_property name="ElementShortName">write</obj_property>
+      <obj_property name="ObjectShortName">write</obj_property>
+      <obj_property name="label">Write</obj_property>
+      <obj_property name="CustomSignalColor">#FFFF00</obj_property>
+      <obj_property name="UseCustomSignalColor">true</obj_property>
+   </wvobject>
+   <wvobject fp_name="/CPUControl/cpu/regR8/dOut" type="array">
+      <obj_property name="DisplayName">label</obj_property>
+      <obj_property name="ElementShortName">dOut[15:0]</obj_property>
+      <obj_property name="ObjectShortName">dOut[15:0]</obj_property>
+      <obj_property name="label">Output</obj_property>
+      <obj_property name="CustomSignalColor">#FF00FF</obj_property>
+      <obj_property name="UseCustomSignalColor">true</obj_property>
+   </wvobject>
+   <wvobject type="divider" fp_name="divider227">
+      <obj_property name="label">GP1 (R9)</obj_property>
+      <obj_property name="DisplayName">label</obj_property>
+      <obj_property name="BkColor">#808000</obj_property>
+   </wvobject>
+   <wvobject fp_name="/CPUControl/cpu/regR9/debugOut" type="array">
+      <obj_property name="DisplayName">label</obj_property>
+      <obj_property name="ElementShortName">debugOut[15:0]</obj_property>
+      <obj_property name="ObjectShortName">debugOut[15:0]</obj_property>
+      <obj_property name="label">Value</obj_property>
+      <obj_property name="CustomSignalColor">#FF00FF</obj_property>
+      <obj_property name="UseCustomSignalColor">true</obj_property>
+   </wvobject>
+   <wvobject fp_name="/CPUControl/cpu/regR9/dIn" type="array">
+      <obj_property name="DisplayName">label</obj_property>
+      <obj_property name="ElementShortName">dIn[15:0]</obj_property>
+      <obj_property name="ObjectShortName">dIn[15:0]</obj_property>
+      <obj_property name="label">Input</obj_property>
+      <obj_property name="CustomSignalColor">#FF00FF</obj_property>
+      <obj_property name="UseCustomSignalColor">true</obj_property>
+   </wvobject>
+   <wvobject fp_name="/CPUControl/cpu/regR9/clockSig" type="logic">
+      <obj_property name="DisplayName">label</obj_property>
+      <obj_property name="ElementShortName">clockSig</obj_property>
+      <obj_property name="ObjectShortName">clockSig</obj_property>
+      <obj_property name="label">Clock</obj_property>
+   </wvobject>
+   <wvobject fp_name="/CPUControl/cpu/regR9/read" type="logic">
+      <obj_property name="DisplayName">label</obj_property>
+      <obj_property name="ElementShortName">read</obj_property>
+      <obj_property name="ObjectShortName">read</obj_property>
+      <obj_property name="label">Read</obj_property>
+      <obj_property name="CustomSignalColor">#FFFF00</obj_property>
+      <obj_property name="UseCustomSignalColor">true</obj_property>
+   </wvobject>
+   <wvobject fp_name="/CPUControl/cpu/regR9/write" type="logic">
+      <obj_property name="DisplayName">label</obj_property>
+      <obj_property name="ElementShortName">write</obj_property>
+      <obj_property name="ObjectShortName">write</obj_property>
+      <obj_property name="label">Write</obj_property>
+      <obj_property name="CustomSignalColor">#FFFF00</obj_property>
+      <obj_property name="UseCustomSignalColor">true</obj_property>
+   </wvobject>
+   <wvobject fp_name="/CPUControl/cpu/regR9/dOut" type="array">
+      <obj_property name="DisplayName">label</obj_property>
+      <obj_property name="ElementShortName">dOut[15:0]</obj_property>
+      <obj_property name="ObjectShortName">dOut[15:0]</obj_property>
+      <obj_property name="label">Output</obj_property>
+      <obj_property name="CustomSignalColor">#FF00FF</obj_property>
+      <obj_property name="UseCustomSignalColor">true</obj_property>
+   </wvobject>
+   <wvobject type="divider" fp_name="divider1058">
+      <obj_property name="label">ALU</obj_property>
+      <obj_property name="DisplayName">label</obj_property>
+      <obj_property name="BkColor">#FF0000</obj_property>
+   </wvobject>
+   <wvobject fp_name="/CPUControl/cpu/alu/aIn" type="array">
+      <obj_property name="DisplayName">label</obj_property>
+      <obj_property name="ElementShortName">aIn[15:0]</obj_property>
+      <obj_property name="ObjectShortName">aIn[15:0]</obj_property>
+      <obj_property name="label">A</obj_property>
+   </wvobject>
+   <wvobject fp_name="/CPUControl/cpu/alu/bIn" type="array">
+      <obj_property name="DisplayName">label</obj_property>
+      <obj_property name="ElementShortName">bIn[15:0]</obj_property>
+      <obj_property name="ObjectShortName">bIn[15:0]</obj_property>
+      <obj_property name="label">B</obj_property>
+   </wvobject>
+   <wvobject fp_name="/CPUControl/cpu/alu/op" type="array">
+      <obj_property name="DisplayName">label</obj_property>
+      <obj_property name="ElementShortName">op[2:0]</obj_property>
+      <obj_property name="ObjectShortName">op[2:0]</obj_property>
+      <obj_property name="label">Operation</obj_property>
+   </wvobject>
+   <wvobject fp_name="/CPUControl/cpu/alu/negA" type="logic">
+      <obj_property name="DisplayName">label</obj_property>
+      <obj_property name="ElementShortName">negA</obj_property>
+      <obj_property name="ObjectShortName">negA</obj_property>
+      <obj_property name="label">Invert A</obj_property>
+   </wvobject>
+   <wvobject fp_name="/CPUControl/cpu/alu/negB" type="logic">
+      <obj_property name="DisplayName">label</obj_property>
+      <obj_property name="ElementShortName">negB</obj_property>
+      <obj_property name="ObjectShortName">negB</obj_property>
+      <obj_property name="label">Invert B</obj_property>
+   </wvobject>
+   <wvobject fp_name="/CPUControl/cpu/alu/zeroB" type="logic">
+      <obj_property name="DisplayName">label</obj_property>
+      <obj_property name="ElementShortName">zeroB</obj_property>
+      <obj_property name="ObjectShortName">zeroB</obj_property>
+      <obj_property name="label">Zero B</obj_property>
+   </wvobject>
+   <wvobject fp_name="/CPUControl/cpu/alu/negQ" type="logic">
+      <obj_property name="DisplayName">label</obj_property>
+      <obj_property name="ElementShortName">negQ</obj_property>
+      <obj_property name="ObjectShortName">negQ</obj_property>
+      <obj_property name="label">Invert Out</obj_property>
+   </wvobject>
+   <wvobject fp_name="/CPUControl/cpu/alu/arg" type="logic">
+      <obj_property name="DisplayName">label</obj_property>
+      <obj_property name="ElementShortName">arg</obj_property>
+      <obj_property name="ObjectShortName">arg</obj_property>
+      <obj_property name="label">Inc/LShift</obj_property>
+   </wvobject>
+   <wvobject fp_name="/CPUControl/cpu/alu/arth" type="logic">
+      <obj_property name="DisplayName">label</obj_property>
+      <obj_property name="ElementShortName">arth</obj_property>
+      <obj_property name="ObjectShortName">arth</obj_property>
+      <obj_property name="label">Arith. Shift</obj_property>
+   </wvobject>
+   <wvobject fp_name="/CPUControl/cpu/alu/rot" type="logic">
+      <obj_property name="DisplayName">label</obj_property>
+      <obj_property name="ElementShortName">rot</obj_property>
+      <obj_property name="ObjectShortName">rot</obj_property>
+      <obj_property name="label">Rotation</obj_property>
+   </wvobject>
+   <wvobject fp_name="/CPUControl/cpu/alu/aluOut" type="array">
+      <obj_property name="DisplayName">label</obj_property>
+      <obj_property name="ElementShortName">aluOut[15:0]</obj_property>
+      <obj_property name="ObjectShortName">aluOut[15:0]</obj_property>
+      <obj_property name="label">Output</obj_property>
+   </wvobject>
+</wave_config>

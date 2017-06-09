@@ -27,7 +27,7 @@ module BootRom(
     output [15:0] debugOut
   );
   
-  reg [15:0] instr;
+  reg [15:0] instr = 16'h0000;
   
   always @ (addr) begin
     case(addr)

@@ -38,7 +38,7 @@ module Mux16B16to1(
     input [15:0] dIn14,
     input [15:0] dIn15,
     input [3:0] sel,
-    output reg [15:0] dOut
+    output reg [15:0] dOut = 16'h0000
   );
   
   always @ (*) begin

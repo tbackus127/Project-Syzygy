@@ -3,9 +3,9 @@
 // Company: 
 // Engineer: 
 // 
-// Create Date: 06/06/2017 12:49:49 AM
+// Create Date: 06/08/2017 09:06:58 PM
 // Design Name: 
-// Module Name: SyzFETAccumulator
+// Module Name: SyzFETRegister2Out
 // Project Name: 
 // Target Devices: 
 // Tool Versions: 
@@ -20,15 +20,15 @@
 //////////////////////////////////////////////////////////////////////////////////
 
 
+
 // Falling-Edge-Triggered register with async reset and set
-module SyzFETAccumulator(
+module SyzFETRegister2Out(
     input [15:0] dIn,
     input clockSig,
     input read,
     input write,
     input asyncReset,
     output [15:0] dOut,
-    output [15:0] dOut2,
     output [15:0] debugOut
   );
 
@@ -41,6 +41,9 @@ module SyzFETAccumulator(
     .dOut(wBuf[15:0])
   );
   
+  // Have a way to see the register's value
+  assign debugOut[15:0] = data[15:0];
+  
   // Reset on rising reset signal, set data on falling clock signal
   always @ (posedge asyncReset or negedge clockSig) begin
     if(asyncReset) begin
@@ -52,14 +55,12 @@ module SyzFETAccumulator(
     end
   end
   
-  // Always output for the comparator input
-  assign dOut2[15:0] = data[15:0];
-  
   // Only output if we get the read signal
-  assign wOutput[15:0] = (read) ? data[15:0] : 16'hZZZZ;
+  assign wOutput[15:0] = (read) ? data[15:0] : 16'h0000;
   
-  // Clone the output to the standard output and the debug output
+  // Clone the output to two standard outputs and one debug output
   assign dOut[15:0] = wOutput[15:0];
-  assign debugOut[15:0] = wOutput[15:0];
+  
   
 endmodule
+

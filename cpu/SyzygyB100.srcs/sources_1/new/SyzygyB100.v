@@ -20,7 +20,7 @@
 //////////////////////////////////////////////////////////////////////////////////
 
 module SyzygyB100(
-    input clockSig,
+    input clk,
     input en,
     input res,
     input vonNeuMode,
@@ -36,7 +36,45 @@ module SyzygyB100(
     output extPerMode32
   );
   
-  // Data bus
+  // Clock divider
+  wire clockSig;
+  ClockDivider cdiv (
+    .cIn(clk),
+    .cOut(clockSig)
+  );
+  
+  // Data bus connections
+  wire [15:0] wBusInput2;
+  wire [15:0] wBusInput3;
+  wire [15:0] wBusInput4;
+  wire [15:0] wBusInput5;
+  wire [15:0] wBusInput6;
+  wire [15:0] wBusInput7;
+  wire [15:0] wBusInput8;
+  wire [15:0] wBusInput9;
+  wire [15:0] wBusInput10;
+  wire [15:0] wBusInput11;
+  wire [15:0] wBusInput12;
+  wire [15:0] wBusInput13;
+  wire [15:0] wBusInput14;
+  wire [15:0] wBusInput15;
+  Or16B16Way dataBusOr (
+    .dIn2(wBusInput2[15:0]),
+    .dIn3(wBusInput3[15:0]),
+    .dIn4(wBusInput4[15:0]),
+    .dIn5(wBusInput5[15:0]),
+    .dIn6(wBusInput6[15:0]),
+    .dIn7(wBusInput7[15:0]),
+    .dIn8(wBusInput8[15:0]),
+    .dIn9(wBusInput9[15:0]),
+    .dIn10(wBusInput10[15:0]),
+    .dIn11(wBusInput11[15:0]),
+    .dIn12(wBusInput12[15:0]),
+    .dIn13(wBusInput13[15:0]),
+    .dIn14(wBusInput14[15:0]),
+    .dIn15(wBusInput15[15:0]),
+    .dOut(wDataBus[15:0])
+  );
   wire [15:0] wDataBus;
   
   // Register reset lines
@@ -190,13 +228,13 @@ module SyzygyB100(
     .sel(wAccALUSrc),
     .dOut(wAccMuxStep[15:0])
   );
-  SyzFETAccumulator regAccum(
+  SyzFETRegister3Out regAccum(
     .dIn(wAccumIn[15:0]),
     .clockSig(clockSig),
     .read(wRegReadExp[2]),
     .write(wRegWriteExp[2]),
     .asyncReset(wRegReset[2]),
-    .dOut(wDataBus[15:0]),
+    .dOut(wBusInput2[15:0]),
     .dOut2(wCompIn[15:0]),
     .debugOut(wDebugOut2[15:0])
   );
@@ -209,38 +247,38 @@ module SyzygyB100(
   );
   
   // R3: Jump Address
-  SyzFETRegister regJmpAddr(
+  SyzFETRegister3Out regJmpAddr(
     .dIn(wDataBus[15:0]),
     .clockSig(clockSig),
     .read(wRegReadExp[3]),
     .write(wRegWriteExp[3]),
     .asyncReset(wRegReset[3]),
-    .dOut(wDataBus[15:0]),
+    .dOut(wBusInput3[15:0]),
     .dOut2(wR3JumpAddr[15:0]),
     .debugOut(wDebugOut3[15:0])
   );
   
   // R4: I/O LSB
   wire [31:0] wIOOut;
-  SyzFETRegister regIOLSB(
+  SyzFETRegister3Out regIOLSB(
     .dIn(wDataBus[15:0]),
     .clockSig(clockSig),
     .read(wRegReadExp[4]),
     .write(wRegWriteExp[4]),
     .asyncReset(wRegReset[4]),
-    .dOut(wDataBus[15:0]),
+    .dOut(wBusInput4[15:0]),
     .dOut2(wIOOut[15:0]),
     .debugOut(wDebugOut4[15:0])
   );
   
   // R5: I/O MSB
-  SyzFETRegister regIOMSB(
+  SyzFETRegister3Out regIOMSB(
     .dIn(wDataBus[15:0]),
     .clockSig(clockSig),
     .read(wRegReadExp[5]),
     .write(wRegWriteExp[5]),
     .asyncReset(wRegReset[5]),
-    .dOut(wDataBus[15:0]),
+    .dOut(wBusInput5[15:0]),
     .dOut2(wIOOut[31:16]),
     .debugOut(wDebugOut5[15:0])
   );
@@ -248,26 +286,26 @@ module SyzygyB100(
   
   // R6: ALU A
   wire [15:0] wALUAin;
-  SyzFETRegister regALUA(
+  SyzFETRegister3Out regALUA(
     .dIn(wDataBus[15:0]),
     .clockSig(clockSig),
     .read(wRegReadExp[6]),
     .write(wRegWriteExp[6]),
     .asyncReset(wRegReset[6]),
-    .dOut(wDataBus[15:0]),
+    .dOut(wBusInput6[15:0]),
     .dOut2(wALUAin[15:0]),
     .debugOut(wDebugOut6[15:0])
   );
   
   // R7: ALU B
   wire [15:0] wALUBin;
-  SyzFETRegister regALUB(
+  SyzFETRegister3Out regALUB(
     .dIn(wDataBus[15:0]),
     .clockSig(clockSig),
     .read(wRegReadExp[7]),
     .write(wRegWriteExp[7]),
     .asyncReset(wRegReset[7]),
-    .dOut(wDataBus[15:0]),
+    .dOut(wBusInput7[15:0]),
     .dOut2(wALUBin[15:0]),
     .debugOut(wDebugOut7[15:0])
   );
@@ -277,98 +315,90 @@ module SyzygyB100(
   //----------------------------------------------------------------------------
   
   // R8
-  SyzFETRegister regR8(
+  SyzFETRegister2Out regR8(
     .dIn(wDataBus[15:0]),
     .clockSig(clockSig),
     .read(wRegReadExp[8]),
     .write(wRegWriteExp[8]),
     .asyncReset(wRegReset[8]),
-    .dOut(wDataBus[15:0]),
-    .dOut2(),
+    .dOut(wBusInput8[15:0]),
     .debugOut(wDebugOut8[15:0])
   );
   
   // R9
-  SyzFETRegister regR9(
+  SyzFETRegister2Out regR9(
     .dIn(wDataBus[15:0]),
     .clockSig(clockSig),
     .read(wRegReadExp[9]),
     .write(wRegWriteExp[9]),
     .asyncReset(wRegReset[9]),
-    .dOut(wDataBus[15:0]),
-    .dOut2(),
+    .dOut(wBusInput9[15:0]),
     .debugOut(wDebugOut9[15:0])
   );
   
   // R10
-  SyzFETRegister regR10(
+  SyzFETRegister2Out regR10(
     .dIn(wDataBus[15:0]),
     .clockSig(clockSig),
     .read(wRegReadExp[10]),
     .write(wRegWriteExp[10]),
     .asyncReset(wRegReset[10]),
-    .dOut(wDataBus[15:0]),
-    .dOut2(),
+    .dOut(wBusInput10[15:0]),
     .debugOut(wDebugOut10[15:0])
   );
   
   // R11
-  SyzFETRegister regR11(
+  SyzFETRegister2Out regR11(
     .dIn(wDataBus[15:0]),
     .clockSig(clockSig),
     .read(wRegReadExp[11]),
     .write(wRegWriteExp[11]),
     .asyncReset(wRegReset[11]),
-    .dOut(wDataBus[15:0]),
-    .dOut2(),
+    .dOut(wBusInput11[15:0]),
     .debugOut(wDebugOut11[15:0])
   );
   
   // R12
-  SyzFETRegister regR12(
+  SyzFETRegister2Out regR12(
     .dIn(wDataBus[15:0]),
     .clockSig(clockSig),
     .read(wRegReadExp[12]),
     .write(wRegWriteExp[12]),
     .asyncReset(wRegReset[12]),
-    .dOut(wDataBus[15:0]),
-    .dOut2(),
+    .dOut(wBusInput12[15:0]),
     .debugOut(wDebugOut12[15:0])
   );
   
   // R13
-  SyzFETRegister regR13(
+  SyzFETRegister2Out regR13(
     .dIn(wDataBus[15:0]),
     .clockSig(clockSig),
     .read(wRegReadExp[13]),
     .write(wRegWriteExp[13]),
     .asyncReset(wRegReset[13]),
-    .dOut(wDataBus[15:0]),
-    .dOut2(),
+    .dOut(wBusInput13[15:0]),
     .debugOut(wDebugOut13[15:0])
   );
   
   // R14
-  SyzFETRegister regR14(
+  SyzFETRegister2Out regR14(
     .dIn(wDataBus[15:0]),
     .clockSig(clockSig),
     .read(wRegReadExp[14]),
     .write(wRegWriteExp[14]),
     .asyncReset(wRegReset[14]),
-    .dOut(wDataBus[15:0]),
-    .dOut2(),
+    .dOut(wBusInput14[15:0]),
     .debugOut(wDebugOut14[15:0])
   );
   
   // R15
-  SyzFETRegister regR15(
+  SyzFETRegister2Out regR15(
     .dIn(wDataBus[15:0]),
     .clockSig(clockSig),
     .read(wRegReadExp[15]),
     .write(wRegWriteExp[15]),
     .asyncReset(wRegReset[15]),
-    .dOut(wDataBus[15:0]),
-    .dOut2(),
+    .dOut(wBusInput15[15:0]),
     .debugOut(wDebugOut15[15:0])
   );
   
@@ -390,6 +420,7 @@ module SyzygyB100(
     .arg(wALUInstr[3]),
     .arth(wALUInstr[2]),
     .rot(wALUInstr[1]),
+    .misc(wALUInstr[0]),
     .aluOut(wALUOut[15:0])
   );
   

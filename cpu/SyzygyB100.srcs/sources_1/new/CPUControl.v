@@ -70,7 +70,7 @@ module CPUControl(
   wire clockSignal;
   assign clockSignal = (vonNeuMode) ? clkState : clk ;
   SyzygyB100 cpu(
-    .clockSig(clockSignal),
+    .clk(clockSignal),
     .en(1'b1),
     .res(buttonDPressed),
     .vonNeuMode(vonNeuMode),

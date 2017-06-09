@@ -31,6 +31,7 @@ module ALU(
     input arg,
     input arth,
     input rot,
+    input misc,
     output [15:0] aluOut
   );
   
@@ -115,7 +116,20 @@ module ALU(
   Neg16B negOut(
     .dIn(opMuxOut[15:0]),
     .sel(negQ),
+    .dOut(wBuf0[15:0])
+  );
+  
+  wire [15:0] wBuf0;
+    Buffer16B buf0(
+    .dIn(wBuf0[15:0]),
+    .dOut(wBuf1[15:0])
+  );
+  
+  wire [15:0] wBuf1;
+  Buffer16B buf1(
+    .dIn(wBuf1[15:0]),
     .dOut(aluOut[15:0])
   );
+  
   
 endmodule

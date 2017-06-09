@@ -21,20 +21,20 @@
 
 module InstructionDecoder(
     input [15:0] instrIn,
-    output reg [14:0] pushVal,
-    output reg [3:0] regReadSelect,
-    output reg readEn,
-    output reg [3:0] regWriteSelect,
-    output reg writeEn,
-    output reg [2:0] jumpCondition,
-    output reg [2:0] aluOp,
-    output reg [7:0] aluArgs,
-    output reg [3:0] periphSelect,
-    output reg [3:0] periphReg,
-    output reg periphMode,
-    output reg periphExec,
-    output reg periph32,
-    output reg [1:0] accumMuxSelect
+    output reg [14:0] pushVal = 15'b000000000000000,
+    output reg [3:0] regReadSelect = 4'b0000,
+    output reg readEn = 1'b0,
+    output reg [3:0] regWriteSelect = 4'b0000,
+    output reg writeEn = 1'b0,
+    output reg [2:0] jumpCondition = 3'b000,
+    output reg [2:0] aluOp = 3'b000,
+    output reg [7:0] aluArgs = 8'h00,
+    output reg [3:0] periphSelect = 4'b0000,
+    output reg [3:0] periphReg = 4'b0000,
+    output reg periphMode = 1'b0,
+    output reg periphExec = 1'b0,
+    output reg periph32 = 1'b0,
+    output reg [1:0] accumMuxSelect = 2'b00
   );
   
   // Instruction decoder behavior description

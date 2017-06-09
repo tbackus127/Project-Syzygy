@@ -20,7 +20,7 @@
 //////////////////////////////////////////////////////////////////////////////////
 
 // Falling-Edge-Triggered register with async reset and set
-module SyzFETRegister(
+module SyzFETRegister3Out (
     input [15:0] dIn,
     input clockSig,
     input read,
@@ -31,9 +31,16 @@ module SyzFETRegister(
     output [15:0] debugOut
   );
 
-  reg [15:0] data;
+  reg [15:0] data = 16'h0000;
   wire [15:0] wOutput;
   
+  // Output for other component inputs (always enabled)
+  assign dOut2[15:0] = data[15:0];
+  
+  // Debug output (always enabled)
+  assign debugOut[15:0] = data[15:0];
+  
+  // Delay buffer
   wire [15:0] wBuf;
   Buffer16B buf0 (
     .dIn(dIn[15:0]),
@@ -52,11 +59,10 @@ module SyzFETRegister(
   end
   
   // Only output if we get the read signal
-  assign wOutput[15:0] = (read) ? data[15:0] : 16'hZZZZ;
+  assign wOutput[15:0] = (read) ? data[15:0] : 16'h0000;
   
-  // Clone the output to two standard outputs and one debug output
+  // Output connection
   assign dOut[15:0] = wOutput[15:0];
-  assign dOut2[15:0] = wOutput[15:0];
-  assign debugOut[15:0] = wOutput[15:0];
+  
   
 endmodule
