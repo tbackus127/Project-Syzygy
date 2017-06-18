@@ -3,9 +3,9 @@
 // Company: 
 // Engineer: 
 // 
-// Create Date: 05/25/2017 03:15:42 PM
+// Create Date: 06/13/2017 08:44:29 PM
 // Design Name: 
-// Module Name: PeriphController
+// Module Name: ShiftRegister
 // Project Name: 
 // Target Devices: 
 // Tool Versions: 
@@ -20,14 +20,19 @@
 //////////////////////////////////////////////////////////////////////////////////
 
 
-module SDInterface(
-    input [31:0] dIn,
-    input modeRW,
-    input mode32,
-    input sel,
-    output [31:0] dOut
+module ShiftRegister(
+    input clk,
+    input res,
+    input serialIn,
+    output reg [15:0] valOut
   );
   
-  
+  always @ (posedge res or negedge clk) begin
+    if(res) begin
+      valOut[15:0] <= 16'h0000;
+    end else begin
+      valOut[15:0] <= (valOut[15:0] << 1) + serialIn;    
+    end
+  end
   
 endmodule
