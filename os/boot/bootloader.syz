@@ -16,7 +16,7 @@ copy 2, 4
 iosr $conf.PID.SD, 0
 
 # Set up loop
-push 511
+push 255
 copy 2, 6
 push $lbl.bwait
 copy 2, 3
