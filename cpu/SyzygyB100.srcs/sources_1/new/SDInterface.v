@@ -30,9 +30,12 @@ module SDInterface(
     input [31:0] dIn,
     input exec,
     input miso,
+    output serialClockOut,
     output [31:0] dOut,
     output chipSel,
-    output mosi
+    output mosi,
+    output [7:0] debugOut,
+    output [7:0] debugOut2
   );
   
   // R0 - Peripheral Instruction Register
@@ -93,27 +96,41 @@ module SDInterface(
     .debugOut()
   );
   
+  Or32B4Way dOutOr(
+    .aIn({16'h0000, wR0Out[15:0]}),
+    .bIn({16'h0000, wR1Out[15:0]}),
+    .cIn({16'h0000, wR2Out[15:0]}),
+    .dIn(wR3Out[31:0]),
+    .dOut(dOut[31:0])
+  );
+  
+  
   // SD Controller
   wire [15:0] wRegData;
   wire [15:0] wDataFromBlockMem;
   wire [15:0] wDataToBlockMem;
-  wire blockMemLSB;
-  wire blockMemMSB;
+  wire wBlockMemLSB;
+  wire wBlockMemMSB;
+  wire wBlockMemSerialWriteEn;
   SDController controller(
     .clk(clk),
     .addr(wR3Out[31:0]),
     .exec(exec),
     .readEn(readEn),
     .writeEn(writeEn),
-    .blockMemMSB(blockMemMSB),
+    .blockMemMSB(wBlockMemMSB),
     .dataFromBlockMem(wDataFromBlockMem[15:0]),
     .miso(miso),
     .regData(wRegData[15:0]),
+    .serialClockOut(serialClockOut),
+    .shiftBlockMemEn(wBlockMemSerialWriteEn),
     .dataToBlockMem(wDataToBlockMem[15:0]),
     .status(wR1In),
-    .blockMemLSB(blockMemLSB),
+    .blockMemLSB(wBlockMemLSB),
     .chipSelect(chipSel),
-    .mosi(mosi)
+    .mosi(mosi),
+    .debugOut(debugOut[7:0]),
+    .debugOut2(debugOut2[7:0])
   );
   
   // SD Block Memory - holds an entire block of data for easy read/write
@@ -121,12 +138,12 @@ module SDInterface(
     .clk(clk),
     .dIn(wR2Out[15:0]),
     .regSelect(wR3Out[7:0]),
-    .read(),
-    .write(),
-    .serialDataIn(blockMemLSB),
-    .serialSDToMemEn(),
+    .randomRead(readEn),
+    .randomWrite(writeEn),
+    .serialDataIn(wBlockMemLSB),
+    .serialWriteEn(wBlockMemSerialWriteEn),
     .dOut(wDataFromBlockMem[15:0]),
-    .serialDataOut(blockMemMSB)
+    .serialDataOut(wBlockMemMSB)
   );
   
 endmodule

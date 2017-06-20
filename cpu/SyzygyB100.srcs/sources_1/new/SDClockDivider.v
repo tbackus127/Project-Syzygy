@@ -3,9 +3,9 @@
 // Company: 
 // Engineer: 
 // 
-// Create Date: 04/02/2017 08:51:43 PM
+// Create Date: 06/19/2017 10:28:34 PM
 // Design Name: 
-// Module Name: Mux2to1
+// Module Name: SDClockDivider
 // Project Name: 
 // Target Devices: 
 // Tool Versions: 
@@ -20,13 +20,16 @@
 //////////////////////////////////////////////////////////////////////////////////
 
 
-module Mux2to1(
-    input aIn,
-    input bIn,
-    input sel,
-    output out
+module SDClockDivider(
+    input clkIn,
+    output clkOut
   );
-    
-  assign out = (sel) ? bIn : aIn;
-    
+  
+  reg [15:0] divReg;
+  assign clkOut = divReg[12];
+  
+  always @ (posedge clkIn) begin
+    divReg[12:0] <= divReg[12:0] + 1;
+  end
+  
 endmodule

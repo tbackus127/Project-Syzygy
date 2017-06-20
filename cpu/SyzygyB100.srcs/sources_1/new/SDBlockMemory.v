@@ -24,39 +24,32 @@ module SDBlockMemory(
     input clk,
     input [15:0] dIn,
     input [7:0] regSelect,
-    input read,
-    input write,
+    input randomRead,
+    input randomWrite,
     input serialDataIn,
-    input serialSDToMemEn,
+    input serialWriteEn,
     output reg [15:0] dOut,
     output serialDataOut
   );
   
   reg [4095:0] mem;
+  
   assign serialDataOut = mem[4095];
   
-  always @ (posedge clk or negedge clk) begin
+  always @ (posedge clk) begin
     
-    // On the rising edge, set memory from serial signal only if the write from serial
-    //   signal is on
-    if(clk == 1'b1 && serialSDToMemEn == 1'b1) begin
-        mem[0] <= serialDataIn;
-      
-    // On the falling edge shift or read/write data with random access
-    end else if(clk == 1'b0) begin
-      
-      // Random write (calculate offset)
-      if(write) begin
-        mem[4095:0] <= dIn[15:0] << (regSelect[7:0] * 16);
-        
-      // Random read
-      end else if(read) begin
-        dOut[15:0] <= mem[4095:0]  >> (regSelect[7:0] * 16);
-      
-      // Shift everything left
-      end else begin
-        mem[4095:0] <= mem[4095:0] << 1; 
-      end
+    // If we're getting data from the SD card, write LSB and left shift
+    if(serialWriteEn) begin
+      mem[0] <= serialDataIn;
+      mem[4095:0] <= mem[4095:0] << 1; 
+    
+    // If we get a random read command
+    end else if (randomRead) begin
+      dOut[15:0] <= (mem[4095:0] >> (regSelect[7:0] << 4));
+    
+    // Random write
+    end else if (randomWrite) begin
+      mem[4095:0] <= (dIn[15:0] << (regSelect[7:0] << 4));
     end
   end
   
