@@ -29,6 +29,7 @@ module InputNormalizer(
     input btnDIn,
     input btnRIn,
     input [15:0] segsIn,
+    input dpIn,
     output [15:0] switchOut,
     output btnLOut,
     output btnUOut,
@@ -58,6 +59,13 @@ module InputNormalizer(
   reg buttonCPressed = 1'b0;
   reg buttonUPressed = 1'b0;
   reg buttonDPressed = 1'b0;
+  
+  // Flag for posedge button triggers
+  reg buttonLReleased = 1'b0;
+  reg buttonRReleased = 1'b0;
+  reg buttonCReleased = 1'b0;
+  reg buttonUReleased = 1'b0;
+  reg buttonDReleased = 1'b0;
   
   assign btnLOut = buttonLPressed;
   assign btnROut = buttonRPressed;
@@ -109,46 +117,52 @@ module InputNormalizer(
     .out(buttonDown)
   );
   
+  // Generate rising-edge signals for buttons
   always @ (posedge clk) begin
       
-    if(buttonLeft == 1'b0) buttonLPressed <= 1'b0;
-    if(buttonRight == 1'b0) buttonRPressed <= 1'b0;
-    if(buttonCenter == 1'b0) buttonCPressed <= 1'b0;
-    if(buttonUp == 1'b0) buttonUPressed <= 1'b0;
-    if(buttonDown == 1'b0) buttonDPressed <= 1'b0;
-    
-    // Manual clock (Toggled on rising-edge)
-    if(buttonLPressed == 1'b0 & buttonLeft == 1'b1) begin
+    if(buttonLeft & ~buttonLReleased & ~buttonLPressed) begin
+      buttonLReleased <= 1'b1;
       buttonLPressed <= 1'b1;
+    end else if(~buttonLeft & buttonLReleased) begin
+      buttonLReleased <= 1'b0;
+    end else begin
+      buttonLPressed <= 1'b0;
     end
     
-    // External instruction mode (Toggled on rising-edge)
-    if(buttonRPressed == 1'b0 & buttonRight == 1'b1) begin
-      buttonRPressed <= 1'b1;
-    end
-    
-    // Write instruction to instruction register
-    if(buttonCPressed == 1'b0 & buttonCenter == 1'b1) begin
-      buttonCPressed <= 1'b1;
-    end
-    else begin
-      buttonCPressed <= 1'b0;
-    end
-    
-    // Set snoop register
-    if(buttonUPressed == 1'b0 & buttonUp == 1'b1) begin
+    if(buttonUp & ~buttonUReleased & ~buttonUPressed) begin
+      buttonUReleased <= 1'b1;
       buttonUPressed <= 1'b1;
-    end
-    else begin
+    end else if(~buttonUp & buttonUReleased) begin
+      buttonUReleased <= 1'b0;
+    end else begin
       buttonUPressed <= 1'b0;
     end
     
-    // Reset everything
-    if(buttonDPressed == 1'b0 & buttonDown == 1'b1) begin
-      buttonDPressed <= 1'b1;
+    if(buttonCenter & ~buttonCReleased & ~buttonCPressed) begin
+      buttonCReleased <= 1'b1;
+      buttonCPressed <= 1'b1;
+    end else if(~buttonCenter & buttonCReleased) begin
+      buttonCReleased <= 1'b0;
+    end else begin
+      buttonCPressed <= 1'b0;
     end
-    else begin
+        
+    if(buttonDown & ~buttonDReleased & ~buttonDPressed) begin
+      buttonDReleased <= 1'b1;
+      buttonDPressed <= 1'b1;
+    end else if(~buttonDown & buttonDReleased) begin
+      buttonDReleased <= 1'b0;
+    end else begin
       buttonDPressed <= 1'b0;
+    end
+    
+    if(buttonRight & ~buttonRReleased & ~buttonRPressed) begin
+      buttonRReleased <= 1'b1;
+      buttonRPressed <= 1'b1;
+    end else if(~buttonRight & buttonRReleased) begin
+      buttonRReleased <= 1'b0;
+    end else begin
+      buttonRPressed <= 1'b0;
     end
     
   end

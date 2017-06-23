@@ -21,14 +21,19 @@
 
 
 module SDInterface(
+    
+    // CPU clock signal (must already be divided)
     input clk,
-    input [3:0] regRead,
-    input readEn,
-    input [3:0] regWrite,
-    input writeEn,
+    
+    // CPU control signals
+    input periphSelect,
+    input [3:0] regSelect,
+    input accessMode,
     input reset,
     input [31:0] dIn,
     input exec,
+    
+    // SD signals (minus dOut and debugOuts)
     input miso,
     output serialClockOut,
     output [31:0] dOut,
@@ -38,95 +43,129 @@ module SDInterface(
     output [7:0] debugOut2
   );
   
+  // Register Read Decoder
+  wire [15:0] wRegExtReadEn;
+  Dmx4to16 regReadDmx(
+    .sel(regSelect[3:0]),
+    .en(periphSelect & ~accessMode & ~exec),
+    .out(wRegExtReadEn[15:0])
+  );
+  
+  // Register Write Decoder
+  wire [15:0] wRegExtWriteEn;
+  Dmx4to16 regWriteDmx(
+    .sel(regSelect[3:0]),
+    .en(periphSelect & accessMode & ~exec),
+    .out(wRegExtWriteEn[15:0])
+  );
+  
   // R0 - Peripheral Instruction Register
-  wire [15:0] wR0Out;
-  SyzFETRegister2Out regInstr(
+  wire [15:0] wR0ExtOut;
+  wire [15:0] wR0InstrOut;
+  SyzFETRegister3Out regInstr(
     .dIn(dIn[15:0]),
     .clockSig(clk),
-    .read(regRead[0]),
-    .write(regWrite[0]),
+    .read(wRegExtReadEn[0]),
+    .write(wRegExtWriteEn[0]),
     .asyncReset(reset),
-    .dOut(wR0Out[15:0]),
+    .dOut(wR0ExtOut[15:0]),
+    .dOut2(wR0InstrOut[15:0]),
     .debugOut()
+  );
+  wire [3:0] wInstrSignals;
+  Dmx2to4 instrDmx(
+    .sel(wR0InstrOut[1:0]),
+    .en(exec),
+    .out(wInstrSignals[3:0])
   );
   
   // R1 - Peripheral Status Register
-  wire wR1In;
-  wire [15:0] wR1Out;
+  wire [15:0] wR1ExtOut;
+  wire [1:0] wControllerStatus;
   SyzFETRegister2Out regStatus(
-    .dIn({15'b000000000000000, wR1In}),
+    .dIn({14'b00000000000000, wControllerStatus[1:0]}),
     .clockSig(clk),
-    .read(regRead[1]),
-    .write(regWrite[1]),
+    .read(wRegExtReadEn[1]),
+    .write(wRegExtWriteEn[1] | serialClockOut),
     .asyncReset(reset),
-    .dOut(wR1Out[15:0]),
+    .dOut(wR1ExtOut[15:0]),
     .debugOut()
   );
   
   // R2 - Peripheral Data Register
-  wire [15:0] wR2Out;
-  SyzFETRegister2Out regData(
-    .dIn(dIn[15:0]),
+  wire [15:0] wR2In;
+  wire [15:0] wBlockMemDOut;
+  Mux16B2to1 r2InMux(
+    .aIn(dIn[15:0]),
+    .bIn(wBlockMemDOut[15:0]),
+    .sel(wInstrSignals[1]),
+    .dOut(wR2In[15:0])
+  );
+  wire [15:0] wR2ExtOut;
+  wire [15:0] wR2DataOut;
+  SyzFETRegister3Out regData(
+    .dIn(wR2In[15:0]),
     .clockSig(clk),
-    .read(regRead[2]),
-    .write(regWrite[2]),
+    .read(wRegExtReadEn[2]),
+    .write(wRegExtWriteEn[2]),
     .asyncReset(reset),
-    .dOut(wR2Out[15:0]),
+    .dOut(wR2ExtOut[15:0]),
+    .dOut2(wR2DataOut[15:0]),
     .debugOut()
   );
     
   // R3 - Peripheral Address Register
-  wire [31:0] wR3Out;
-  SyzFETRegister2Out regAddressLSB(
+  wire [31:0] wR3ExtOut;
+  wire [31:0] wR3AddrOut;
+  SyzFETRegister3Out regAddressLSB(
     .dIn(dIn[15:0]),
     .clockSig(clk),
-    .read(regRead[3]),
-    .write(regWrite[3]),
+    .read(wRegExtReadEn[3]),
+    .write(wRegExtWriteEn[3]),
     .asyncReset(reset),
-    .dOut(wR3Out[15:0]),
+    .dOut(wR3ExtOut[15:0]),
+    .dOut2(wR3AddrOut[15:0]),
     .debugOut()
   );
-  SyzFETRegister2Out regAddressMSB(
+  SyzFETRegister3Out regAddressMSB(
     .dIn(dIn[31:16]),
     .clockSig(clk),
-    .read(regRead[3]),
-    .write(regWrite[3]),
+    .read(wRegExtReadEn[3]),
+    .write(wRegExtWriteEn[3]),
     .asyncReset(reset),
-    .dOut(wR3Out[31:16]),
+    .dOut(wR3ExtOut[31:16]),
+    .dOut2(wR3AddrOut[31:16]),
     .debugOut()
   );
   
-  Or32B4Way dOutOr(
-    .aIn({16'h0000, wR0Out[15:0]}),
-    .bIn({16'h0000, wR1Out[15:0]}),
-    .cIn({16'h0000, wR2Out[15:0]}),
-    .dIn(wR3Out[31:0]),
+  // Or register outputs for interface-CPU data connection to prevent multi-driven nets
+  //   Each register requires a read signal for it to output; only one may be read from at
+  //   any given time.
+  Or32B4Way extOutOr (
+    .aIn({16'h0000, wR0ExtOut[15:0]}),
+    .bIn({16'h0000, wR1ExtOut[15:0]}),
+    .cIn({16'h0000, wR2ExtOut[15:0]}),
+    .dIn(wR3ExtOut[31:0]),
     .dOut(dOut[31:0])
   );
   
-  
-  // SD Controller
-  wire [15:0] wRegData;
-  wire [15:0] wDataFromBlockMem;
-  wire [15:0] wDataToBlockMem;
-  wire wBlockMemLSB;
-  wire wBlockMemMSB;
-  wire wBlockMemSerialWriteEn;
+  // SD Controller - exec on when clock tick triggers
+  wire wControllerExecSignal;
+  wire wBlockMemMSBToController;
+  wire wBLockMemLSBFromController;
+  wire wBlockMemShiftEn;
+  buf #(1) (wControllerExecSignal, exec);
   SDController controller(
     .clk(clk),
-    .addr(wR3Out[31:0]),
-    .exec(exec),
-    .readEn(readEn),
-    .writeEn(writeEn),
-    .blockMemMSB(wBlockMemMSB),
-    .dataFromBlockMem(wDataFromBlockMem[15:0]),
+    .addr(wR3AddrOut[31:0]),
+    .exec(wControllerExecSignal & (wInstrSignals[2] | wInstrSignals[3])),
+    .accessMode(accessMode),
+    .blockMemMSB(wBlockMemMSBToController),
     .miso(miso),
-    .regData(wRegData[15:0]),
     .serialClockOut(serialClockOut),
-    .shiftBlockMemEn(wBlockMemSerialWriteEn),
-    .dataToBlockMem(wDataToBlockMem[15:0]),
-    .status(wR1In),
-    .blockMemLSB(wBlockMemLSB),
+    .shiftBlockMemEn(wBlockMemShiftEn),
+    .status(wControllerStatus[1:0]),
+    .blockMemLSB(wBLockMemLSBFromController),
     .chipSelect(chipSel),
     .mosi(mosi),
     .debugOut(debugOut[7:0]),
@@ -136,14 +175,14 @@ module SDInterface(
   // SD Block Memory - holds an entire block of data for easy read/write
   SDBlockMemory blockMem(
     .clk(clk),
-    .dIn(wR2Out[15:0]),
-    .regSelect(wR3Out[7:0]),
-    .randomRead(readEn),
-    .randomWrite(writeEn),
-    .serialDataIn(wBlockMemLSB),
-    .serialWriteEn(wBlockMemSerialWriteEn),
-    .dOut(wDataFromBlockMem[15:0]),
-    .serialDataOut(wBlockMemMSB)
+    .dIn(wR2DataOut[15:0]),
+    .regSelect(wR3AddrOut[7:0]),
+    .randomRead(wInstrSignals[1]),
+    .randomWrite(wInstrSignals[0]),
+    .serialDataIn(wBLockMemLSBFromController),
+    .serialWriteEn(wBlockMemShiftEn),
+    .dOut(wBlockMemDOut[15:0]),
+    .serialDataOut(wBlockMemMSBToController)
   );
   
 endmodule

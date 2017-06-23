@@ -24,16 +24,12 @@ module SDController(
     input clk,
     input [31:0] addr,
     input exec,
-    input readEn,
-    input writeEn,
+    input accessMode,
     input blockMemMSB,
-    input [15:0] dataFromBlockMem,
     input miso,
-    inout [15:0] regData,
     output serialClockOut,
     output reg shiftBlockMemEn = 1'b0,
-    output reg [15:0] dataToBlockMem = 16'h0000,
-    output reg status = 1'b1,
+    output reg [1:0] status = 2'b01,
     output blockMemLSB,
     output reg chipSelect = 1'b1,
     output mosi,
@@ -75,7 +71,6 @@ module SDController(
   // Select what we're outputting to the MOSI pin
   reg mosiUseReg = 1'b0;
   reg mosiSrcSel = 1'b0;
-  reg mosiConstVal = 1'b1;
   wire wMosiMux;
   Mux2to1 mosiCmdMemMux(
     .aIn(wCommandMSB),
@@ -84,7 +79,7 @@ module SDController(
     .out(wMosiMux)
   );
   Mux2to1 mosiConstMux(
-    .aIn(mosiConstVal),
+    .aIn(1'b1),
     .bIn(wMosiMux),
     .sel(mosiUseReg),
     .out(mosi)
@@ -153,8 +148,6 @@ module SDController(
           //debugOut[15:0] <= 16'h0004;
         end else begin
           count[15:0] <= count[15:0] - 1;
-          response[15:0] <= response[15:0] << 1;
-          response[0] <= miso;
         end
       end
       
@@ -167,7 +160,7 @@ module SDController(
         if(step[2:0] == 1) begin
           
           // If there was an error at step 1, go back to sending CMD0
-          if(error[15:0] != 0)
+          if(error[7:0] != 0)
             state[3:0] <= 2;
           else
             state[3:0] <= 7;
@@ -197,10 +190,10 @@ module SDController(
           end else begin
             state[3:0] <= 10;
             chipSelect <= 1'b1;
-            status <= 1'b0;
+            status <= 2'b00;
             step[2:0] <= 5;
             //debugOut[15:0] <= 16'h0007;
-            clockSelect <= 1'b1;
+            //clockSelect <= 1'b1;
           end
         
         // Step 6 - Send CMD17 (Read Single Block)
@@ -208,10 +201,22 @@ module SDController(
           if(error[15:0] != 0) begin
             state[3:0] <= 10;
             chipSelect <= 1'b1;
-            status <= 1;
+            status <= 2'b10;
           end else begin
             state[3:0] <= 11;
             mosiSrcSel <= 1'b0;
+            mosiUseReg <= 1'b0;
+          end
+        
+        // Step 7 - Send CMD24 (Write Single Block)
+        end else if(step[2:0] == 7) begin
+          if(error[15:0] != 0) begin
+            state[3:0] <= 10;
+            chipSelect <= 1'b1;
+            status <= 2'b11;
+          end else begin
+            state[3:0] <= 13;
+            mosiSrcSel<= 1'b1;
             mosiUseReg <= 1'b0;
           end
         end
@@ -252,18 +257,18 @@ module SDController(
         if(exec == 1'b1) begin
         
           // Setup read from SD command
-          if(readEn == 1'b1) begin
+          if(accessMode == 1'b0) begin
             chipSelect <= 1'b0;
             status <= 1'b1;
             count[15:0] <= 48;
             command[47:40] <= 8'h51;
             command[39:8] <= addr[31:0];
             command[7:0] <= 8'hff;
-            state[3:0] <= 11;
+            state[3:0] <= 3;
             step[2:0] <= 6;
             
           // Setup write to SD command
-          end else if (writeEn == 1'b1) begin
+          end else if (accessMode == 1'b1) begin
             chipSelect <= 1'b0;
             status <= 1'b1;
             count[15:0] <= 48;
@@ -272,7 +277,7 @@ module SDController(
             command[7:0] <= 8'hff;
             mosiUseReg <= 1'b1;
             mosiSrcSel <= 1'b0;
-            state[3:0] <= 11;
+            state[3:0] <= 3;
             step[2:0] <= 7;
           end
         end
@@ -281,7 +286,6 @@ module SDController(
       // State 11 - Detect data token (0xFE)
       4'hb: begin
         if(miso == 1'b0) begin
-          response[0] <= miso;
           
           // Check if the response is a valid data token
           if(response[7:0] == 8'hfe) begin
@@ -295,8 +299,6 @@ module SDController(
             mosiUseReg <= 1'b0;
             mosiSrcSel <= 1'b0;
           end
-        end else begin
-          response[15:0] <= response[15:0] << 1;
         end
       end
       
@@ -314,8 +316,13 @@ module SDController(
         end
       end
       
-      // State 15 - Send data
-      4'hf: begin
+      // State 13 - Send data start block token
+      4'hd: begin
+        
+      end
+      
+      // State 14 - Send data block
+      4'he: begin
         if(count[15:0] > 0) begin
           shiftBlockMemEn <= 1'b1;
         end else begin
@@ -328,25 +335,16 @@ module SDController(
         end
       end
       
-      // Unknown state - Output nothing and set error to 0xFFFF
-      default: begin
-        state <= 4'h0;
-        count <= 16'h0000;
-        step <= 3'h0;
-        command <= 48'h000000000000;
-        response <= 16'h0000;
-        error <= 16'hffff;
-        data <= 16'h0000;
-        chipSelect <= 1'b1;
-        status <= 1'b1;
-        //debugOut <= 16'hffff;
+      // State 15 - UNUSED (go back to state 10 if we somehow get here)
+      4'hf: begin
+        state[3:0] <= 10;
       end
-      
     endcase
     
     // Get the SD response and shift it in
     response[0] <= miso;
     response[15:0] <= response[15:0] << 1;
+        
   end
   
 endmodule
