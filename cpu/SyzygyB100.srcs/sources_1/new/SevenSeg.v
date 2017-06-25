@@ -23,9 +23,10 @@
 module SevSeg(
   input clk,
   input [15:0] valIn,
+  input dpIn,
   output reg [6:0] segs,
   output reg [3:0] anodes,
-  output wire dp
+  output wire dpOut
 );
 
 wire [1:0] dispIx;
@@ -36,7 +37,7 @@ reg [3:0] digit;
 reg [19:0] clkDiv;
 assign dispIx = clkDiv[19:18];
 assign aen = 4'b1111;
-assign dp = 1;
+assign dpOut = dpIn;
 
 // Choose display to update
 always @ (posedge clk) begin

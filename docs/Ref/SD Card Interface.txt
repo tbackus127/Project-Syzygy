@@ -97,7 +97,7 @@ IMPLEMENT WITH STATE MACHINES!
  12. Wait for R/W command from host
 
 * Re-assert CS low at the start of each command!
-* After sending a command, send 0xFF until 0x00 is recieved as a response.
+* After sending a command, send 0xFF until 0x00 is recieved as a response (except CMD0 response is 0x01).
 * Send an extra 0xFF after getting the 0xFF response to give the card some time.
 * Most cards require 8-10 to be repeated.
 
@@ -116,17 +116,11 @@ IMPLEMENT WITH STATE MACHINES!
   1. Send CMD24 with sector number: (0x58 nn nn nn nn nn 00)
   2. Send data, recieve dummy data until 512 bytes are transferred. Every data block has a prefix of 'Start Block' token (one byte)
   3. Close the sector (how?)
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
+
+
+
+
+
+
+
+

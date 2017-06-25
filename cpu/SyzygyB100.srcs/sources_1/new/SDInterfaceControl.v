@@ -60,6 +60,8 @@ module SDInterfaceControl(
   wire [15:0] segsIn;
   reg inputMode = 1'b0;
   reg [15:0] dataValue = 16'h0000;
+  reg [3:0] regNum = 4'b0000;
+  wire [3:0] wControllerState;
   InputNormalizer inorm(
     .clk(clk),
     .switchIn(sw[15:0]),
@@ -68,7 +70,7 @@ module SDInterfaceControl(
     .btnCIn(btnC),
     .btnDIn(btnD),
     .btnRIn(btnR),
-    .segsIn(dataValue[15:0]),
+    .segsIn({{wControllerState[3:0], regNum[3:0]}, dataValue[7:0]}),
     .dpIn(inputMode),
     .switchOut(wSwitches[15:0]),
     .btnLOut(buttonLeft),
@@ -85,7 +87,6 @@ module SDInterfaceControl(
   reg resetReg = 1'b0;
   reg execReg = 1'b0;
   reg accessModeReg = 1'b0;
-  reg [3:0] regNum = 4'b0000;
   
   // SD card interface connections
   wire [31:0] wInterfaceOut;
@@ -102,8 +103,8 @@ module SDInterfaceControl(
     .dOut(wInterfaceOut[31:0]),
     .chipSel(JB[0]),
     .mosi(JB[1]),
-    .debugOut(led[7:0]),
-    .debugOut2(led[15:8])
+    .debugOut(led[15:0]),                   // Response Byte
+    .debugOut2(wControllerState[3:0])       // Controller State
   );
   
   // Control behavior

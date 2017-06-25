@@ -25,11 +25,11 @@ module SDClockDivider(
     output clkOut
   );
   
-  reg [15:0] divReg;
-  assign clkOut = divReg[12];
+  reg [24:0] divReg;
+  assign clkOut = divReg[19];
   
   always @ (posedge clkIn) begin
-    divReg[12:0] <= divReg[12:0] + 1;
+    divReg[24:0] <= divReg[24:0] + 1;
   end
   
 endmodule

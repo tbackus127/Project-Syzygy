@@ -39,8 +39,8 @@ module SDInterface(
     output [31:0] dOut,
     output chipSel,
     output mosi,
-    output [7:0] debugOut,
-    output [7:0] debugOut2
+    output [15:0] debugOut,   // Response
+    output [3:0] debugOut2    // Controller State
   );
   
   // Register Read Decoder
@@ -86,7 +86,7 @@ module SDInterface(
     .dIn({14'b00000000000000, wControllerStatus[1:0]}),
     .clockSig(clk),
     .read(wRegExtReadEn[1]),
-    .write(wRegExtWriteEn[1] | serialClockOut),
+    .write(wRegExtWriteEn[1] | wStatusUpdate),
     .asyncReset(reset),
     .dOut(wR1ExtOut[15:0]),
     .debugOut()
@@ -165,18 +165,19 @@ module SDInterface(
     .serialClockOut(serialClockOut),
     .shiftBlockMemEn(wBlockMemShiftEn),
     .status(wControllerStatus[1:0]),
+    .updateStatus(wStatusUpdate),
     .blockMemLSB(wBLockMemLSBFromController),
     .chipSelect(chipSel),
     .mosi(mosi),
-    .debugOut(debugOut[7:0]),
-    .debugOut2(debugOut2[7:0])
+    .debugOut(debugOut[15:0]),
+    .debugOut2(debugOut2[3:0])
   );
   
   // SD Block Memory - holds an entire block of data for easy read/write
   SDBlockMemory blockMem(
     .clk(clk),
     .dIn(wR2DataOut[15:0]),
-    .regSelect(wR3AddrOut[7:0]),
+    .regSelect(wR3AddrOut[7:0]),                      // TODO: Time this with controller's clock!
     .randomRead(wInstrSignals[1]),
     .randomWrite(wInstrSignals[0]),
     .serialDataIn(wBLockMemLSBFromController),

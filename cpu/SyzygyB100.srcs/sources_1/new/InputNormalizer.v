@@ -61,39 +61,40 @@ module InputNormalizer(
   reg buttonDPressed = 1'b0;
   
   // Flag for posedge button triggers
-  reg buttonLReleased = 1'b0;
-  reg buttonRReleased = 1'b0;
+//  reg buttonLReleased = 1'b0;
+//  reg buttonRReleased = 1'b0;
   reg buttonCReleased = 1'b0;
-  reg buttonUReleased = 1'b0;
-  reg buttonDReleased = 1'b0;
+//  reg buttonUReleased = 1'b0;
+//  reg buttonDReleased = 1'b0;
   
-  assign btnLOut = buttonLPressed;
-  assign btnROut = buttonRPressed;
+//  assign btnLOut = buttonLPressed;
+//  assign btnROut = buttonRPressed;
   assign btnCOut = buttonCPressed;
-  assign btnUOut = buttonUPressed;
-  assign btnDOut = buttonDPressed;
+//  assign btnUOut = buttonUPressed;
+//  assign btnDOut = buttonDPressed;
   
   // 7-segment display connections
   SevSeg ss(
     .clk(clk),
     .valIn(segsIn[15:0]),
+    .dpIn(dpIn),
     .segs(segsOut[6:0]),
     .anodes(anOut[3:0]),
-    .dp(dpOut)
+    .dpOut(dpOut)
   );
   
   // Left button connections
   Debouncer dbL(
     .clk(clk),
     .in(btnLIn),
-    .out(buttonLeft)
+    .out(btnLOut)
   );
   
   // Right button connections
   Debouncer dbR(
     .clk(clk),
     .in(btnRIn),
-    .out(buttonRight)
+    .out(btnROut)
   );
   
   // Center button connections
@@ -107,36 +108,36 @@ module InputNormalizer(
   Debouncer dbU(
     .clk(clk),
     .in(btnUIn),
-    .out(buttonUp)
+    .out(btnUOut)
   );
   
   // Down button connections
   Debouncer dbD(
     .clk(clk),
     .in(btnDIn),
-    .out(buttonDown)
+    .out(btnDOut)
   );
   
   // Generate rising-edge signals for buttons
   always @ (posedge clk) begin
       
-    if(buttonLeft & ~buttonLReleased & ~buttonLPressed) begin
-      buttonLReleased <= 1'b1;
-      buttonLPressed <= 1'b1;
-    end else if(~buttonLeft & buttonLReleased) begin
-      buttonLReleased <= 1'b0;
-    end else begin
-      buttonLPressed <= 1'b0;
-    end
+//    if(buttonLeft & ~buttonLReleased & ~buttonLPressed) begin
+//      buttonLReleased <= 1'b1;
+//      buttonLPressed <= 1'b1;
+//    end else if(~buttonLeft & buttonLReleased) begin
+//      buttonLReleased <= 1'b0;
+//    end else begin
+//      buttonLPressed <= 1'b0;
+//    end
     
-    if(buttonUp & ~buttonUReleased & ~buttonUPressed) begin
-      buttonUReleased <= 1'b1;
-      buttonUPressed <= 1'b1;
-    end else if(~buttonUp & buttonUReleased) begin
-      buttonUReleased <= 1'b0;
-    end else begin
-      buttonUPressed <= 1'b0;
-    end
+//    if(buttonUp & ~buttonUReleased & ~buttonUPressed) begin
+//      buttonUReleased <= 1'b1;
+//      buttonUPressed <= 1'b1;
+//    end else if(~buttonUp & buttonUReleased) begin
+//      buttonUReleased <= 1'b0;
+//    end else begin
+//      buttonUPressed <= 1'b0;
+//    end
     
     if(buttonCenter & ~buttonCReleased & ~buttonCPressed) begin
       buttonCReleased <= 1'b1;
@@ -147,23 +148,23 @@ module InputNormalizer(
       buttonCPressed <= 1'b0;
     end
         
-    if(buttonDown & ~buttonDReleased & ~buttonDPressed) begin
-      buttonDReleased <= 1'b1;
-      buttonDPressed <= 1'b1;
-    end else if(~buttonDown & buttonDReleased) begin
-      buttonDReleased <= 1'b0;
-    end else begin
-      buttonDPressed <= 1'b0;
-    end
+//    if(buttonDown & ~buttonDReleased & ~buttonDPressed) begin
+//      buttonDReleased <= 1'b1;
+//      buttonDPressed <= 1'b1;
+//    end else if(~buttonDown & buttonDReleased) begin
+//      buttonDReleased <= 1'b0;
+//    end else begin
+//      buttonDPressed <= 1'b0;
+//    end
     
-    if(buttonRight & ~buttonRReleased & ~buttonRPressed) begin
-      buttonRReleased <= 1'b1;
-      buttonRPressed <= 1'b1;
-    end else if(~buttonRight & buttonRReleased) begin
-      buttonRReleased <= 1'b0;
-    end else begin
-      buttonRPressed <= 1'b0;
-    end
+//    if(buttonRight & ~buttonRReleased & ~buttonRPressed) begin
+//      buttonRReleased <= 1'b1;
+//      buttonRPressed <= 1'b1;
+//    end else if(~buttonRight & buttonRReleased) begin
+//      buttonRReleased <= 1'b0;
+//    end else begin
+//      buttonRPressed <= 1'b0;
+//    end
     
   end
   

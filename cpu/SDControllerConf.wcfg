@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<wave_config>
+   <wave_state>
+   </wave_state>
+   <db_ref_list>
+      <db_ref path="SDInterfaceControl_time_impl.wdb" id="1">
+         <top_modules>
+            <top_module name="SDInterfaceControl" />
+            <top_module name="glbl" />
+         </top_modules>
+      </db_ref>
+   </db_ref_list>
+   <zoom_setting>
+      <ZoomStartTime time="10000fs"></ZoomStartTime>
+      <ZoomEndTime time="13071fs"></ZoomEndTime>
+      <Cursor1Time time="10000000000fs"></Cursor1Time>
+   </zoom_setting>
+   <WVObjectSize size="12" />
+   <wvobject fp_name="/SDInterfaceControl/JB[2]" type="logic">
+      <obj_property name="DisplayName">label</obj_property>
+      <obj_property name="ElementShortName">[2]</obj_property>
+      <obj_property name="ObjectShortName">[2]</obj_property>
+      <obj_property name="label">SD -&gt; Cont</obj_property>
+   </wvobject>
+   <wvobject fp_name="/SDInterfaceControl/JB[1]" type="logic">
+      <obj_property name="DisplayName">label</obj_property>
+      <obj_property name="ElementShortName">[1]</obj_property>
+      <obj_property name="ObjectShortName">[1]</obj_property>
+      <obj_property name="label">Cont -&gt; SD</obj_property>
+   </wvobject>
+   <wvobject fp_name="/SDInterfaceControl/JB[0]" type="logic">
+      <obj_property name="DisplayName">label</obj_property>
+      <obj_property name="ElementShortName">[0]</obj_property>
+      <obj_property name="ObjectShortName">[0]</obj_property>
+      <obj_property name="label">ChipSelect</obj_property>
+   </wvobject>
+   <wvobject fp_name="/SDInterfaceControl/wCPUClock" type="logic">
+      <obj_property name="ElementShortName">wCPUClock</obj_property>
+      <obj_property name="ObjectShortName">wCPUClock</obj_property>
+   </wvobject>
+   <wvobject fp_name="/SDInterfaceControl/wControllerState" type="array">
+      <obj_property name="ElementShortName">wControllerState[3:0]</obj_property>
+      <obj_property name="ObjectShortName">wControllerState[3:0]</obj_property>
+   </wvobject>
+   <wvobject type="divider" fp_name="divider217">
+      <obj_property name="label">Controller</obj_property>
+      <obj_property name="DisplayName">label</obj_property>
+   </wvobject>
+   <wvobject fp_name="/SDInterfaceControl/sdint/controller/clk" type="logic">
+      <obj_property name="ElementShortName">clk</obj_property>
+      <obj_property name="ObjectShortName">clk</obj_property>
+   </wvobject>
+   <wvobject fp_name="/SDInterfaceControl/sdint/controller/wSlowClock" type="logic">
+      <obj_property name="DisplayName">label</obj_property>
+      <obj_property name="ElementShortName">wSlowClock</obj_property>
+      <obj_property name="ObjectShortName">wSlowClock</obj_property>
+      <obj_property name="label">SD Clock</obj_property>
+   </wvobject>
+   <wvobject fp_name="/SDInterfaceControl/sdint/controller/chipSelect" type="logic">
+      <obj_property name="ElementShortName">chipSelect</obj_property>
+      <obj_property name="ObjectShortName">chipSelect</obj_property>
+   </wvobject>
+   <wvobject fp_name="/SDInterfaceControl/sdint/controller/debugOut2" type="array">
+      <obj_property name="DisplayName">label</obj_property>
+      <obj_property name="ElementShortName">debugOut2[3:0]</obj_property>
+      <obj_property name="ObjectShortName">debugOut2[3:0]</obj_property>
+      <obj_property name="label">State</obj_property>
+   </wvobject>
+   <wvobject fp_name="/SDInterfaceControl/sdint/controller/response" type="array">
+      <obj_property name="DisplayName">label</obj_property>
+      <obj_property name="ElementShortName">response[0:0]</obj_property>
+      <obj_property name="ObjectShortName">response[0:0]</obj_property>
+      <obj_property name="label">Response</obj_property>
+   </wvobject>
+   <wvobject fp_name="/SDInterfaceControl/sdint/controller/serialClockOut" type="logic">
+      <obj_property name="ElementShortName">serialClockOut</obj_property>
+      <obj_property name="ObjectShortName">serialClockOut</obj_property>
+   </wvobject>
+</wave_config>
