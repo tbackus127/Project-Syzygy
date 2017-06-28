@@ -47,29 +47,29 @@ module InputNormalizer(
   assign switchOut[15:0] = {switchIn[15], 1'b0, switchIn[13:0]};
   
   // Debounced button connections
-  wire buttonLeft;    // Clock step
-  wire buttonRight;   // Toggle RAM-Fetch (or external debugging) Mode
-  wire buttonCenter;  // Write instruction
-  wire buttonUp;      // Set snoop register
-  wire buttonDown;    // Reset everything
+//  wire buttonLeft;    // Clock step
+//  wire buttonRight;   // Toggle RAM-Fetch (or external debugging) Mode
+//  wire buttonCenter;  // Write instruction
+//  wire buttonUp;      // Set snoop register
+//  wire buttonDown;    // Reset everything
   
   // Holds each button's state
-  reg buttonLPressed = 1'b0;
-  reg buttonRPressed = 1'b0;
-  reg buttonCPressed = 1'b0;
-  reg buttonUPressed = 1'b0;
-  reg buttonDPressed = 1'b0;
+//  reg buttonLPressed = 1'b0;
+//  reg buttonRPressed = 1'b0;
+//  reg buttonCPressed = 1'b0;
+//  reg buttonUPressed = 1'b0;
+//  reg buttonDPressed = 1'b0;
   
   // Flag for posedge button triggers
 //  reg buttonLReleased = 1'b0;
 //  reg buttonRReleased = 1'b0;
-  reg buttonCReleased = 1'b0;
+//  reg buttonCReleased = 1'b0;
 //  reg buttonUReleased = 1'b0;
 //  reg buttonDReleased = 1'b0;
   
 //  assign btnLOut = buttonLPressed;
 //  assign btnROut = buttonRPressed;
-  assign btnCOut = buttonCPressed;
+//  assign btnCOut = buttonCPressed;
 //  assign btnUOut = buttonUPressed;
 //  assign btnDOut = buttonDPressed;
   
@@ -101,7 +101,7 @@ module InputNormalizer(
   Debouncer dbC(
     .clk(clk),
     .in(btnCIn),
-    .out(buttonCenter)
+    .out(btnCOut)
   );
   
   // Up button connections
@@ -119,7 +119,7 @@ module InputNormalizer(
   );
   
   // Generate rising-edge signals for buttons
-  always @ (posedge clk) begin
+//  always @ (posedge clk) begin
       
 //    if(buttonLeft & ~buttonLReleased & ~buttonLPressed) begin
 //      buttonLReleased <= 1'b1;
@@ -139,14 +139,14 @@ module InputNormalizer(
 //      buttonUPressed <= 1'b0;
 //    end
     
-    if(buttonCenter & ~buttonCReleased & ~buttonCPressed) begin
-      buttonCReleased <= 1'b1;
-      buttonCPressed <= 1'b1;
-    end else if(~buttonCenter & buttonCReleased) begin
-      buttonCReleased <= 1'b0;
-    end else begin
-      buttonCPressed <= 1'b0;
-    end
+//    if(buttonCenter & ~buttonCReleased & ~buttonCPressed) begin
+//      buttonCReleased <= 1'b1;
+//      buttonCPressed <= 1'b1;
+//    end else if(~buttonCenter & buttonCReleased) begin
+//      buttonCReleased <= 1'b0;
+//    end else begin
+//      buttonCPressed <= 1'b0;
+//    end
         
 //    if(buttonDown & ~buttonDReleased & ~buttonDPressed) begin
 //      buttonDReleased <= 1'b1;
@@ -166,6 +166,6 @@ module InputNormalizer(
 //      buttonRPressed <= 1'b0;
 //    end
     
-  end
+//  end
   
 endmodule

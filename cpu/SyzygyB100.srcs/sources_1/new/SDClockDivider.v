@@ -26,7 +26,7 @@ module SDClockDivider(
   );
   
   reg [24:0] divReg;
-  assign clkOut = divReg[19];
+  assign clkOut = divReg[20];    // Min div=8
   
   always @ (posedge clkIn) begin
     divReg[24:0] <= divReg[24:0] + 1;

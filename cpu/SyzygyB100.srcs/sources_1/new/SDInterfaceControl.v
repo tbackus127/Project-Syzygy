@@ -28,12 +28,18 @@ module SDInterfaceControl(
     input btnD,
     input btnR,
     input [15:0] sw,
-    inout [7:0] JB,
+    inout [3:0] JB,
     output [15:0] led,
     output [6:0] seg,
     output [3:0] an,
     output dp
   );
+  
+  // Assign the first four LEDs to serial clock, chip select, MOSI, and MISO, respectively
+//  assign led[15] = JB[3];
+//  assign led[14] = JB[0];
+//  assign led[13] = JB[1];
+//  assign led[12] = JB[2];
   
   // CPU Clock Speed Divider
   wire wCPUClock;
@@ -61,7 +67,7 @@ module SDInterfaceControl(
   reg inputMode = 1'b0;
   reg [15:0] dataValue = 16'h0000;
   reg [3:0] regNum = 4'b0000;
-  wire [3:0] wControllerState;
+  wire [7:0] wControllerState;
   InputNormalizer inorm(
     .clk(clk),
     .switchIn(sw[15:0]),
@@ -70,7 +76,7 @@ module SDInterfaceControl(
     .btnCIn(btnC),
     .btnDIn(btnD),
     .btnRIn(btnR),
-    .segsIn({{wControllerState[3:0], regNum[3:0]}, dataValue[7:0]}),
+    .segsIn({wControllerState[7:0], regNum[3:0], dataValue[3:0]}),
     .dpIn(inputMode),
     .switchOut(wSwitches[15:0]),
     .btnLOut(buttonLeft),
@@ -86,15 +92,17 @@ module SDInterfaceControl(
   // Execution Mode signal registers
   reg resetReg = 1'b0;
   reg execReg = 1'b0;
-  reg accessModeReg = 1'b0;
+  reg readEnReg = 1'b0;
+  reg writeEnReg = 1'b0;
   
   // SD card interface connections
   wire [31:0] wInterfaceOut;
   SDInterface sdint(
-    .clk(wCPUClock),
+    .cpuClock(wCPUClock),
     .periphSelect(1'b1),
     .regSelect(regNum[3:0]),
-    .accessMode(accessModeReg),
+    .readEn(readEnReg),
+    .writeEn(writeEnReg),
     .reset(resetReg),
     .dIn({16'h0000, dataValue[15:0]}),
     .exec(execReg),
@@ -103,19 +111,16 @@ module SDInterfaceControl(
     .dOut(wInterfaceOut[31:0]),
     .chipSel(JB[0]),
     .mosi(JB[1]),
-    .debugOut(led[15:0]),                   // Response Byte
-    .debugOut2(wControllerState[3:0])       // Controller State
+    .debugOut(led[15:0]),                    // Response Byte
+    .debugOut2(wControllerState[7:0])       // Controller State
   );
-  
   // Control behavior
-  always @ (posedge clk) begin
+  always @ (posedge wCPUClock) begin
     
     // Reset signals (only rising-edge triggered)
-    if(accessModeReg == 1'b1) accessModeReg <= 1'b0;
     if(resetReg == 1'b1) resetReg <= 1'b0;
-    if(execReg == 1'b1) execReg <= 1'b0;
     
-    // Set Peripheral Register Number / Toggle 7-Seg Source
+    // Set Peripheral Register Number
     if(buttonLeft == 1'b1) begin
       regNum[3:0] <= wSwitches[3:0];
     end
@@ -125,35 +130,40 @@ module SDInterfaceControl(
       dataValue[15:0] <= wSwitches[15:0];
     end
     
-    // Mode Cycle
+    // Mode Toggle
     if(buttonCenter == 1'b1) begin
       inputMode <= ~inputMode;
     end
     
-    // Write dataVal -> Reg[regNum] / Execute         // TODO: Fix this.
+    // Write dataVal -> Reg[regNum] / Execute
     if(buttonUp == 1'b1) begin
       case(inputMode)
         1'b0: begin
-          accessModeReg <= 1'b1;
+          writeEnReg <= 1'b1;
         end
         1'b1: begin
           execReg <= 1'b1;
         end
       endcase
+    end else begin
+      writeEnReg <= 1'b0;
     end
     
     // Write Reg[regNum] -> dataVal / Reset
     if(buttonDown == 1'b1) begin
       case(inputMode)
         1'b0: begin
-          accessModeReg <= 1'b0;
+          readEnReg <= 1'b1;
           dataValue[15:0] <= wInterfaceOut[15:0];
         end
         1'b1: begin
           resetReg <= 1'b1;
         end
       endcase
+    end else begin
+      readEnReg <= 1'b0;
     end
+    
   end
   
 endmodule

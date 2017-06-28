@@ -23,12 +23,13 @@
 module SDInterface(
     
     // CPU clock signal (must already be divided)
-    input clk,
+    input cpuClock,
     
     // CPU control signals
     input periphSelect,
     input [3:0] regSelect,
-    input accessMode,
+    input readEn,
+    input writeEn,
     input reset,
     input [31:0] dIn,
     input exec,
@@ -39,32 +40,42 @@ module SDInterface(
     output [31:0] dOut,
     output chipSel,
     output mosi,
-    output [15:0] debugOut,   // Response
-    output [3:0] debugOut2    // Controller State
+    output [15:0] debugOut,   // SD connections, count
+    output [7:0] debugOut2    // Controller State
   );
   
   // Register Read Decoder
+  //   Enables the corresponding interface register's read signal if this peripheral
+  //   is selected, the read enable signal is on, and if the execute signal is off.
   wire [15:0] wRegExtReadEn;
   Dmx4to16 regReadDmx(
     .sel(regSelect[3:0]),
-    .en(periphSelect & ~accessMode & ~exec),
+    .en(periphSelect & readEn & ~exec),
     .out(wRegExtReadEn[15:0])
   );
   
   // Register Write Decoder
+  //   Enables the corresponding interface register's write signal if this peripheral
+  //   is selected, the write enable signal is on, and if the execute signal is off.
   wire [15:0] wRegExtWriteEn;
   Dmx4to16 regWriteDmx(
     .sel(regSelect[3:0]),
-    .en(periphSelect & accessMode & ~exec),
+    .en(periphSelect & writeEn & ~exec),
     .out(wRegExtWriteEn[15:0])
   );
   
   // R0 - Peripheral Instruction Register
+  //   Triggered on falling clock edge, dOut2 always outputs
+  //   Instruction decoder (below):
+  //     0: Read from block memory
+  //     1: Write to block memory
+  //     2: Read 512 bytes of data from the SD card into block memory (overwrites block memory)
+  //     3: Write 512 bytes of data to the SD card from block memory
   wire [15:0] wR0ExtOut;
   wire [15:0] wR0InstrOut;
   SyzFETRegister3Out regInstr(
     .dIn(dIn[15:0]),
-    .clockSig(clk),
+    .clockSig(cpuClock),
     .read(wRegExtReadEn[0]),
     .write(wRegExtWriteEn[0]),
     .asyncReset(reset),
@@ -80,11 +91,12 @@ module SDInterface(
   );
   
   // R1 - Peripheral Status Register
+  //   Can only be written by controller
   wire [15:0] wR1ExtOut;
   wire [1:0] wControllerStatus;
   SyzFETRegister2Out regStatus(
     .dIn({14'b00000000000000, wControllerStatus[1:0]}),
-    .clockSig(clk),
+    .clockSig(cpuClock),
     .read(wRegExtReadEn[1]),
     .write(wRegExtWriteEn[1] | wStatusUpdate),
     .asyncReset(reset),
@@ -93,19 +105,21 @@ module SDInterface(
   );
   
   // R2 - Peripheral Data Register
+  //   Triggered on falling clock edge, dOut2 always outputs
+  //   Only written by the interface when a block memory read command is issued
   wire [15:0] wR2In;
   wire [15:0] wBlockMemDOut;
   Mux16B2to1 r2InMux(
     .aIn(dIn[15:0]),
     .bIn(wBlockMemDOut[15:0]),
-    .sel(wInstrSignals[1]),
+    .sel(wInstrSignals[0]),
     .dOut(wR2In[15:0])
   );
   wire [15:0] wR2ExtOut;
   wire [15:0] wR2DataOut;
   SyzFETRegister3Out regData(
     .dIn(wR2In[15:0]),
-    .clockSig(clk),
+    .clockSig(cpuClock),
     .read(wRegExtReadEn[2]),
     .write(wRegExtWriteEn[2]),
     .asyncReset(reset),
@@ -119,7 +133,7 @@ module SDInterface(
   wire [31:0] wR3AddrOut;
   SyzFETRegister3Out regAddressLSB(
     .dIn(dIn[15:0]),
-    .clockSig(clk),
+    .clockSig(cpuClock),
     .read(wRegExtReadEn[3]),
     .write(wRegExtWriteEn[3]),
     .asyncReset(reset),
@@ -129,7 +143,7 @@ module SDInterface(
   );
   SyzFETRegister3Out regAddressMSB(
     .dIn(dIn[31:16]),
-    .clockSig(clk),
+    .clockSig(cpuClock),
     .read(wRegExtReadEn[3]),
     .write(wRegExtWriteEn[3]),
     .asyncReset(reset),
@@ -156,10 +170,10 @@ module SDInterface(
   wire wBlockMemShiftEn;
   buf #(1) (wControllerExecSignal, exec);
   SDController controller(
-    .clk(clk),
+    .ctrlClk(cpuClock),
     .addr(wR3AddrOut[31:0]),
     .exec(wControllerExecSignal & (wInstrSignals[2] | wInstrSignals[3])),
-    .accessMode(accessMode),
+    .accessMode(wInstrSignals[1] | wInstrSignals[3]),
     .blockMemMSB(wBlockMemMSBToController),
     .miso(miso),
     .serialClockOut(serialClockOut),
@@ -170,17 +184,17 @@ module SDInterface(
     .chipSelect(chipSel),
     .mosi(mosi),
     .debugOut(debugOut[15:0]),
-    .debugOut2(debugOut2[3:0])
+    .debugOut2(debugOut2[7:0])
   );
-  
-  // SD Block Memory - holds an entire block of data for easy read/write
+
   SDBlockMemory blockMem(
-    .clk(clk),
+    .blkMemClk(cpuClock),
     .dIn(wR2DataOut[15:0]),
-    .regSelect(wR3AddrOut[7:0]),                      // TODO: Time this with controller's clock!
-    .randomRead(wInstrSignals[1]),
-    .randomWrite(wInstrSignals[0]),
+    .regSelect(wR3AddrOut[7:0]),
+    .randomRead(wInstrSignals[0]),
+    .randomWrite(wInstrSignals[1]),
     .serialDataIn(wBLockMemLSBFromController),
+    .serialClock(serialClockOut),
     .serialWriteEn(wBlockMemShiftEn),
     .dOut(wBlockMemDOut[15:0]),
     .serialDataOut(wBlockMemMSBToController)

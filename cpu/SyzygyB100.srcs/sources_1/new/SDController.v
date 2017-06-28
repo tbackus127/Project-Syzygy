@@ -21,7 +21,7 @@
 
 
 module SDController(
-    input clk,
+    input ctrlClk,
     input [31:0] addr,
     input exec,
     input accessMode,
@@ -35,7 +35,7 @@ module SDController(
     output reg chipSelect = 1'b1,
     output mosi,
     output [15:0] debugOut,
-    output [3:0] debugOut2
+    output [7:0] debugOut2
   );
   
   // Single-bit values
@@ -49,9 +49,10 @@ module SDController(
   parameter STATUS_ERR_HW = 2'b11;
   
   // Data lengths
+  parameter TIMEOUT_COUNT = 128;
   parameter CMD_LENGTH = 48;
   parameter RESP_R1_LEN = 8;
-  parameter RESP_R7_LEN = 8;
+  parameter RESP_R7_LEN = 40;
   parameter FLUSH_COUNT = 100;
   parameter DESELECT_COUNT = 4;
   parameter BLOCK_BIT_COUNT = 4096;
@@ -115,12 +116,11 @@ module SDController(
   parameter STATE_READ_BLOCK = 22;
   parameter STATE_WRITE_BLOCK = 23;
   parameter STATE_FINISH_BLOCK_IO = 24;
-  parameter STATE_FLUSH_EXTRA_RESP = 25;
   
   // Divide the clock signal to less than 400khz
   wire wSlowClock;
   SDClockDivider sdcdiv(
-    .clkIn(clk),
+    .clkIn(ctrlClk),
     .clkOut(wSlowClock)
   );
   
@@ -137,9 +137,18 @@ module SDController(
   reg [7:0] expectedResp = 0;
   reg blockMode = 0;
   
+  // SD signals (to prevent constraint collision)
+  reg misoVal = 0;
+  reg mosiVal = 0;
+  
   // Debug signals
-  assign debugOut[15:0] = {serialClockOut, chipSelect, mosi, miso, 4'b0000, response[7:0]};
-  assign debugOut2[3:0] = state[3:0];
+  assign debugOut[7:0] = count[7:0];
+  assign debugOut[15] = serialClockOut;
+  assign debugOut[14] = chipSelect;
+  assign debugOut[13] = mosiVal;
+  assign debugOut[12] = misoVal;
+  
+  assign debugOut2[7:0] = {3'b000, state[4:0]};
   
   // Select between 1, command[MSB], and block memory MSB for MOSI
   wire wMuxTemp;
@@ -165,25 +174,25 @@ module SDController(
   );
   
   // Do stuff according to the current state on the falling clock edge
-  always @ (negedge wSlowClock) begin
+  always @ (posedge wSlowClock) begin
     
     case(state[4:0])
       
-      // State 0 - Send 0xFF for about 100 clock pulses
+      // State 00 - Send 0xFF for about 100 clock pulses
       STATE_FLUSH_INIT: begin
       
         if(count > 0) begin
           if(serialClockOut == HI) begin
-            count = count - 1;
+            count <= count - 1;
           end
-          serialClockOut = ~serialClockOut;
+          serialClockOut <= ~serialClockOut;
         end else begin
-          state = STATE_READY_CMD0;
+          state <= STATE_READY_CMD0;
         end
         
       end
       
-      // State 1 - Set up data needed for transmitting CMD0
+      // State 01 - Set up data needed for transmitting CMD0
       STATE_READY_CMD0: begin
         command = {CMD_CMD0, ARG_EMPTY, CRC_CMD0};
         state = STATE_SEND_CMD;
@@ -193,96 +202,106 @@ module SDController(
         expectedResp = TOKEN_CMD0_RESP;
         count = CMD_LENGTH;
         mosiSrc = MUX_CMD_MSB;
-        chipSelect = LO;
+        chipSelect <= LO;
       end
       
-      // State 2 - Send the MSB of the command
+      // State 02 - Send the command
       STATE_SEND_CMD: begin
         
         if(count > 0) begin
         
           serialClockOut <= ~serialClockOut;
         
-          if(serialClockOut == HI) begin
+          if(serialClockOut == LO) begin
             command[47:0] <= {command[46:0], LO};
             count <= count - 1;
           end
           
-        
         end else begin
           mosiSrc <= MUX_CONST_HI;
           state <= STATE_AWAIT_RESPONSE;
+          count <= TIMEOUT_COUNT;
         end
         
       end
       
-      // State 3 - Wait for a zero (beginning of response token) from SD card
+      // State 03 - Wait for a zero (beginning of response token) from SD card
+      //   If no 0 has been received, set the state to the return state
       STATE_AWAIT_RESPONSE: begin
       
-        if(serialClockOut == HI && miso == LO) begin
-          
-          response[39:0] <= {response[38:0], miso};
-          state = STATE_GET_RESPONSE;
-          count = responseLen - 1;
+        if(serialClockOut == HI) begin
+        
+          if(miso == LO) begin
+            response[39:0] <= {response[38:0], miso};
+            state <= STATE_GET_RESPONSE;
+            count <= responseLen - 1;
+          end else if(count == 0) begin
+            state <= STATE_DESELECT;
+            returnState <= errState;
+            count <= DESELECT_COUNT;
+            chipSelect = HI;
+          end else begin
+            count <= count - 1;
+          end
         end
       
-        serialClockOut = ~serialClockOut;
+        serialClockOut <= ~serialClockOut;
+        
       end
     
-    // State 4 - Get the response token
+    // State 04 - Get the response token
     STATE_GET_RESPONSE: begin
     
       if(count > 0) begin
-        if(serialClockOut == HI) begin
+        if(serialClockOut == LO) begin
           response[39:0] <= {response[38:0], miso};
-          count = count - 1;
+          count <= count - 1;
         end
-        serialClockOut = ~serialClockOut;
+        serialClockOut <= ~serialClockOut;
       end else begin
         if(responseLen == RESP_R7_LEN) begin
-          state = STATE_CHECK_R1_RESPONSE;
+          state <= STATE_CHECK_R7_RESPONSE;
         end else begin
-          state = STATE_CHECK_R1_RESPONSE;
+          state <= STATE_CHECK_R1_RESPONSE;        
         end
-        
       end
             
     end
     
-    // State 5 - Sets the return state to the error state if the response is incorrect
+    // State 05 - Sets the return state to the error state if the response is incorrect
     STATE_CHECK_R1_RESPONSE: begin
       if(response[7:0] != expectedResp[7:0]) begin
-        returnState = errState;
-      end
-      state = STATE_FLUSH_EXTRA_RESP;     // state = STATE_DESELECT
-      count = CMD_LENGTH;                // count = DESELECT_COUNT
-      // chipSelect = HI
-    end
-    
-    // State 6 - Does the same thing as State 5, but checks bits 32-39 instead of 0-7 to fit
-    //   the R7 response length
-    STATE_CHECK_R7_RESPONSE: begin
-      if(response[39:32] != expectedResp[7:0]) begin
-        returnState = errState;
+        returnState <= errState;
       end
       state = STATE_DESELECT;
       count = DESELECT_COUNT;
       chipSelect = HI;
     end
     
-    // State 7 - Deselects the SD card before sending another command
+    // State 06 - Does the same thing as State 5, but checks bits 32-39 instead of 0-7 to fit
+    //   the R7 response length
+    STATE_CHECK_R7_RESPONSE: begin
+      if(response[39:32] != expectedResp[7:0]) begin
+        returnState <= errState;
+      end
+      state <= STATE_DESELECT;
+      count <= DESELECT_COUNT;
+      chipSelect <= HI;
+    end
+    
+    // State 07 - Deselects the SD card before sending another command
     STATE_DESELECT: begin
       if(count > 0) begin
         if(serialClockOut == HI) begin
-          count = count - 1;
+          count <= count - 1;
         end
-        serialClockOut = ~serialClockOut;
+        serialClockOut <= ~serialClockOut;
       end else begin
-        state = returnState;
+        state <= returnState;
       end
     end
     
-    // State 8 - Set up data needed for transmitting CMD8
+    // State 08 - Set up data needed for transmitting CMD8
     STATE_READY_CMD8: begin
       command = {CMD_CMD8, ARG_CMD8, CRC_CMD8};
       state = STATE_SEND_CMD;
@@ -292,10 +311,10 @@ module SDController(
       expectedResp = TOKEN_CMD0_RESP;
       count = CMD_LENGTH;
       mosiSrc = MUX_CMD_MSB;
-      chipSelect = LO;
+      chipSelect <= LO;
     end
     
-    // State 9 - Set up data needed for transmitting CMD55
+    // State 09 - Set up data needed for transmitting CMD55
     STATE_READY_CMD55: begin
       command = {CMD_CMD55, ARG_EMPTY, CRC_DUMMY};
       state = STATE_SEND_CMD;
@@ -305,10 +324,10 @@ module SDController(
       expectedResp = TOKEN_CMD0_RESP;
       count = CMD_LENGTH;
       mosiSrc = MUX_CMD_MSB;
-      chipSelect = LO;
+      chipSelect <= LO;
     end
     
-    // State 10 - Set up data needed for transmitting CMD41
+    // State 0A - Set up data needed for transmitting CMD41
     STATE_READY_CMD41: begin
       command = {CMD_CMD41, ARG_EMPTY, CRC_DUMMY};
       state = STATE_SEND_CMD;
@@ -318,35 +337,35 @@ module SDController(
       expectedResp = TOKEN_CMD0_RESP;
       count = CMD_LENGTH;
       mosiSrc = MUX_CMD_MSB;
-      chipSelect = LO;
+      chipSelect <= LO;
     end
     
-    // State 11 - Finish up initialization, set SD interface's R1 to Ready.
+    // State 0B - Finish up initialization, set SD interface's R1 to Ready.
     STATE_FINISH_INIT: begin
       if(updateStatus == HI) begin
         updateStatus = LO;
-        state = STATE_WAIT_FOR_HOST;
+        state <= STATE_WAIT_FOR_HOST;
       end else begin
         status <= STATUS_READY;
         errState = STATE_WAIT_FOR_HOST;
         response = 0;
         blockMode = HI;
-        updateStatus = HI;
+        updateStatus <= HI;
       end
     end
     
-    // State 12 - Wait for host to give read/write block instruction
+    // State 0C - Wait for host to give read/write block instruction
     STATE_WAIT_FOR_HOST: begin
       if(exec) begin
-        if(accessMode == HI) begin
-          state = STATE_READY_CMD17;
+        if(accessMode == LO) begin
+          state <= STATE_READY_CMD17;
         end else begin
-          state = STATE_READY_CMD24;
+          state <= STATE_READY_CMD24;
         end
       end
     end
     
-    // State 13 - Load command to read a single block from the SD card
+    // State 0D - Load command to read a single block from the SD card
     STATE_READY_CMD17: begin
       command = {CMD_CMD17, addr[31:0], CRC_DUMMY};
       state = STATE_SEND_CMD;
@@ -356,10 +375,10 @@ module SDController(
       expectedResp = TOKEN_R1_RESP;
       count = CMD_LENGTH;
       mosiSrc = MUX_CMD_MSB;
-      chipSelect = LO;
+      chipSelect <= LO;
     end
     
-    // State 14 - Load command to write a single block to the SD card
+    // State 0E - Load command to write a single block to the SD card
     STATE_READY_CMD24: begin
       command = {CMD_CMD24, addr[31:0], CRC_DUMMY};
       state = STATE_SEND_CMD;
@@ -369,22 +388,22 @@ module SDController(
       expectedResp = TOKEN_R1_RESP;
       count = CMD_LENGTH;
       mosiSrc = MUX_CMD_MSB;
-      chipSelect = LO;
+      chipSelect <= LO;
     end
     
-    // State 15 - Wait for the SD card to send the start data token
+    // State 0F - Wait for the SD card to send the start data token
     STATE_AWAIT_DATA_TOKEN: begin
       if(serialClockOut == HI && miso == LO) begin
         
         response[39:0] <= {response[38:0], miso};
-        state = STATE_GET_DATA_TOKEN;
-        count = TOKEN_DATA_LEN - 1;
+        state <= STATE_GET_DATA_TOKEN;
+        count <= TOKEN_DATA_LEN - 1;
       end
     
-      serialClockOut = ~serialClockOut;
+      serialClockOut <= ~serialClockOut;
     end
     
-    // State 16 - Get the data token before a block read
+    // State 10 - Get the data token before a block read
     STATE_GET_DATA_TOKEN: begin
       if(count > 0) begin
         if(serialClockOut == HI) begin
@@ -393,90 +412,90 @@ module SDController(
         end
         serialClockOut <= ~serialClockOut;
       end else begin
-        state = STATE_CHECK_DATA_TOKEN;
+        state <= STATE_CHECK_DATA_TOKEN;
       end
     end
     
-    // State 17 - Check the data token we've received
+    // State 11 - Check the data token we've received
     STATE_CHECK_DATA_TOKEN: begin
       if(response[7:0] != TOKEN_DATA_START) begin
-        state = errState;
+        state <= errState;
       end else begin
-        state = STATE_READY_BLOCK_READ;
+        state <= STATE_READY_BLOCK_READ;
       end
     end
     
-    // State 18 - Load the data token so the card knows we're sending data
+    // State 12 - Load the data token so the card knows we're sending data
     STATE_READY_DATA_TOKEN: begin
       command = {TOKEN_DATA_START, 40'h0000000000};
       state = STATE_SEND_DATA_TOKEN;
       returnState = STATE_WAIT_FOR_HOST;
       errState = STATE_WAIT_FOR_HOST;
       count = TOKEN_DATA_LEN;
-      mosiSrc = MUX_BLK_MSB;
+      mosiSrc <= MUX_BLK_MSB;
     end
     
-    // State 19 - Send the data token before a block write
+    // State 13 - Send the data token before a block write
     STATE_SEND_DATA_TOKEN: begin
       if(count > 0) begin
       
         serialClockOut <= ~serialClockOut;
       
         if(serialClockOut == HI) begin
-          command[47:0] = {command[46:0], LO};
-          count = count - 1;
+          command[47:0] <= {command[46:0], LO};
+          count <= count - 1;
         end
         
       end else begin
-        state = STATE_READY_BLOCK_WRITE;
+        state <= STATE_READY_BLOCK_WRITE;
       end
     end
     
-    // State 20 - Ready block read
+    // State 14 - Ready block read
     STATE_READY_BLOCK_READ: begin
       count = BLOCK_BIT_COUNT;
       blkMemLSBSrc = MUX_BM_MISO;
-      shiftBlockMemEn = HI;
+      shiftBlockMemEn <= HI;
     end
     
-    // State 21 - Ready block write
+    // State 15 - Ready block write
     STATE_READY_BLOCK_WRITE: begin
       count = BLOCK_BIT_COUNT;
       blkMemLSBSrc = MUX_BM_CONST;
-      shiftBlockMemEn = HI;
+      shiftBlockMemEn <= HI;
     end
     
-    // State 22 - Read 512 bytes from the SD card into block memory
-    STATE_READ_BLOCK: begin
+    // State 16 - Read 512 bytes from the SD card into block memory
+    STATE_READ_BLOCK: begin                                 // TODO: This
       
     end
     
-    // State 23 - Write 512 bytes to the SD card from block memory
-    STATE_WRITE_BLOCK: begin
+    // State 17 - Write 512 bytes to the SD card from block memory
+    STATE_WRITE_BLOCK: begin                                // TODO: This
       
     end
     
-    // State 24 - Close block read/write connections
+    // State 18 - Close block read/write connections
     STATE_FINISH_BLOCK_IO: begin
       blkMemLSBSrc = MUX_BM_CONST;
       shiftBlockMemEn = LO;
-      chipSelect = HI;
+      chipSelect <= HI;
     end
     
-    // State 25 - 
-    STATE_FLUSH_EXTRA_RESP: begin
-      if(count > 0) begin
-        if(serialClockOut == HI) begin
-          count = count - 1;
-        end
-        serialClockOut = ~serialClockOut;
-      end else begin
-        state = STATE_DESELECT;
-        count = DESELECT_COUNT;
-        chipSelect = HI;
-        state = STATE_DESELECT;
-      end
-    end
+    // State 19 - 
+//    STATE_FLUSH_EXTRA_RESP: begin
+//      if(count > 0) begin
+//        if(serialClockOut == HI) begin
+//          count <= count - 1;
+//        end
+//        serialClockOut <= ~serialClockOut;
+//      end else begin
+//        state <= STATE_DESELECT;
+//        count <= DESELECT_COUNT;
+//        chipSelect <= HI;
+//        state <= STATE_DESELECT;
+//      end
+//    end
     
     // Unknown State - Attempt to restart from STATE_WAIT_FOR_HOST if we somehow get here
     default: begin
@@ -491,10 +510,14 @@ module SDController(
       responseLen = 0;
       expectedResp = 0;
       blockMode = HI;
-      shiftBlockMemEn = LO;
+      shiftBlockMemEn <= LO;
     end
     
     endcase
+    
+    mosiVal <= mosi;
+    misoVal <= miso;
+    
   end
   
 endmodule
