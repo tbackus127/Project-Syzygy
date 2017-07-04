@@ -111,7 +111,7 @@ module SDInterfaceControl(
     .dOut(wInterfaceOut[31:0]),
     .chipSel(JB[0]),
     .mosi(JB[1]),
-    .debugOut(led[15:0]),                    // Response Byte
+    .debugOut(led[15:0]),                   // Response Byte
     .debugOut2(wControllerState[7:0])       // Controller State
   );
   // Control behavior
@@ -147,6 +147,7 @@ module SDInterfaceControl(
       endcase
     end else begin
       writeEnReg <= 1'b0;
+      execReg <= 1'b0;
     end
     
     // Write Reg[regNum] -> dataVal / Reset

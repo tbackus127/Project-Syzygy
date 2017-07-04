@@ -37,7 +37,7 @@ module SDBlockMemory(
   reg [3:0] bitCount;
   reg [7:0] byteCount;
   reg didShift;
-  
+
   always @ (negedge blkMemClk) begin
     
     // If the controller orders a serial bit write and we haven't shifted yet
