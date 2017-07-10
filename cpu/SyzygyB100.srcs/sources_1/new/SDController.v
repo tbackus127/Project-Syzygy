@@ -1,24 +1,4 @@
 `timescale 1ns / 1ps
-//////////////////////////////////////////////////////////////////////////////////
-// Company: 
-// Engineer: 
-// 
-// Create Date: 06/19/2017 03:47:42 AM
-// Design Name: 
-// Module Name: SDController
-// Project Name: 
-// Target Devices: 
-// Tool Versions: 
-// Description: 
-// 
-// Dependencies: 
-// 
-// Revision:
-// Revision 0.01 - File Created
-// Additional Comments:
-// 
-//////////////////////////////////////////////////////////////////////////////////
-
 
 module SDController(
     input ctrlClk,
@@ -322,7 +302,7 @@ module SDController(
             
             if(response[0] == LO) begin
               returnState <= STATE_GET_RESPONSE;
-              count <= responseLen - 2;
+              count <= responseLen - 1;
             end else if(count == 0) begin
               returnState <= STATE_GET_RESPONSE;
               nextState <= errState;
@@ -362,56 +342,56 @@ module SDController(
     // ----------------------------------------------------------------------------------
     STATE_GET_RESPONSE: begin
     
-      case({serialClockOut, clockTicked})
-            
-        // Step 1 - Raise serial clock
-        2'b00: begin
-          serialClockOut <= HI;
+      // If we're done getting the response bits
+      if(count == 0) begin
+          
+        // Dispatch to R1/R7 response checkers
+        if(responseLen == RESP_R7_LEN) begin
+          state <= STATE_CHECK_R7_RESPONSE;
+          returnState <= STATE_CHECK_R7_RESPONSE;
+        end else begin
+          state <= STATE_CHECK_R1_RESPONSE;
+          returnState <= STATE_CHECK_R1_RESPONSE;
         end
         
-        // Step 4 - Update state register if necessary
-        2'b01: begin
-          
-          // Got all remaining response bits
-          if(count == 0) begin
-            
-            // Dispatch to R1/R7 response checkers
-            if(responseLen == RESP_R7_LEN) begin
-              state <= STATE_CHECK_R7_RESPONSE;
-              returnState <= STATE_CHECK_R7_RESPONSE;
-            end else begin
-              state <= STATE_CHECK_R1_RESPONSE;
-              returnState <= STATE_CHECK_R1_RESPONSE;
-            end
-            
-          // Still response bits to get
-          end else begin
-            count <= count - 1;
-            returnState <= STATE_GET_RESPONSE;
+      // If there's still bits to get
+      end else begin
+      
+        case({serialClockOut, clockTicked})
+              
+          // Step 1 - Raise serial clock
+          2'b00: begin
+            serialClockOut <= HI;
           end
           
-          clockTicked <= LO;
-        end
-        
-        // Step 2 - Update response register, check MISO
-        2'b10: begin
-          
-          response[39:0] <= {response[38:0], miso};
-          clockTicked <= HI;
-          
-        end
-        
-        // Step 3 - Lower serial clock
-        2'b11: begin
-          serialClockOut <= LO;
-        end
-      
-      endcase
-    
-      // Start clock countdown
-      clockCount <= CLOCK_REDUCE_AMT;
-      state <= STATE_CLOCK_COUNTDOWN;
+          // Step 4 - Update counter
+          2'b01: begin
             
+            count <= count - 1;
+            returnState <= STATE_GET_RESPONSE;
+            clockTicked <= LO;
+          end
+          
+          // Step 2 - Update response register, check MISO
+          2'b10: begin
+            
+            response[39:0] <= {response[38:0], miso};
+            clockTicked <= HI;
+            
+          end
+          
+          // Step 3 - Lower serial clock
+          2'b11: begin
+            serialClockOut <= LO;
+          end
+        
+        endcase
+      
+        // Start clock countdown
+        clockCount <= CLOCK_REDUCE_AMT;
+        state <= STATE_CLOCK_COUNTDOWN;
+      end
+    
     end
     
     // ----------------------------------------------------------------------------------
