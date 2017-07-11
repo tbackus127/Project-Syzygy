@@ -188,12 +188,12 @@ module SDController(
   reg mosiVal = 0;
   
   // Debug signals, always active
-  assign debugOut[7:0] = count[7:0];
+  assign debugOut[7:0] = response[7:0];
   assign debugOut[15] = serialClockOut;
   assign debugOut[14] = chipSelect;
   assign debugOut[13] = mosiVal;
   assign debugOut[12] = misoVal;
-  assign debugOut2[7:0] = {3'b000, returnState[4:0]};
+  assign debugOut2[7:0] = {3'b000, state[4:0]};
   
   // Select between 1, command[MSB], and data[MSB] to use as the MOSI value
   wire wMuxTemp;
@@ -517,6 +517,7 @@ module SDController(
       
         blockAddr[31:0] <= addr[31:0];
         blockCount <= BLOCK_COUNT;
+        response <= 0;
       
         // Perform setups for various operations
         case(op[1:0])
@@ -563,13 +564,15 @@ module SDController(
           
           // Continue
           2'b10: begin
-            count <= 16;
+            count <= WORD_LENGTH;
             if(accessMode == 0) begin
               nextState <= STATE_READ_WORD;
               status <= STATUS_BUSY_BLKRD;
+              returnState <= STATE_READ_WORD;
             end else begin
               nextState <= STATE_WRITE_WORD;
               status <= STATUS_BUSY_BLKWR;
+              returnState <= STATE_WRITE_WORD;
             end
             state <= STATE_UPDATE_R1;
           end
@@ -637,7 +640,7 @@ module SDController(
       returnState <= STATE_SEND_CMD;
       command[47:0] <= {CMD_CMD17[7:0], blockAddr[31:0], CRC_DUMMY[7:0]};
       state <= STATE_SEND_CMD;
-      nextState <= STATE_AWAIT_DATA_TOKEN;
+      nextState <= STATE_SETUP_AWAIT_TOKEN;
       errState <= STATE_FINISH_BLOCK_IO;
       responseLen <= RESP_R1_LEN;
       expectedResp <= TOKEN_R1_RESP;
@@ -652,6 +655,8 @@ module SDController(
     STATE_SETUP_AWAIT_TOKEN: begin
       count <= TIMEOUT_COUNT;
       returnState <= STATE_AWAIT_DATA_TOKEN;
+      response <= 0;
+      state <= STATE_AWAIT_DATA_TOKEN;
     end
     
     // ----------------------------------------------------------------------------------
@@ -659,36 +664,56 @@ module SDController(
     // ----------------------------------------------------------------------------------
     STATE_AWAIT_DATA_TOKEN: begin
       
-      // When serial clock is on
-      if(serialClockOut == HI) begin
-        
-        response[39:0] <= {response[38:0], miso};
-        
-        // When we get a 0 from the SD card
-        if(miso == LO) begin
-          returnState <= STATE_CHECK_DATA_TOKEN;
+      case({serialClockOut, clockTicked})
             
-        // Timeout
-        end else if(count == 0) begin
-          count <= BLOCK_BIT_COUNT + TIMEOUT_COUNT;
-          returnState <= STATE_FLUSH_BITS;
-          nextState <= STATE_FINISH_BLOCK_IO;
-          status <= STATUS_ERR_BLK_CMD;
-        
-        // No response yet
-        end else begin
-          count <= count - 1;
+        // Step 1 - Raise serial clock
+        2'b00: begin
+          serialClockOut <= HI;
         end
         
-      // When serial clock is off
-      end else begin
-        returnState <= STATE_AWAIT_DATA_TOKEN;
-      end
+        // Step 4 - Update state register if necessary
+        2'b01: begin
+          
+          // If we got the zero
+          if(response[0] == LO) begin
+            returnState <= STATE_CHECK_DATA_TOKEN;
+            count <= responseLen - 1;
+            
+          // Timeout
+          end else if(count == 0) begin
+            count <= BLOCK_BIT_COUNT + TIMEOUT_COUNT;
+            returnState <= STATE_FLUSH_BITS;
+            nextState <= STATE_FINISH_BLOCK_IO;
+            status <= STATUS_ERR_BLK_CMD;
+          
+          // Decrement count
+          end else begin
+            count <= count - 1;
+            returnState <= STATE_AWAIT_DATA_TOKEN;
+          end
+          
+          clockTicked <= LO;
+        end
+        
+        // Step 2 - Update response register, check MISO
+        2'b10: begin
+          
+          response[39:0] <= {response[38:0], miso};
+          clockTicked <= HI;
+          
+        end
+        
+        // Step 3 - Lower serial clock
+        2'b11: begin
+          serialClockOut <= LO;
+        end
       
-      // Toggle the serial clock and start countdown
-      serialClockOut <= ~serialClockOut;
+      endcase
+    
+      // Start clock countdown
       clockCount <= CLOCK_REDUCE_AMT;
       state <= STATE_CLOCK_COUNTDOWN;
+      
     end
     
     // ----------------------------------------------------------------------------------
@@ -708,7 +733,7 @@ module SDController(
       end else begin
         state <= STATE_READ_WORD;
         returnState <= STATE_READ_WORD;
-        count <= 16;
+        count <= WORD_LENGTH;
       end
     end
     
@@ -717,29 +742,50 @@ module SDController(
     // ----------------------------------------------------------------------------------
     STATE_READ_WORD: begin
     
-      // If the serial clock is on
-      if(serialClockOut == HI) begin
+      if(count == 0) begin
       
-        // If we're done 
-        if(count == 0) begin
+        blockCount <= blockCount - 1;
+        nextState <= STATE_UPDATE_R1;
+        returnState <= STATE_UPDATE_R3;
+        state <= STATE_UPDATE_R3;
         
-          blockCount <= blockCount - 1;
-          returnState <= STATE_UPDATE_R3;
-        
-        // If there's still bits to get
-        end else begin
-        
-          // Shift in the bit from the SD card into our data register
-          data[15:0] <= {data[14:0], miso};
-          count <= count - 1;
+      end else begin
+      
+        case({serialClockOut, clockTicked})
+                    
+          // Step 1 - Raise serial clock
+          2'b00: begin
+            serialClockOut <= HI;
+          end
           
-        end
-      end
+          // Step 4 - Update count
+          2'b01: begin
+            
+            count <= count - 1;
+            returnState <= STATE_READ_WORD;
+            clockTicked <= LO;
+          end
+          
+          // Step 2 - Update response register, check MISO
+          2'b10: begin
+            
+            data[15:0] <= {data[14:0], miso};
+            clockTicked <= HI;
+            
+          end
+          
+          // Step 3 - Lower serial clock
+          2'b11: begin
+            serialClockOut <= LO;
+          end
+        
+        endcase
       
-      // Pulse the serial clock
-      serialClockOut <= ~serialClockOut;
-      clockCount <= CLOCK_REDUCE_AMT;
-      state <= STATE_CLOCK_COUNTDOWN;
+        // Start clock countdown
+        clockCount <= CLOCK_REDUCE_AMT;
+        state <= STATE_CLOCK_COUNTDOWN;
+      end
+    
     end
     
     // ----------------------------------------------------------------------------------
@@ -747,26 +793,23 @@ module SDController(
     // ----------------------------------------------------------------------------------
     STATE_UPDATE_R3: begin
     
-      // Use ~blockMode reg as a flag to signify we've updated R3 since it
-      //  will always be 1 here, and the change is contained within this state
-      
-      // Done updating R3
-      if(blockMode == LO) begin
-        blockMode <= HI;
+      if(clockTicked == HI) begin
+        dOut <= 0;
         state <= nextState;
         status <= STATUS_WAITING_BLKRD;
+        clockTicked <= LO;
         nextState <= STATE_WAIT_FOR_CONTINUE;
-        
-      // Perform the update (R3 has falling-edge trigger)
-      end else if(updateDataOut == HI) begin
+      end else if(clkR3 == HI) begin
         clkR3 <= LO;
-        blockMode <= LO;
-        
-      // Set up the update
+      end else if(updateDataOut == HI) begin
+        updateDataOut <= LO;
+        clockTicked <= HI;
       end else begin
-        updateDataOut <= HI;
         clkR3 <= HI;
+        updateDataOut <= HI;
+        dOut <= data;
       end
+      
     end
     
     // ----------------------------------------------------------------------------------
@@ -802,20 +845,30 @@ module SDController(
     // ----------------------------------------------------------------------------------
     STATE_SEND_DATA_TOKEN: begin
       
-      if(serialClockOut == HI) begin
-        
-        if(count > 0) begin
-          command[47:0] <= {command[46:0], 1'b0};
-          count <= count - 1;
-        end else begin
-          returnState <= STATE_GET_R2_DATA; 
-        end
-        
-      end
+      if(count > 0) begin
       
-      serialClockOut <= ~serialClockOut;
-      clockCount <= CLOCK_REDUCE_AMT;
-      state <= STATE_CLOCK_COUNTDOWN;
+        if(serialClockOut == HI) begin
+          serialClockOut <= LO;
+        end else if(clockTicked == HI) begin
+          command[47:0] <= {command[46:0], LO};
+          count <= count - 1;
+          clockTicked <= LO;
+        end else begin
+          serialClockOut <= HI;
+          clockTicked <= HI;
+        end
+      
+        // Start clock countdown
+        returnState <= STATE_SEND_CMD;
+        clockCount <= CLOCK_REDUCE_AMT;
+        state <= STATE_CLOCK_COUNTDOWN;
+      
+      end else begin
+        mosiSrc <= MUX_CONST_HI;
+        count <= TIMEOUT_COUNT;
+        state <= STATE_GET_R2_DATA;
+        returnState <= STATE_GET_R2_DATA;
+      end
       
     end
     
@@ -835,21 +888,32 @@ module SDController(
     // ----------------------------------------------------------------------------------
     STATE_WRITE_WORD: begin
       
-      if(serialClockOut == HI) begin
-        if(count > 0) begin
+      if(count > 0) begin
+      
+        if(serialClockOut == HI) begin
+          serialClockOut <= LO;
+        end else if(clockTicked == HI) begin
           data[15:0] <= {data[14:0], 1'b0};
           count <= count - 1;
+          clockTicked <= LO;
         end else begin
-          returnState <= STATE_UPDATE_R1;
-          nextState <= STATE_WAIT_FOR_CONTINUE;
-          status <= STATUS_WAITING_BLKWR;
-          blockCount <= blockCount - 1;
+          serialClockOut <= HI;
+          clockTicked <= HI;
         end
-      end
       
-      serialClockOut <= ~serialClockOut;
-      clockCount <= CLOCK_REDUCE_AMT;
-      state <= STATE_CLOCK_COUNTDOWN;
+        // Start clock countdown
+        returnState <= STATE_SEND_CMD;
+        clockCount <= CLOCK_REDUCE_AMT;
+        state <= STATE_CLOCK_COUNTDOWN;
+      
+      end else begin
+        returnState <= STATE_UPDATE_R1;
+        state <= STATE_UPDATE_R1;
+        nextState <= STATE_WAIT_FOR_CONTINUE;
+        status <= STATUS_WAITING_BLKWR;
+        blockCount <= blockCount - 1;
+        mosiSrc <= MUX_CONST_HI;
+      end
       
     end
     
