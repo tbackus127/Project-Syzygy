@@ -56,7 +56,7 @@ module SDController(
   parameter FLUSH_COUNT = 100;
   parameter DESELECT_COUNT = 4;
   parameter BLOCK_BIT_COUNT = 4096;
-  parameter CLOCK_REDUCE_AMT = 960000;
+  parameter CLOCK_REDUCE_AMT = 255;
   parameter WORD_LENGTH = 16;
   parameter BLOCK_COUNT = BLOCK_BIT_COUNT / WORD_LENGTH;
   
@@ -144,7 +144,7 @@ module SDController(
                                             
   reg [15:0] count = FLUSH_COUNT;           // The serial clock pulse counter
   
-  reg [31:0] clockCount = 0;                // The CPU clock pulse counter. The serial clock will
+  reg [7:0] clockCount = 0;                 // The CPU clock pulse counter. The serial clock will
                                             //  not toggle until this value hits zero. This is to
                                             //  prevent the serial clock from running at too high
                                             //  a frequency during the SD card's initialization
