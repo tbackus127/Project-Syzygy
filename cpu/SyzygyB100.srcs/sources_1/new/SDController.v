@@ -570,9 +570,9 @@ module SDController(
               status <= STATUS_BUSY_BLKRD;
               returnState <= STATE_READ_WORD;
             end else begin
-              nextState <= STATE_WRITE_WORD;
+              nextState <= STATE_GET_R2_DATA;
               status <= STATUS_BUSY_BLKWR;
-              returnState <= STATE_WRITE_WORD;
+              returnState <= STATE_GET_R2_DATA;
             end
             state <= STATE_UPDATE_R1;
           end
@@ -818,7 +818,7 @@ module SDController(
     STATE_READY_CMD24: begin
       command[47:0] <= {CMD_CMD24, blockAddr[31:0], CRC_DUMMY};
       state <= STATE_SEND_CMD;
-      nextState <= STATE_SEND_DATA_TOKEN;
+      nextState <= STATE_READY_DATA_TOKEN;
       errState <= STATE_FINISH_BLOCK_IO;
       responseLen <= RESP_R1_LEN;
       expectedResp <= TOKEN_R1_RESP;
@@ -833,9 +833,8 @@ module SDController(
     STATE_READY_DATA_TOKEN: begin
       command[47:0] <= {TOKEN_DATA_START, 40'h0000000000};
       state <= STATE_SEND_DATA_TOKEN;
-      nextState <= STATE_WAIT_FOR_HOST;
+      nextState <= STATE_WAIT_FOR_CONTINUE;
       returnState <= STATE_SEND_DATA_TOKEN;
-      errState <= STATE_WAIT_FOR_HOST;
       count <= TOKEN_DATA_LEN;
       mosiSrc <= MUX_CMD_MSB;
     end
@@ -859,13 +858,12 @@ module SDController(
         end
       
         // Start clock countdown
-        returnState <= STATE_SEND_CMD;
+        returnState <= STATE_SEND_DATA_TOKEN;
         clockCount <= CLOCK_REDUCE_AMT;
         state <= STATE_CLOCK_COUNTDOWN;
       
       end else begin
         mosiSrc <= MUX_CONST_HI;
-        count <= TIMEOUT_COUNT;
         state <= STATE_GET_R2_DATA;
         returnState <= STATE_GET_R2_DATA;
       end
@@ -902,7 +900,7 @@ module SDController(
         end
       
         // Start clock countdown
-        returnState <= STATE_SEND_CMD;
+        returnState <= STATE_WRITE_WORD;
         clockCount <= CLOCK_REDUCE_AMT;
         state <= STATE_CLOCK_COUNTDOWN;
       
