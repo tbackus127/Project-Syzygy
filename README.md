@@ -66,14 +66,13 @@ ALU operations
     3: Arithmetic rotation
 
 io - Peripheral I/O operations
-0100 dddd rrrr xmb_
+0100 dddd rrrr xm__
   d: Peripheral ID
   r: Peripheral register (ignored if x=1)
   x: Execute command
   m: Access mode
-    0: Read the value from peripheral ID d's register r and copy it to R4 (and R5 if b=1)
-    1: Write R4 (and R5 if b=1) with the value from peripheral ID d's register r
-  b: Enables 32-bit I/O mode. The peripheral must support 32-bit values, or only bits 0-15 will be transferred
+    0: Read the 32-bit value from peripheral ID d's register r and copy its bits 0-15 to R4, and its bits 16-31 bits to R5.
+    1: Write R4 (bits 0-15) and R5 (bits 16-31) with the 32-bit value from peripheral ID d's register r.
 
 (unused)
 0101 ____ ____ ____
