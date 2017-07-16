@@ -17,8 +17,13 @@ The B100, unlike its 8\-bit counterpart, the A100, has 16 registers available (R
 Format: <4x: Opcode\> <12x: Options\>
 ```
 sys - System Instructions.
-0000 ???? ???? ????
-(to be decided)
+0000 pppp rrrr v___
+  p: Operation to perform:
+    0: Halt
+    1: Change flag
+    2-15: (UNUSED)
+  r: When p=1: flag number
+  v: When p=1: flag value
 
 push - Sets R2 to the specified number.
 1nnn nnnn nnnn nnnn
@@ -61,14 +66,13 @@ ALU operations
     3: Arithmetic rotation
 
 io - Peripheral I/O operations
-0100 dddd rrrr xmb_
+0100 dddd rrrr xm__
   d: Peripheral ID
   r: Peripheral register (ignored if x=1)
   x: Execute command
   m: Access mode
-    0: Read the value from peripheral ID d's register r and copy it to R4 (and R5 if b=1)
-    1: Write R4 (and R5 if b=1) with the value from peripheral ID d's register r
-  b: Enables 32-bit I/O mode. The peripheral must support 32-bit values, or only bits 0-15 will be transferred
+    0: Read the 32-bit value from peripheral ID d's register r and copy its bits 0-15 to R4, and its bits 16-31 bits to R5.
+    1: Write R4 (bits 0-15) and R5 (bits 16-31) with the 32-bit value from peripheral ID d's register r.
 
 (unused)
 0101 ____ ____ ____
