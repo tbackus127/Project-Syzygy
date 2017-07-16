@@ -21,7 +21,7 @@
 
 
 module BootRom(
-    input en,
+    input readEn,
     input [5:0] addr,
     output [15:0] instrOut,
     output [15:0] debugOut
@@ -68,7 +68,7 @@ module BootRom(
     endcase
   end
   
-  assign instrOut[15:0] = (en) ? instr[15:0] : 16'h0000;
+  assign instrOut[15:0] = (readEn) ? instr[15:0] : 16'h0000;
   assign debugOut[15:0] = instr[15:0];
   
 endmodule

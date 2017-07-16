@@ -35,12 +35,6 @@ module SDInterfaceControl(
     output dp
   );
   
-  // Assign the first four LEDs to serial clock, chip select, MOSI, and MISO, respectively
-//  assign led[15] = JB[3];
-//  assign led[14] = JB[0];
-//  assign led[13] = JB[1];
-//  assign led[12] = JB[2];
-  
   // CPU Clock Speed Divider
   wire wCPUClock;
   ClockDivider cdiv(

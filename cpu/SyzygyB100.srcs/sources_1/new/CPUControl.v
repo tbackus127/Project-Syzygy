@@ -27,6 +27,7 @@ module CPUControl(
     input btnC,
     input btnU,
     input btnD,
+    inout [3:0] JB,
     output [15:0] led,
     output [6:0] seg,
     output [3:0] an,
@@ -76,6 +77,7 @@ module CPUControl(
     .vonNeuMode(vonNeuMode),
     .extInstrIn(regInstr[15:0]),
     .extRegSel(regSel[3:0]),
+    .miso(JB[2]),
     .extDOut(wCPUPCOut[15:0]),
     .extDOut2(wCpuRegOut[15:0]),
     .extPerDOut(),
@@ -83,8 +85,13 @@ module CPUControl(
     .extPerReg(),
     .extPerModeAcc(),
     .extPerModeExec(),
-    .extPerMode32()
+    .extPerMode32(),
+    .serialClock(JB[3]),
+    .chipSelect(JB[0]),
+    .mosi(JB[1])
   );
+  
+  
   assign led[15:0] = deshortedSwitch[15:0];
   
   // 7-segment display connections

@@ -211,7 +211,7 @@ module SDController(
   );
   
   // Do stuff according to the current state on the falling clock edge
-  always @ (posedge ctrlClk) begin
+  always @ (negedge ctrlClk) begin
     
     case(state[4:0])
       
