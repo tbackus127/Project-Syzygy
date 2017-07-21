@@ -13,7 +13,4 @@ public class IOInstr {
 
   /** Write mode bitmask. */
   public static final short IOSR = (short) 0x0004;
-
-  /** 32-bit mode bitmask. */
-  public static final short IODW = (short) 0x0002;
 }

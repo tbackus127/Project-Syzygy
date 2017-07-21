@@ -24,7 +24,6 @@ module SyzBSystem(
     input clk,
     input en,
     input res,
-    input [15:0] dIn,
     input [7:0] snoopSelect,
     input miso,
     output [15:0] snoopOut,
@@ -32,6 +31,10 @@ module SyzBSystem(
     output chipSelect,
     output mosi
   );
+  
+  // Clock Phase: 0 = Fetch Instruction, 1 = Decode & Execute
+  //   Starts HI so first tick will be LO.
+  reg clockPhaseReg = 1'b1;
   
   // Clock Divider
   wire clockSig;
@@ -45,8 +48,8 @@ module SyzBSystem(
   wire [15:0] wProgCountVal;
   wire [15:0] wBootROMOut;
   BootRom brom(
-    .readEn(~wVNMode),
-    .addr(wProgCountVal[15:0]),
+    .readEn(en),
+    .addr(wProgCountVal[5:0]),
     .instrOut(wBootROMOut[15:0]),
     .debugOut()
   );
@@ -70,16 +73,13 @@ module SyzBSystem(
   );
   
   // Choose instruction source from Boot ROM or system memory
-  wire vnMode;
   wire [15:0] wInstrIn;
   Mux16B2to1 muxInstr(
     .aIn(wBootROMOut[15:0]),
     .bIn(wMemInstrOut[15:0]),
-    .sel(vnMode),
+    .sel(wVNMode),
     .dOut(wInstrIn[15:0])
   );
-  
-  // TODO: Snoop Select: {4x[PeriphID (CPU=0, Periphs=ID+16], 4x[RegNum]}
   
   // CPU
   wire [31:0] wDataToPeriphs;
@@ -94,11 +94,12 @@ module SyzBSystem(
     .en(en),
     .res(res),
     .extInstrIn(wInstrIn[15:0]),
-    .extRegSel(),                           // TODO: Connect this to debug in
+    .extRegSel(snoopSelect[3:0]),
     .extPCValue(wProgCountVal[15:0]),
     .extPerDIn(wDataFromPeriphs[31:0]),
-    .vnMode(vnMode),
-    .extPeekValue(),                        // TODO: Connect this to debug out
+    .sysClockPhase(clockPhaseReg),
+    .vnMode(wVNMode),
+    .extPeekValue(snoopOut[15:0]),
     .extPerDOut(wDataToPeriphs[31:0]),
     .extPerSel(wPeriphSelect[3:0]),
     .extPerReg(wPeriphRegSelect[3:0]),
@@ -127,8 +128,6 @@ module SyzBSystem(
     .out(wPeriphSelectSignals[15:0])
   );
   
-  // TODO: Or/Mux together peripheral's dOut signals
-  
   // LEDs (PID=0)
   // TODO: Make LED interface
   
@@ -136,6 +135,13 @@ module SyzBSystem(
   // TODO: Make 7Seg interface
   
   // Memory (PID=2)
+  // Debug sources:
+  //   SnoopPeriph=1:
+  //     Reg=0: R0 (Instruction)
+  //     Reg=1: R1 (Status, always 0x0)
+  //     Reg=2: R2 (Data-In)
+  //     Reg=3: R0 (Data-Out)
+  //     Reg=4: R0 (Address)
   MemoryInterface memint(
     .cpuClock(clockSig),
     .periphSelect(wPeriphSelectSignals[2]),
@@ -153,8 +159,25 @@ module SyzBSystem(
   );
   
   // SD card interface (PID=3)
+  // Debug sources:
+  //   SnoopPeriph=2: Interface Registers
+  //     Reg=0: R0 (Instruction)
+  //     Reg=1: R1 (Status)
+  //     Reg=2: R2 (Data-In)
+  //     Reg=3: R3 (Data-Out)
+  //     Reg=4: R4 (Address, 15-0)
+  //     Reg=5: R4 (Address, 31-16)
+  //   SnoopPeriph=3: Controller Registers
+  //     Reg=0: Current State
+  //     Reg=1: I/O Pins (CS, MOSI, MISO, SCLK)
+  //     Reg=2: Return State
+  //     Reg=3: Count
+  //     Reg=4: Block Count
+  //     Reg=5: Response
+  //     Reg=6: Data
+  //     Reg=7: Address
   SDInterface sdint(
-    .cpuClock(clockSig),
+    .cpuClock(clockSig),                    // TODO: Make debug in src and reg select
     .periphSelect(wPeriphSelectSignals[3]),
     .regSelect(wPeriphRegSelect[3:0]),
     .readEn(wPeriphRegReadEn),
@@ -167,8 +190,27 @@ module SyzBSystem(
     .dOut(wDataFromPeriphs[31:0]),
     .chipSel(chipSelect),
     .mosi(mosi),
-    .debugOut(),
+    .debugOut(),                            // TODO: Unify to one output and connect to debug out
     .debugOut2()
   );
+  
+  // TODO: Or/Mux together peripheral's dOut signals
+  
+  
+  // Snoop demultiplexing (for debugging)
+  //   Format: 4xPart ID, 4x Reg Number
+  //
+  // Snoop IDs:
+  //   0: CPU
+  //   1: Memory Interface
+  //   2: SD Interface
+  //   3: SD Controller
+  // TODO: This
+  
+  always @ (posedge clockSig) begin
+    if(en) begin
+      clockPhaseReg <= ~clockPhaseReg;
+    end
+  end
   
 endmodule

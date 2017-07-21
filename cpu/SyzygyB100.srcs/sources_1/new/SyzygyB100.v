@@ -26,6 +26,7 @@ module SyzygyB100(
     input [15:0] extInstrIn,
     input [3:0] extRegSel,
     input [31:0] extPerDIn,
+    input sysClockPhase,
     output vnMode,
     output [15:0] extPCValue,
     output [15:0] extPeekValue,
@@ -114,7 +115,7 @@ module SyzygyB100(
     .periphReg(extPerReg[3:0]),
     .periphRead(extPerReadEn),
     .periphWrite(extPerWriteEn),
-    .periphExec(extPerModeExec),
+    .periphExec(extPerExec),
     .accumMuxSelect(muxSel[1:0])
   );
   assign wAccSrcSelect = muxSel[1];
@@ -153,7 +154,6 @@ module SyzygyB100(
     .asyncReset(res),
     .dOut(wSysFlags[15:0])
   );
-  
   assign vnMode = wSysFlags[0];
   
   // Debug register select
@@ -198,8 +198,8 @@ module SyzygyB100(
   SyzFETRegister2Out regInstr(
     .dIn(extInstrIn[15:0]),
     .clockSig(clockSig),
-    .read(),                                                          // TODO: Connect these (clk phase 2)
-    .write(),                                                         // TODO: Connect these (clk phase 1)
+    .read(sysClockPhase),
+    .write(~sysClockPhase),
     .asyncReset(res),
     .dOut(wInstrRegOut[15:0]),
     .debugOut(wDebugOut0[15:0])

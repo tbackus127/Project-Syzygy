@@ -7,6 +7,7 @@ import java.util.HashMap;
  * This class contains maps and values used by ALU instructions.
  * 
  * @author Tim Backus tbackus127@gmail.com
+ *
  */
 public class ALUInstr {
   
@@ -23,7 +24,7 @@ public class ALUInstr {
     private static final long serialVersionUID = 1L;
     
     {
-      // JAVA, WHY DO I HAVE TO CAST TO A SHORT TO CREATE A SHORT OBJECT!?
+      // JAVA, WHY DO I HAVE TO CAST TO A SHORT TO CREATE A SHORT!?
       put("pass", new Short((short) 0x0000));
       put("or", new Short((short) 0x0100));
       put("add", new Short((short) 0x0200));
@@ -98,7 +99,6 @@ public class ALUInstr {
    * @return the map from keyword -> binary instruction.
    */
   private static final HashMap<String, Short> buildInstructionMap() {
-    
     final HashMap<String, Short> result = new HashMap<String, Short>();
     
     // Go through all prefixes

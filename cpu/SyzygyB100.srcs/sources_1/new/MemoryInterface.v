@@ -64,7 +64,7 @@ module MemoryInterface(
     .clockSig(cpuClock),
     .read(wReadEnSignals[0]),
     .write(wWriteEnSignals[0]),
-    .asyncReset(res),
+    .asyncReset(reset),
     .dOut(wR0Output[15:0]),
     .dOut2(wInstrOut[15:0]),
     .debugOut()  

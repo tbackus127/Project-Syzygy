@@ -35,9 +35,7 @@ module ControlSystem(
     output dp
   );
   
-  reg controlMode;
   reg [7:0] snoopSelect;
-  reg [15:0] dataVal;
   
   wire [15:0] wSegsIn;
   wire [15:0] wSwitchesOut;
@@ -55,7 +53,7 @@ module ControlSystem(
     .btnDIn(btnD),
     .btnRIn(btnR),
     .segsIn(wSegsIn[15:0]),
-    .dpIn(~controlMode),
+    .dpIn(1'b0),
     .switchOut(wSwitchesOut[15:0]),
     .btnLOut(buttonLeft),
     .btnUOut(buttonUp),
@@ -69,9 +67,8 @@ module ControlSystem(
   
   SyzBSystem syzs(
     .clk(clk),
-    .en(wSwitchesOut[15]),
+    .en(1'b1),
     .res(buttonDown),
-    .dIn(dataVal[15:0]),
     .snoopSelect(snoopSelect[7:0]),
     .miso(JB[2]),
     .snoopOut(wSegsIn[15:0]),
@@ -83,10 +80,6 @@ module ControlSystem(
   always @ (posedge clk) begin
     if(buttonLeft) begin
       snoopSelect[7:0] <= wSwitchesOut[7:0];
-    end
-    
-    if(buttonUp) begin
-      dataVal[15:0] <= wSwitchesOut[15:0];
     end
   end
   

@@ -1,0 +1,354 @@
+﻿# =============================================================================
+# Set up Fib values
+# =============================================================================
+
+# R8 = 0
+push 0
+copy 2, 8
+
+# R9 = 1
+push 1
+copy 2, 9
+
+# R10 = 255
+push 255
+copy 2, 10
+
+# =============================================================================
+# Wait for SD to initialize
+# =============================================================================
+
+
+# Set up wait jump
+push $lbl.wait_SD_init_start
+copy 2, 3
+
+:wait_SD_init_start
+
+# Get SD interface's R1 value and continue if it's zero
+iogr $conf.PID.SD, $conf.SD.REG_STATUS
+copy 4, 2
+jne
+
+# =============================================================================
+# Write fib(0) to the first two bytes of block 0x10 on the SD card
+# =============================================================================
+
+# Load the write block command
+push $conf.SD.CMD_WRITEBLK
+copy 2, 4
+iosr $conf.PID.SD, $conf.SD.REG_INSTR
+
+# Load the address to read
+push 16
+copy 2, 4
+iosr $conf.PID.SD, $conf.SD.REG_ADDR
+
+# Load fib(0)
+push 0
+copy 2, 4
+iosr $conf.PID.SD, $conf.SD.REG_DIN
+
+# Execute block write
+ioex $conf.PID.SD
+
+# =============================================================================
+# Write fib(1) to the SD card's next two bytes
+# =============================================================================
+
+# Load the continue command
+push $conf.SD.CMD_CONTINUE
+copy 2, 4
+iosr $conf.PID.SD, $conf.SD.REG_INSTR
+
+# Load fib(1)
+push 1
+copy 2, 4
+iosr $conf.PID.SD, $conf.SD.REG_DIN
+
+
+# -----------------------------------------------------------------------------
+# Wait until the controller is ready
+
+# Set up jump
+push $lbl.fib1_wait
+copy 2, 3
+
+# Set up compare offset
+push $conf.SD.STAT_WAIT_BLKWR
+copy 2, 6
+
+:fib1_wait
+
+# Get the status value, and if it does not match, try again until it does
+iogr $conf.PID.SD, $conf.SD.REG_STATUS
+copy 4, 7
+sub
+jne
+
+# -----------------------------------------------------------------------------
+# Execute continue write
+ioex $conf.PID.SD
+
+# =============================================================================
+# Calculate Fibonacci numbers, allow overflow, write values to SD
+# =============================================================================
+
+:fib_start
+
+# -----------------------------------------------------------------------------
+# Check if we've written all 256 values (R10 will be 0)
+
+# Set up jump address
+push $lbl.fib_end
+copy 2, 3
+
+# Get R10 and jump if it's zero
+copy 10, 2
+jeq
+
+# -----------------------------------------------------------------------------
+# Calculate the next Fibonacci number, store in R9
+
+# R9 = R8 + R9
+copy 8, 6
+copy 9, 7
+add
+copy 2, 9
+
+# R8 = R9 - R8
+copy 9, 6
+copy 8, 7
+sub
+copy 2, 8
+
+# Decrement the fib counter (R10)
+copy 10, 6
+dec
+copy 2, 10
+
+# -----------------------------------------------------------------------------
+# Write the next two bytes to the SD card
+
+# Load fib(n)
+copy 9, 4
+iosr $conf.PID.SD, $conf.SD.REG_DIN
+
+# Set up jump
+push $lbl.fibcalc_wait
+copy 2, 3
+
+# Set up compare offset
+push $conf.SD.STAT_WAIT_BLKWR
+copy 2, 6
+
+:fibcalc_wait
+
+# Get the status value, and if it does not match, try again until it does
+iogr $conf.PID.SD, $conf.SD.REG_STATUS
+copy 4, 7
+sub
+jne
+
+# Perform the write
+ioex $conf.PID.SD
+
+# -----------------------------------------------------------------------------
+# Jump back to the beginning of the fib routine
+push $lbl.fib_start
+copy 2, 3
+jmp
+
+:fib_end
+
+# =============================================================================
+# Set up read SD block 0x11 into RAM address 0x0040
+# =============================================================================
+
+# -----------------------------------------------------------------------------
+# Wait until the controller is ready
+
+# Set up wait jump
+push $lbl.wait_copyToMem_init
+copy 2, 3
+
+:wait_copyToMem_init
+
+# Get SD interface's R1 value and continue if it's zero
+iogr $conf.PID.SD, $conf.SD.REG_STATUS
+copy 4, 2
+jne
+
+# -----------------------------------------------------------------------------
+# Set up SD read registers
+
+# Address 0x11
+push 17
+copy 2, 4
+iosr $conf.PID.SD, $conf.SD.REG_ADDR
+
+# Read instruction
+push $conf.SD.CMD_READBLK
+copy 2, 4
+iosr $conf.PID.SD, $conf.SD.REG_INSTR
+
+# -----------------------------------------------------------------------------
+# Set up memory write registers
+
+# Address 0x0040
+push 64
+copy 2, 4
+iosr $conf.PID.MEM, $conf.MEM.REG_ADDR
+
+# Write instruction
+push $conf.MEM.CMD_WRITE
+copy 2, 4
+iosr $conf.PID.MEM, $conf.MEM.REG_INSTR
+
+# -----------------------------------------------------------------------------
+# Set block counter (R10 = 255, 1st & 256th will be taken care of manually)
+push 254
+copy 2, 10
+
+# -----------------------------------------------------------------------------
+# Execute SD read
+ioex $conf.PID.SD
+
+
+# =============================================================================
+# Read the first 16 bytes into RAM
+# =============================================================================
+
+# -----------------------------------------------------------------------------
+# Wait until the controller is ready (status=read_wait)
+
+# Set up jump
+push $lbl.wait_copyToMem_first
+copy 2, 3
+
+# Set up compare offset
+push $conf.SD.STAT_WAIT_BLKRD
+copy 2, 6
+
+:wait_copyToMem_first
+
+# Get the status value, and if it does not match, try again until it does
+iogr $conf.PID.SD, $conf.SD.REG_STATUS
+copy 4, 7
+sub
+jne
+
+# -----------------------------------------------------------------------------
+# Transfer the first two bytes from SD to memory
+iogr $conf.PID.SD, $conf.SD.REG_DOUT
+iosr $conf.PID.MEM, $conf.MEM.REG_DIN
+ioex $conf.PID.MEM
+
+# -----------------------------------------------------------------------------
+# Set up SD continue command
+push $conf.SD.CMD_CONTINUE
+copy 2, 4
+iosr $conf.PID.SD, $conf.SD.REG_INSTR
+
+
+# =============================================================================
+# Read SD block into RAM
+# =============================================================================
+
+:memTransfer_start
+
+# -----------------------------------------------------------------------------
+# Check if we've transferred all 255 values (R10 will be 0)
+
+# Set up jump address
+push $lbl.memTransfer_end
+copy 2, 3
+
+# Get R10 and jump if it's zero
+copy 10, 2
+jeq
+
+# -----------------------------------------------------------------------------
+# Tell the SD card to fetch the next two bytes
+ioex $conf.PID.SD
+
+# -----------------------------------------------------------------------------
+# Check if the SD card has read a value
+
+# Set up jump
+push $lbl.memTransfer_wait
+copy 2, 3
+
+# Set up compare offset
+push $conf.SD.STAT_WAIT_BLKRD
+copy 2, 6
+
+:memTransfer_wait
+
+# Get the status value, and if it does not match, try again until it does
+iogr $conf.PID.SD, $conf.SD.REG_STATUS
+copy 4, 7
+sub
+jne
+
+# -----------------------------------------------------------------------------
+# Transfer the first two bytes from SD to memory
+iogr $conf.PID.SD, $conf.SD.REG_DOUT
+iosr $conf.PID.MEM, $conf.MEM.REG_DIN
+ioex $conf.PID.MEM
+
+# -----------------------------------------------------------------------------
+# Decrement loop counter
+copy 10, 6
+dec
+copy 2, 10
+
+# -----------------------------------------------------------------------------
+# Jump back to the start
+push $lbl.memTransfer_start
+copy 2, 3
+jmp
+
+:memTransfer_end
+
+
+
+# =============================================================================
+# Read last two bytes into RAM
+# =============================================================================
+
+# -----------------------------------------------------------------------------
+# Tell the SD card to fetch the next two bytes
+ioex $conf.PID.SD
+
+# Set up wait jump
+push $lbl.wait_copyToMem_last
+copy 2, 3
+
+:wait_copyToMem_last
+
+# Get SD interface's R1 value and continue if it's zero
+iogr $conf.PID.SD, $conf.SD.REG_STATUS
+copy 4, 2
+jne
+
+# -----------------------------------------------------------------------------
+# Transfer the first two bytes from SD to memory
+iogr $conf.PID.SD, $conf.SD.REG_DOUT
+iosr $conf.PID.MEM, $conf.MEM.REG_DIN
+ioex $conf.PID.MEM
+
+
+
+# =============================================================================
+# Perform the Von Neumann switch
+# =============================================================================
+
+# -----------------------------------------------------------------------------
+# Set R3 to the correct memory pointer
+push 64
+copy 2, 3
+
+# -----------------------------------------------------------------------------
+# Execute the system command to fetch instructions from RAM rather than ROM
+sys VNMODE ON
