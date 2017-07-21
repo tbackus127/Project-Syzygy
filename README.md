@@ -19,7 +19,7 @@ Format: <4x: Opcode\> <12x: Options\>
 sys - System Instructions.
 0000 pppp rrrr v___
   p: Operation to perform:
-    0: Halt
+    0: NO-OP
     1: Change flag
     2-15: (UNUSED)
   r: When p=1: flag number
