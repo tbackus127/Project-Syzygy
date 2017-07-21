@@ -15,7 +15,7 @@ public class TestAssemblerIO {
     "ioex", "ioex ", "ioex  ", "ioex \n", "ioex \0", "ioex \\n", "ioex f", "ioex ioex", "ioex x, x", "ioex 3, z",
     "ioex 0, -1", "ioex -1, 0", "ioex -1, -1", "ioex 0, 16", "ioex 16, 0", "ioex 16, 16", "iosr 0, 16",
     "iosr 16, 0", "iosr 16, 16", "iosr -1, 0", "iosr 0, -1", "iosr -1, -1", "iogr 0, -1", "iogr -1, 0", "iogr f, f",
-    "iogr 16, 16", "iogr --,,", "ioss 4, 2", "ioex -1", "ioex 16"
+    "iogr 16, 16", "iogr --,,", "ioss 4, 2", "ioex -1", "ioex 16", "iogr 3, 0,", "iosr 4, 1,", "ioex 3,"
   };
   
   private static final HashMap<String, Short> ioMap = new HashMap<String, Short>() {

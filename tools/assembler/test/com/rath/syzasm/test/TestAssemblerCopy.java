@@ -13,7 +13,8 @@ public class TestAssemblerCopy {
   
   private static final String[] cpErr = {
     "copy", "copy ", "copy copy", "copy 0", "copy 0,", "copy 0, 16", "copy 16, 0", "copy -1, -1", "copy f, f",
-    "copy $lbl.label1", "copy \0", "copy \\", "copy c", "copy c, copy 0, 2", "copy 0,,2", "copy 2, -1"
+    "copy $lbl.label1", "copy \0", "copy \\", "copy c", "copy c, copy 0, 2", "copy 0,,2", "copy 2, -1",
+    "copy 2, 3,"
   };
   
   private static final HashMap<String, Short> cpMap = new HashMap<String, Short>() {

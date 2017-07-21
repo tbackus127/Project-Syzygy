@@ -14,6 +14,7 @@ import com.rath.syzasm.vals.ALUInstr;
 import com.rath.syzasm.vals.IOInstr;
 import com.rath.syzasm.vals.JumpInstr;
 import com.rath.syzasm.vals.Opcodes;
+import com.rath.syzasm.vals.SysInstr;
 
 public class Assembler {
   
@@ -163,7 +164,7 @@ public class Assembler {
       
     } else {
       
-      final String[] operation = line.split(" ", 2);
+      final String[] operation = line.split("\\s+", 2);
       
       if (operation[0].trim().startsWith("io")) {
         binInstr = parseIOInstr(line, currLine);
@@ -252,7 +253,7 @@ public class Assembler {
     // Ensure copy arguments match syntax and get tokens
     if (!args.trim().matches("\\s*\\d{1,2}\\s*,\\s*\\d{1,2}"))
       throw new IllegalArgumentException("Invalid copy instruction syntax (line " + line + ").");
-    final String[] tokens = args.split(",");
+    final String[] tokens = args.split("\\s*,\\s*");
     
     // Set the instruction's opcode to copy.
     short num = Opcodes.COPY;
@@ -343,7 +344,7 @@ public class Assembler {
     
     short num = Opcodes.IO;
     
-    final String[] opTokens = str.split(" ", 2);
+    final String[] opTokens = str.split("\\s+", 2);
     if (opTokens.length < 2) {
       throw new IllegalArgumentException("Invalid I/O instruction syntax (line " + line + ").");
     }
@@ -500,7 +501,61 @@ public class Assembler {
     
     short num = Opcodes.SYS;
     
-    // TODO: Write SYS instruction parser when I figure out how I want them
+    // Split args into tokens
+    final String[] opTokens = str.split("\\s+", 2);
+    if (opTokens.length != 2) {
+      throw new IllegalArgumentException("Invalid system instruction (line " + line + ").");
+    }
+    
+    final String cmdStr = opTokens[0].trim();
+    
+    // System flags
+    if (cmdStr.equals("flag")) {
+      
+      final String[] argTokens = opTokens[1].split("\\s*,\\s*", 2);
+      if (argTokens.length != 2) {
+        throw new IllegalArgumentException("Invalid flag operation syntax (line " + line + ").");
+      }
+      final String flagName = argTokens[0].toLowerCase().trim();
+      final String flagValueStr = argTokens[1].toLowerCase().trim();
+      
+      // Get the flag index
+      short flagIndex = -1;
+      try {
+        flagIndex = Short.decode(flagName);
+      } catch (NumberFormatException nfe) {
+        
+        // Check if it's a variable
+        final String lookupStr = VariableFetcher.lookup(flagName);
+        System.out.println("Fetched \"" + flagName + "\", and got \"" + lookupStr + "\".");
+        if (lookupStr != null) {
+          flagIndex = Short.decode(lookupStr);
+        } else {
+          throw new IllegalArgumentException("Invalid system flag (line " + line + ").");
+        }
+      }
+      
+      if (flagIndex < 0 || flagIndex > 15) {
+        throw new IllegalArgumentException("Flag number must be 0-15 (line " + line + ").");
+      }
+      
+      num |= (SysInstr.OP_FLAG | (flagIndex << 4));
+      
+      // Get the sysflag's value (either 0 or 1, supports other keywords)
+      short flagValue = -1;
+      if (flagValueStr.equals("1") || flagValueStr.equals("true")) {
+        flagValue = (short) 1;
+      } else if (flagValueStr.equals("0") || flagValueStr.equals("false")) {
+        flagValue = (short) 0;
+      } else {
+        throw new IllegalArgumentException("Flag value not 0 or 1 (line " + line + ").");
+      }
+      
+      num |= (flagValue << 3);
+      
+    } else {
+      throw new IllegalArgumentException("Unrecognized system command (line " + line + ").");
+    }
     
     return num;
   }

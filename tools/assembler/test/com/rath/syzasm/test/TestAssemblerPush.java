@@ -23,10 +23,11 @@ public class TestAssemblerPush {
     }
   };
   
-  private static final String[] perr = { "push", "push ", "push  ", "push 0x", "push -1", "push --", "push \n",
-      "push \\", "push 65536", "push krombopulous michael", "push push", "push push 1", "push $", "push $$",
-      "push $push", "push 0xff03cm", "push $lib", "push $conf", "push $lib.", "push $conf.", "push $conf. ",
-      "push $lib. ", "push $conf..", "push $conf.\nf", "push $lbl", "push $lbl." };
+  private static final String[] perr = { "push", "push ", "push  ", "push 0x", "push -1", "push --",
+      "push \n", "push \\", "push 65536", "push krombopulous michael", "push push", "push push 1",
+      "push $", "push $$", "push $push", "push 0xff03cm", "push $lib", "push $conf", "push $lib.",
+      "push $conf.", "push $conf. ", "push $lib. ", "push $conf..", "push $conf.\nf", "push $lbl",
+      "push $lbl.", "push 0,"};
   
   private static final HashMap<String, Short> pstd = new HashMap<String, Short>() {
     
