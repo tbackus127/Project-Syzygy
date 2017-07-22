@@ -17,13 +17,15 @@ The B100, unlike its 8\-bit counterpart, the A100, has 16 registers available (R
 Format: <4x: Opcode\> <12x: Options\>
 ```
 sys - System Instructions.
-0000 pppp rrrr v___
+0000 pppp cccc cccc
   p: Operation to perform:
     0: NO-OP
-    1: Change flag
+    1: System command
     2-15: (UNUSED)
-  r: When p=1: flag number
-  v: When p=1: flag value
+  c: When p=1: command:
+    0: Von Neumann mode ON
+    1: Von Neumann mode OFF
+    2-255: (UNUSED)
 
 push - Sets R2 to the specified number.
 1nnn nnnn nnnn nnnn
