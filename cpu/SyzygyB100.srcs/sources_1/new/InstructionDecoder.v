@@ -55,9 +55,9 @@ module InstructionDecoder(
       readEn <= 1'b0;
       regWriteSelect[3:0] <= 4'b0010;
       writeEn <= 1'b1;
-      jumpCondition[2:0] <= 2'b00;
-      aluOp[2:0] <= 2'b00;
-      aluArgs[7:0] <= 7'b0000000;
+      jumpCondition[2:0] <= 3'b000;
+      aluOp[2:0] <= 3'b000;
+      aluArgs[7:0] <= 8'h00;
       periphSelect[3:0] <= 4'b0000;
       periphReg[3:0] <= 4'b0000;
       periphRead <= 1'b0;
@@ -73,23 +73,102 @@ module InstructionDecoder(
           
         // System
         3'b000: begin
-          sysFlagNum[3:0] <= instrIn[7:4];
-          sysFlagVal <= instrIn[3];
-          sysFlagWrite <= 1'b1;
-          pushVal[14:0] <= 15'b000000000000000;
-          regReadSelect[3:0] <= 4'b0000;
-          readEn <= 1'b0;
-          regWriteSelect[3:0] <= 4'b0000;
-          writeEn <= 1'b0;
-          jumpCondition[2:0] <= 2'b00;
-          aluOp[2:0] <= 2'b00;
-          aluArgs[7:0] <= 7'b0000000;
-          periphSelect[3:0] <= 4'b0000;
-          periphReg[3:0] <= 4'b0000;
-          periphRead <= 1'b0;
-          periphWrite <= 1'b0;
-          periphExec <= 1'b0;
-          accumMuxSelect[1:0] <= 2'b00;
+        
+          // Choose operation
+          case(instrIn[11:8])
+            
+            // Execute system command
+            4'b0001: begin
+            
+              // Choose command
+              case(instrIn[7:0])
+                
+                // VN Mode ON: Sets flag 0 to true and performs a jump
+                8'h00: begin
+                  sysFlagNum[3:0] <= 4'h0;
+                  sysFlagVal <= 1'b1;
+                  sysFlagWrite <= 1'b1;
+                  pushVal[14:0] <= 15'b000000000000000;
+                  regReadSelect[3:0] <= 4'b0000;
+                  readEn <= 1'b0;
+                  regWriteSelect[3:0] <= 4'b0000;
+                  writeEn <= 1'b0;
+                  jumpCondition[2:0] <= 3'b111;
+                  aluOp[2:0] <= 3'b000;
+                  aluArgs[7:0] <= 7'b0000000;
+                  periphSelect[3:0] <= 4'b0000;
+                  periphReg[3:0] <= 4'b0000;
+                  periphRead <= 1'b0;
+                  periphWrite <= 1'b0;
+                  periphExec <= 1'b0;
+                  accumMuxSelect[1:0] <= 2'b00;
+                end
+                
+                // VN Mode OFF: Sets flag 0 to false
+                8'h01: begin
+                  sysFlagNum[3:0] <= 4'h0;
+                  sysFlagVal <= 1'b0;
+                  sysFlagWrite <= 1'b1;
+                  pushVal[14:0] <= 15'b000000000000000;
+                  regReadSelect[3:0] <= 4'b0000;
+                  readEn <= 1'b0;
+                  regWriteSelect[3:0] <= 4'b0000;
+                  writeEn <= 1'b0;
+                  jumpCondition[2:0] <= 3'b000;
+                  aluOp[2:0] <= 3'b000;
+                  aluArgs[7:0] <= 8'h00;
+                  periphSelect[3:0] <= 4'b0000;
+                  periphReg[3:0] <= 4'b0000;
+                  periphRead <= 1'b0;
+                  periphWrite <= 1'b0;
+                  periphExec <= 1'b0;
+                  accumMuxSelect[1:0] <= 2'b00;
+                end
+                
+                // Unused syscommands
+                default: begin
+                  sysFlagNum[3:0] <= 4'h0;
+                  sysFlagVal <= 1'b0;
+                  sysFlagWrite <= 1'b0;
+                  pushVal[14:0] <= 15'b000000000000000;
+                  regReadSelect[3:0] <= 4'b0000;
+                  readEn <= 1'b0;
+                  regWriteSelect[3:0] <= 4'b0000;
+                  writeEn <= 1'b0;
+                  jumpCondition[2:0] <= 3'b000;
+                  aluOp[2:0] <= 3'b000;
+                  aluArgs[7:0] <= 8'h00;
+                  periphSelect[3:0] <= 4'b0000;
+                  periphReg[3:0] <= 4'b0000;
+                  periphRead <= 1'b0;
+                  periphWrite <= 1'b0;
+                  periphExec <= 1'b0;
+                  accumMuxSelect[1:0] <= 2'b00;
+                end
+              endcase
+            end
+            
+            // 0, 2-15: Unused operations
+            default: begin
+              sysFlagNum[3:0] <= 4'h0;
+              sysFlagVal <= 1'b0;
+              sysFlagWrite <= 1'b0;
+              pushVal[14:0] <= 15'b000000000000000;
+              regReadSelect[3:0] <= 4'b0000;
+              readEn <= 1'b0;
+              regWriteSelect[3:0] <= 4'b0000;
+              writeEn <= 1'b0;
+              jumpCondition[2:0] <= 3'b000;
+              aluOp[2:0] <= 3'b000;
+              aluArgs[7:0] <= 8'h00;
+              periphSelect[3:0] <= 4'b0000;
+              periphReg[3:0] <= 4'b0000;
+              periphRead <= 1'b0;
+              periphWrite <= 1'b0;
+              periphExec <= 1'b0;
+              accumMuxSelect[1:0] <= 2'b00;
+            end
+          endcase
         end
         
         // Copy
@@ -102,9 +181,9 @@ module InstructionDecoder(
           regWriteSelect[3:0] <= instrIn[7:4];
           readEn <= 1'b1;
           writeEn <= 1'b1;
-          jumpCondition[2:0] <= 2'b00;
-          aluOp[2:0] <= 2'b00;
-          aluArgs[7:0] <= 7'b0000000;
+          jumpCondition[2:0] <= 3'b000;
+          aluOp[2:0] <= 3'b000;
+          aluArgs[7:0] <= 8'h00;
           periphSelect[3:0] <= 4'b0000;
           periphReg[3:0] <= 4'b0000;
           periphRead <= 1'b0;
@@ -124,8 +203,8 @@ module InstructionDecoder(
           regWriteSelect[3:0] <= 4'b0001;
           writeEn <= 1'b1;
           jumpCondition[2:0] <= instrIn[11:9];
-          aluOp[2:0] <= 2'b00;
-          aluArgs[7:0] <= 7'b0000000;
+          aluOp[2:0] <= 3'b000;
+          aluArgs[7:0] <= 8'h00;
           periphSelect[3:0] <= 4'b0000;
           periphReg[3:0] <= 4'b0000;
           periphRead <= 1'b0;
@@ -144,7 +223,7 @@ module InstructionDecoder(
           readEn <= 1'b0;
           regWriteSelect[3:0] <= 4'b0010;
           writeEn <= 1'b1;
-          jumpCondition[2:0] <= 2'b00;
+          jumpCondition[2:0] <= 3'b000;
           aluOp[2:0] <= instrIn[10:8];
           aluArgs[7:0] <= instrIn[7:0];
           periphSelect[3:0] <= 4'b0000;
@@ -165,9 +244,9 @@ module InstructionDecoder(
           readEn <= 1'b1;
           regWriteSelect[3:0] <= 4'b0000;
           writeEn <= 1'b0;
-          jumpCondition[2:0] <= 2'b00;
-          aluOp[2:0] <= 2'b00;
-          aluArgs[7:0] <= 7'b0000000;
+          jumpCondition[2:0] <= 3'b000;
+          aluOp[2:0] <= 3'b000;
+          aluArgs[7:0] <= 8'h00;
           periphSelect[3:0] <= instrIn[11:8];
           periphReg[3:0] <= instrIn[7:4];
           periphRead <= ~instrIn[2];
@@ -176,8 +255,8 @@ module InstructionDecoder(
           accumMuxSelect[1:0] <= 2'b00;
         end
         
-        // UNUSED
-        3'b101: begin 
+        // Opcodes 5-7: UNUSED
+        default: begin 
           sysFlagNum[3:0] <= 4'h0;
           sysFlagVal <= 1'b0;
           sysFlagWrite <= 1'b0;
@@ -186,9 +265,9 @@ module InstructionDecoder(
           readEn <= 1'b0;
           regWriteSelect[3:0] <= 4'b0000;
           writeEn <= 1'b0;
-          jumpCondition[2:0] <= 2'b00;
-          aluOp[2:0] <= 2'b00;
-          aluArgs[7:0] <= 7'b0000000;
+          jumpCondition[2:0] <= 3'b000;
+          aluOp[2:0] <= 3'b000;
+          aluArgs[7:0] <= 8'h00;
           periphSelect[3:0] <= 4'b0000;
           periphReg[3:0] <= 4'b0000;
           periphRead <= 1'b0;
@@ -197,47 +276,6 @@ module InstructionDecoder(
           accumMuxSelect[1:0] <= 2'b00;
         end
         
-        // UNUSED
-        3'b110: begin
-          sysFlagNum[3:0] <= 4'h0;
-          sysFlagVal <= 1'b0;
-          sysFlagWrite <= 1'b0;
-          pushVal[14:0] <= 15'b000000000000000;
-          regReadSelect[3:0] <= 4'b0000;
-          readEn <= 1'b0;
-          regWriteSelect[3:0] <= 4'b0000;
-          writeEn <= 1'b0;
-          jumpCondition[2:0] <= 2'b00;
-          aluOp[2:0] <= 2'b00;
-          aluArgs[7:0] <= 7'b0000000;
-          periphSelect[3:0] <= 4'b0000;
-          periphReg[3:0] <= 4'b0000;
-          periphRead <= 1'b0;
-          periphWrite <= 1'b0;
-          periphExec <= 1'b0;
-          accumMuxSelect[1:0] <= 2'b00;
-        end
-        
-        // UNUSED
-        3'b111: begin
-          sysFlagNum[3:0] <= 4'h0;
-          sysFlagVal <= 1'b0;
-          sysFlagWrite <= 1'b0;
-          pushVal[14:0] <= 15'b000000000000000;
-          regReadSelect[3:0] <= 4'b0000;
-          readEn <= 1'b0;
-          regWriteSelect[3:0] <= 4'b0000;
-          writeEn <= 1'b0;
-          jumpCondition[2:0] <= 2'b00;
-          aluOp[2:0] <= 2'b00;
-          aluArgs[7:0] <= 7'b0000000;
-          periphSelect[3:0] <= 4'b0000;
-          periphReg[3:0] <= 4'b0000;
-          periphRead <= 1'b0;
-          periphWrite <= 1'b0;
-          periphExec <= 1'b0;
-          accumMuxSelect[1:0] <= 2'b00;
-        end
       endcase
     end
   end
