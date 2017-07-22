@@ -32,7 +32,7 @@ module BootRom(
   always @ (addr) begin
     case(addr)
       
-      // See os/boot/testSDMem.syz
+      // See os/boot/testSDMem.syz for the code that generated these machine instructions
       0: instr[15:0] = 16'h8000;
       1: instr[15:0] = 16'h1280;
       2: instr[15:0] = 16'h8001;
