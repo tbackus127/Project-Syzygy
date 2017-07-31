@@ -30,13 +30,14 @@ module MemoryInterface(
     input reset,
     input exec,
     input [15:0] dataFromMem,
+    input [3:0] debugRegSelect,
+    output [15:0] dOut,
     output [15:0] dataToMem,
     output [15:0] addrToMem,
     output memReadEn,
-    output memWriteEn
+    output memWriteEn,
+    output [31:0] debugOut
   );
-  
-  // TODO: And writeEn's with periphSelect
   
   // Demultiplexer that chooses a peripheral register to read the value from, and sends its
   //  value to dOut, where it can be read by the CPU.
@@ -59,6 +60,7 @@ module MemoryInterface(
   // R0: Peripheral's instruction register
   wire [15:0] wR0Output;
   wire [15:0] wInstrOut;
+  wire [15:0] wR0DebugOut;
   SyzFETRegister3Out regInstr(
     .dIn(dIn[15:0]),
     .clockSig(cpuClock),
@@ -67,7 +69,7 @@ module MemoryInterface(
     .asyncReset(reset),
     .dOut(wR0Output[15:0]),
     .dOut2(wInstrOut[15:0]),
-    .debugOut()  
+    .debugOut(wR0DebugOut[15:0])  
   );
   // 0: Read, 1: Write
   assign memReadEn = exec & ~wInstrOut[0];
@@ -78,6 +80,7 @@ module MemoryInterface(
   
   // R2: Peripheral's data input register
   wire [15:0] wR2Output;
+  wire [15:0] wR2DebugOut;
   SyzFETRegister3Out regDatIn(
    .dIn(dIn[15:0]),
    .clockSig(cpuClock),
@@ -86,23 +89,24 @@ module MemoryInterface(
    .asyncReset(reset),
    .dOut(wR2Output[15:0]),
    .dOut2(dataToMem[15:0]),
-   .debugOut()
+   .debugOut(wR2DebugOut[15:0])
   );
   
   // R3: Peripheral's data output register
-  wire [15:0] wR3Output;
+  wire [15:0] wR3DebugOut;
   SyzFETRegister2Out regDatOut(
    .dIn(dataFromMem[15:0]),
    .clockSig(cpuClock),
    .read(wReadEnSignals[3]),
    .write(memReadEn),
    .asyncReset(reset),
-   .dOut(wR3Output[15:0]),
-   .debugOut()
+   .dOut(dOut[15:0]),
+   .debugOut(wR3DebugOut[15:0])
   );
   
   // R4: Peripheral's address register
   wire [15:0] wR4Output;
+  wire [15:0] wR4DebugOut;
   SyzFETRegister3Out regAddr(
    .dIn(dIn[15:0]),
    .clockSig(cpuClock),
@@ -111,7 +115,21 @@ module MemoryInterface(
    .asyncReset(reset),
    .dOut(wR4Output[15:0]),
    .dOut2(addrToMem[15:0]),
-   .debugOut()
+   .debugOut(wR4DebugOut[15:0])
+  );
+  
+  // Debug Output OR
+  Mux16B8to1 memInterfaceRegSelect (
+    .dIn0(wR0DebugOut[15:0]),
+    .dIn1(16'h0000),
+    .dIn2(wR2DebugOut[15:0]),
+    .dIn3(wR3DebugOut[15:0]),
+    .dIn4(wR4DebugOut[15:0]),
+    .dIn5(16'h0000),
+    .dIn6(16'h0000),
+    .dIn7(16'h0000),
+    .sel(debugRegSelect[2:0]),
+    .dOut(debugOut[15:0])
   );
   
 endmodule

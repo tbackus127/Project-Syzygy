@@ -23,7 +23,7 @@
 module SyzFETFlagReg(
     input clockSig,
     input value,
-    input sel,
+    input [3:0] sel,
     input write,
     input asyncReset,
     output [15:0] dOut
@@ -50,13 +50,14 @@ module SyzFETFlagReg(
       data[8] <= 1'b0;
       data[9] <= 1'b0;
       data[10] <= 1'b0;
+      data[11] <= 1'b0;
       data[12] <= 1'b0;
       data[13] <= 1'b0;
       data[14] <= 1'b0;
       data[15] <= 1'b0;
     end else begin
       if(write) begin
-        data[sel] <= wBuf;
+        data[sel[3:0]] <= wBuf;
       end
     end
   end

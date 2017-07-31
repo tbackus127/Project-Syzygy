@@ -17,8 +17,8 @@ module SDController(
     output reg clkR3 = 1'b0,
     output reg chipSelect = 1'b1,
     output mosi,
-    output [15:0] debugOut,
-    output [7:0] debugOut2
+    output [15:0] debugSignalsOut,
+    output [7:0] debugStateOut
   );
   
   // ** Controller Commands **
@@ -188,12 +188,11 @@ module SDController(
   reg mosiVal = 0;
   
   // Debug signals, always active
-  assign debugOut[7:0] = response[7:0];
-  assign debugOut[15] = serialClockOut;
-  assign debugOut[14] = chipSelect;
-  assign debugOut[13] = mosiVal;
-  assign debugOut[12] = misoVal;
-  assign debugOut2[7:0] = {3'b000, state[4:0]};
+  assign debugSignalsOut[3] = serialClockOut;
+  assign debugSignalsOut[2] = chipSelect;
+  assign debugSignalsOut[1] = mosiVal;
+  assign debugSignalsOut[0] = misoVal;
+  assign debugStateOut[7:0] = {3'b000, state[4:0]};
   
   // Select between 1, command[MSB], and data[MSB] to use as the MOSI value
   wire wMuxTemp;

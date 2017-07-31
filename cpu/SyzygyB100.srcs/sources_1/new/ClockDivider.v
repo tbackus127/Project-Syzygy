@@ -25,13 +25,13 @@ module ClockDivider(
     output cOut
   );
   
-  reg [15:0] counter;
+  reg [31:0] counter;
   
   always @ (posedge cIn) begin
     counter <= counter + 1;
   end
   
   // Stable at 3
-  assign cOut = counter[3];
+  assign cOut = counter[5];
   
 endmodule

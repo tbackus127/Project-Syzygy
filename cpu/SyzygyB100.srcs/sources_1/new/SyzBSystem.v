@@ -49,7 +49,7 @@ module SyzBSystem(
   wire [15:0] wBootROMOut;
   BootRom brom(
     .readEn(en),
-    .addr(wProgCountVal[5:0]),
+    .addr(wProgCountVal[7:0]),
     .instrOut(wBootROMOut[15:0]),
     .debugOut()
   );
@@ -89,6 +89,7 @@ module SyzBSystem(
   wire wPeriphRegReadEn;
   wire wPeriphRegWriteEn;
   wire wPeriphExec;
+  wire [15:0] wCPUDebugOut;
   SyzygyB100 cpu(
     .clockSig(clockSig),
     .en(en),
@@ -99,7 +100,7 @@ module SyzBSystem(
     .extPerDIn(wDataFromPeriphs[31:0]),
     .sysClockPhase(clockPhaseReg),
     .vnMode(wVNMode),
-    .extPeekValue(snoopOut[15:0]),
+    .extPeekValue(wCPUDebugOut[15:0]),
     .extPerDOut(wDataToPeriphs[31:0]),
     .extPerSel(wPeriphSelect[3:0]),
     .extPerReg(wPeriphRegSelect[3:0]),
@@ -121,8 +122,10 @@ module SyzBSystem(
   //   PID=5: Keyboard Input
   //----------------------------------------------------------------------------
   
+  wire [15:0] wPeriphDebugOut;
+  
   wire [15:0] wPeriphSelectSignals;
-  Dmx4to16 pidSelDmx(
+  Dmx4to16 periphIDSelect(
     .sel(wPeriphSelect[3:0]),
     .en(wPeriphRegWriteEn | wPeriphRegReadEn | wPeriphExec),
     .out(wPeriphSelectSignals[15:0])
@@ -142,6 +145,8 @@ module SyzBSystem(
   //     Reg=2: R2 (Data-In)
   //     Reg=3: R0 (Data-Out)
   //     Reg=4: R0 (Address)
+  wire [15:0] wMemIntrDebugOut;
+  wire [15:0] wMemDataOut;
   MemoryInterface memint(
     .cpuClock(clockSig),
     .periphSelect(wPeriphSelectSignals[2]),
@@ -152,10 +157,13 @@ module SyzBSystem(
     .reset(res),
     .exec(wPeriphExec),
     .dataFromMem(wDataToMemIntr[15:0]),
+    .debugRegSelect(snoopSelect[3:0]),
+    .dOut(wMemDataOut[15:0]),
     .dataToMem(wDataFromMemIntr[15:0]),
     .addrToMem(wAddrFromMemIntr[15:0]),
     .memReadEn(wMemRdFromIntr),
-    .memWriteEn(wMemWrFromIntr)
+    .memWriteEn(wMemWrFromIntr),
+    .debugOut({16'h0000, wMemIntrDebugOut[15:0]})
   );
   
   // SD card interface (PID=3)
@@ -166,18 +174,12 @@ module SyzBSystem(
   //     Reg=2: R2 (Data-In)
   //     Reg=3: R3 (Data-Out)
   //     Reg=4: R4 (Address, 15-0)
-  //     Reg=5: R4 (Address, 31-16)
-  //   SnoopPeriph=3: Controller Registers
-  //     Reg=0: Current State
-  //     Reg=1: I/O Pins (CS, MOSI, MISO, SCLK)
-  //     Reg=2: Return State
-  //     Reg=3: Count
-  //     Reg=4: Block Count
-  //     Reg=5: Response
-  //     Reg=6: Data
-  //     Reg=7: Address
+  //   SnoopPeriph=3: {card signals[3:0], 0000, controller state[7:0]}
+  wire [31:0] wDataFromSDInterface;
+  wire [15:0] wSDIntrDebugOut;
+  wire [15:0] wSDCardSignalsOut;
   SDInterface sdint(
-    .cpuClock(clockSig),                    // TODO: Make debug in src and reg select
+    .cpuClock(clockSig),
     .periphSelect(wPeriphSelectSignals[3]),
     .regSelect(wPeriphRegSelect[3:0]),
     .readEn(wPeriphRegReadEn),
@@ -186,16 +188,24 @@ module SyzBSystem(
     .dIn(wDataToPeriphs[31:0]),
     .exec(wPeriphExec),
     .miso(miso),
+    .debugRegSelect(snoopSelect[3:0]),
     .serialClockOut(serialClock),
-    .dOut(wDataFromPeriphs[31:0]),
+    .dOut(wDataFromSDInterface[31:0]),
     .chipSel(chipSelect),
     .mosi(mosi),
-    .debugOut(),                            // TODO: Unify to one output and connect to debug out
-    .debugOut2()
+    .debugOut(wSDIntrDebugOut[15:0]),
+    .debugStateOut(wSDCardSignalsOut[7:0]),
+    .debugSDSignalsOut(wSDCardSignalsOut[15:12])    
   );
   
-  // TODO: Or/Mux together peripheral's dOut signals
-  
+  // Peripheral Data Bus
+  Or32B4Way periphDataOr(
+    .aIn(32'h00000000),
+    .bIn(32'h00000000),
+    .cIn({16'h0000, wMemDataOut[15:0]}),
+    .dIn(wDataFromSDInterface[31:0]),
+    .dOut(wDataFromPeriphs[31:0])
+  );
   
   // Snoop demultiplexing (for debugging)
   //   Format: 4xPart ID, 4x Reg Number
@@ -205,7 +215,18 @@ module SyzBSystem(
   //   1: Memory Interface
   //   2: SD Interface
   //   3: SD Controller
-  // TODO: This
+  Mux16B8to1 periphIntrfaceSelect(
+    .dIn0(wCPUDebugOut[15:0]),
+    .dIn1(wMemIntrDebugOut[15:0]),
+    .dIn2(wSDIntrDebugOut[15:0]),
+    .dIn3(wSDCardSignalsOut[15:0]),
+    .dIn4(16'h00),
+    .dIn5(16'h00),
+    .dIn6(16'h00),
+    .dIn7(16'h00),
+    .sel(snoopSelect[6:4]),
+    .dOut(snoopOut[15:0])
+  );
   
   always @ (posedge clockSig) begin
     if(en) begin

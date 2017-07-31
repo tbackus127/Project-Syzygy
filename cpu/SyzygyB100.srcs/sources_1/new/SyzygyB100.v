@@ -211,7 +211,7 @@ module SyzygyB100(
   wire wJmpEn;
   Counter16B pc (
     .clockSig(clockSig),
-    .en(en),
+    .en(sysClockPhase),
     .valIn(wR3JumpAddr[15:0]),
     .set(wJmpEn),
     .res(res),

@@ -1,0 +1,267 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<wave_config>
+   <wave_state>
+   </wave_state>
+   <db_ref_list>
+      <db_ref path="ControlSystem_time_impl.wdb" id="1">
+         <top_modules>
+            <top_module name="ControlSystem" />
+            <top_module name="glbl" />
+         </top_modules>
+      </db_ref>
+   </db_ref_list>
+   <zoom_setting>
+      <ZoomStartTime time="0fs"></ZoomStartTime>
+      <ZoomEndTime time="8426570397115fs"></ZoomEndTime>
+      <Cursor1Time time="10000000000000fs"></Cursor1Time>
+   </zoom_setting>
+   <WVObjectSize size="54" />
+   <wvobject type="divider" fp_name="divider121">
+      <obj_property name="label">Top Level</obj_property>
+      <obj_property name="DisplayName">label</obj_property>
+   </wvobject>
+   <wvobject fp_name="/ControlSystem/clk" type="logic">
+      <obj_property name="DisplayName">label</obj_property>
+      <obj_property name="ElementShortName">clk</obj_property>
+      <obj_property name="ObjectShortName">clk</obj_property>
+      <obj_property name="label">Main Clock</obj_property>
+   </wvobject>
+   <wvobject fp_name="/ControlSystem/syzs/en" type="logic">
+      <obj_property name="DisplayName">label</obj_property>
+      <obj_property name="ElementShortName">en</obj_property>
+      <obj_property name="ObjectShortName">en</obj_property>
+      <obj_property name="label">Sys En</obj_property>
+   </wvobject>
+   <wvobject fp_name="/ControlSystem/sw" type="array">
+      <obj_property name="ElementShortName">sw[15:0]</obj_property>
+      <obj_property name="ObjectShortName">sw[15:0]</obj_property>
+   </wvobject>
+   <wvobject type="divider" fp_name="divider120">
+      <obj_property name="label">System</obj_property>
+      <obj_property name="DisplayName">label</obj_property>
+   </wvobject>
+   <wvobject fp_name="/ControlSystem/syzs/clockSig" type="logic">
+      <obj_property name="DisplayName">label</obj_property>
+      <obj_property name="ElementShortName">clockSig</obj_property>
+      <obj_property name="ObjectShortName">clockSig</obj_property>
+      <obj_property name="label">CPU Clock</obj_property>
+   </wvobject>
+   <wvobject fp_name="/ControlSystem/syzs/clockPhaseReg" type="logic">
+      <obj_property name="DisplayName">label</obj_property>
+      <obj_property name="ElementShortName">clockPhaseReg</obj_property>
+      <obj_property name="ObjectShortName">clockPhaseReg</obj_property>
+      <obj_property name="label">Clock Phase</obj_property>
+   </wvobject>
+   <wvobject type="divider" fp_name="divider39">
+      <obj_property name="label">SD Card</obj_property>
+      <obj_property name="DisplayName">label</obj_property>
+   </wvobject>
+   <wvobject fp_name="/ControlSystem/syzs/chipSelect" type="logic">
+      <obj_property name="ElementShortName">chipSelect</obj_property>
+      <obj_property name="ObjectShortName">chipSelect</obj_property>
+   </wvobject>
+   <wvobject fp_name="/ControlSystem/syzs/serialClock" type="logic">
+      <obj_property name="ElementShortName">serialClock</obj_property>
+      <obj_property name="ObjectShortName">serialClock</obj_property>
+   </wvobject>
+   <wvobject fp_name="/ControlSystem/syzs/mosi" type="logic">
+      <obj_property name="ElementShortName">mosi</obj_property>
+      <obj_property name="ObjectShortName">mosi</obj_property>
+   </wvobject>
+   <wvobject fp_name="/ControlSystem/syzs/miso" type="logic">
+      <obj_property name="ElementShortName">miso</obj_property>
+      <obj_property name="ObjectShortName">miso</obj_property>
+   </wvobject>
+   <wvobject type="divider" fp_name="divider46">
+      <obj_property name="label">Boot ROM</obj_property>
+      <obj_property name="DisplayName">label</obj_property>
+   </wvobject>
+   <wvobject fp_name="/ControlSystem/syzs/brom/readEn" type="logic">
+      <obj_property name="ElementShortName">readEn</obj_property>
+      <obj_property name="ObjectShortName">readEn</obj_property>
+   </wvobject>
+   <wvobject fp_name="/ControlSystem/syzs/brom/addr" type="array">
+      <obj_property name="ElementShortName">addr[7:0]</obj_property>
+      <obj_property name="ObjectShortName">addr[7:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/ControlSystem/syzs/brom/instrOut" type="array">
+      <obj_property name="ElementShortName">instrOut[15:0]</obj_property>
+      <obj_property name="ObjectShortName">instrOut[15:0]</obj_property>
+   </wvobject>
+   <wvobject type="divider" fp_name="divider50">
+      <obj_property name="label">CPU</obj_property>
+      <obj_property name="DisplayName">label</obj_property>
+   </wvobject>
+   <wvobject fp_name="/ControlSystem/syzs/cpu/en" type="logic">
+      <obj_property name="ElementShortName">en</obj_property>
+      <obj_property name="ObjectShortName">en</obj_property>
+   </wvobject>
+   <wvobject fp_name="/ControlSystem/syzs/cpu/vnMode" type="logic">
+      <obj_property name="ElementShortName">vnMode</obj_property>
+      <obj_property name="ObjectShortName">vnMode</obj_property>
+   </wvobject>
+   <wvobject fp_name="/ControlSystem/syzs/cpu/clockSig" type="logic">
+      <obj_property name="ElementShortName">clockSig</obj_property>
+      <obj_property name="ObjectShortName">clockSig</obj_property>
+   </wvobject>
+   <wvobject fp_name="/ControlSystem/syzs/cpu/sysClockPhase" type="logic">
+      <obj_property name="ElementShortName">sysClockPhase</obj_property>
+      <obj_property name="ObjectShortName">sysClockPhase</obj_property>
+   </wvobject>
+   <wvobject fp_name="/ControlSystem/syzs/cpu/extInstrIn" type="array">
+      <obj_property name="DisplayName">label</obj_property>
+      <obj_property name="ElementShortName">extInstrIn[15:0]</obj_property>
+      <obj_property name="ObjectShortName">extInstrIn[15:0]</obj_property>
+      <obj_property name="label">instrIn</obj_property>
+   </wvobject>
+   <wvobject fp_name="/ControlSystem/syzs/cpu/wDebugOut0" type="array">
+      <obj_property name="DisplayName">label</obj_property>
+      <obj_property name="ElementShortName">wDebugOut0[15:0]</obj_property>
+      <obj_property name="ObjectShortName">wDebugOut0[15:0]</obj_property>
+      <obj_property name="label">R0</obj_property>
+   </wvobject>
+   <wvobject fp_name="/ControlSystem/syzs/cpu/wInstrRegOut" type="array">
+      <obj_property name="DisplayName">label</obj_property>
+      <obj_property name="ElementShortName">wInstrRegOut[15:0]</obj_property>
+      <obj_property name="ObjectShortName">wInstrRegOut[15:0]</obj_property>
+      <obj_property name="label">R0 Out</obj_property>
+   </wvobject>
+   <wvobject fp_name="/ControlSystem/syzs/wProgCountVal" type="array">
+      <obj_property name="DisplayName">label</obj_property>
+      <obj_property name="ElementShortName">wProgCountVal[15:0]</obj_property>
+      <obj_property name="ObjectShortName">wProgCountVal[15:0]</obj_property>
+      <obj_property name="label">R1</obj_property>
+   </wvobject>
+   <wvobject fp_name="/ControlSystem/syzs/cpu/regAccum/dOut2" type="array">
+      <obj_property name="DisplayName">label</obj_property>
+      <obj_property name="ElementShortName">dOut2[15:0]</obj_property>
+      <obj_property name="ObjectShortName">dOut2[15:0]</obj_property>
+      <obj_property name="label">R2</obj_property>
+   </wvobject>
+   <wvobject fp_name="/ControlSystem/syzs/cpu/regJmpAddr/dOut2" type="array">
+      <obj_property name="DisplayName">label</obj_property>
+      <obj_property name="ElementShortName">dOut2[15:0]</obj_property>
+      <obj_property name="ObjectShortName">dOut2[15:0]</obj_property>
+      <obj_property name="label">R3</obj_property>
+   </wvobject>
+   <wvobject fp_name="/ControlSystem/syzs/cpu/regIOLSB/dOut2" type="array">
+      <obj_property name="DisplayName">label</obj_property>
+      <obj_property name="ElementShortName">dOut2[15:0]</obj_property>
+      <obj_property name="ObjectShortName">dOut2[15:0]</obj_property>
+      <obj_property name="label">R4</obj_property>
+   </wvobject>
+   <wvobject fp_name="/ControlSystem/syzs/cpu/regIOMSB/dOut2" type="array">
+      <obj_property name="DisplayName">label</obj_property>
+      <obj_property name="ElementShortName">dOut2[15:0]</obj_property>
+      <obj_property name="ObjectShortName">dOut2[15:0]</obj_property>
+      <obj_property name="label">R5</obj_property>
+   </wvobject>
+   <wvobject fp_name="/ControlSystem/syzs/cpu/regALUA/dOut2" type="array">
+      <obj_property name="DisplayName">label</obj_property>
+      <obj_property name="ElementShortName">dOut2[15:0]</obj_property>
+      <obj_property name="ObjectShortName">dOut2[15:0]</obj_property>
+      <obj_property name="label">R6</obj_property>
+   </wvobject>
+   <wvobject fp_name="/ControlSystem/syzs/cpu/regALUB/dOut2" type="array">
+      <obj_property name="DisplayName">label</obj_property>
+      <obj_property name="ElementShortName">dOut2[15:0]</obj_property>
+      <obj_property name="ObjectShortName">dOut2[15:0]</obj_property>
+      <obj_property name="label">R7</obj_property>
+   </wvobject>
+   <wvobject fp_name="/ControlSystem/syzs/cpu/wDebugOut8" type="array">
+      <obj_property name="DisplayName">label</obj_property>
+      <obj_property name="ElementShortName">wDebugOut8[15:0]</obj_property>
+      <obj_property name="ObjectShortName">wDebugOut8[15:0]</obj_property>
+      <obj_property name="label">R8</obj_property>
+   </wvobject>
+   <wvobject fp_name="/ControlSystem/syzs/cpu/wDebugOut9" type="array">
+      <obj_property name="DisplayName">label</obj_property>
+      <obj_property name="ElementShortName">wDebugOut9[15:0]</obj_property>
+      <obj_property name="ObjectShortName">wDebugOut9[15:0]</obj_property>
+      <obj_property name="label">R9</obj_property>
+   </wvobject>
+   <wvobject type="divider" fp_name="divider150">
+      <obj_property name="label">Instruction Reg</obj_property>
+      <obj_property name="DisplayName">label</obj_property>
+   </wvobject>
+   <wvobject fp_name="/ControlSystem/syzs/cpu/regInstr/clockSig" type="logic">
+      <obj_property name="ElementShortName">clockSig</obj_property>
+      <obj_property name="ObjectShortName">clockSig</obj_property>
+   </wvobject>
+   <wvobject fp_name="/ControlSystem/syzs/cpu/regInstr/dIn" type="array">
+      <obj_property name="ElementShortName">dIn[15:0]</obj_property>
+      <obj_property name="ObjectShortName">dIn[15:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/ControlSystem/syzs/cpu/regInstr/debugOut" type="array">
+      <obj_property name="ElementShortName">debugOut[15:0]</obj_property>
+      <obj_property name="ObjectShortName">debugOut[15:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/ControlSystem/syzs/cpu/regInstr/dOut" type="array">
+      <obj_property name="ElementShortName">dOut[15:0]</obj_property>
+      <obj_property name="ObjectShortName">dOut[15:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/ControlSystem/syzs/cpu/regInstr/read" type="logic">
+      <obj_property name="ElementShortName">read</obj_property>
+      <obj_property name="ObjectShortName">read</obj_property>
+   </wvobject>
+   <wvobject fp_name="/ControlSystem/syzs/cpu/regInstr/write" type="logic">
+      <obj_property name="ElementShortName">write</obj_property>
+      <obj_property name="ObjectShortName">write</obj_property>
+   </wvobject>
+   <wvobject fp_name="/ControlSystem/syzs/cpu/regInstr/asyncReset" type="logic">
+      <obj_property name="ElementShortName">asyncReset</obj_property>
+      <obj_property name="ObjectShortName">asyncReset</obj_property>
+   </wvobject>
+   <wvobject type="divider" fp_name="divider122">
+      <obj_property name="label">Program Counter</obj_property>
+      <obj_property name="DisplayName">label</obj_property>
+   </wvobject>
+   <wvobject fp_name="/ControlSystem/syzs/cpu/pc/en" type="logic">
+      <obj_property name="ElementShortName">en</obj_property>
+      <obj_property name="ObjectShortName">en</obj_property>
+   </wvobject>
+   <wvobject fp_name="/ControlSystem/syzs/cpu/pc/clockSig" type="logic">
+      <obj_property name="ElementShortName">clockSig</obj_property>
+      <obj_property name="ObjectShortName">clockSig</obj_property>
+   </wvobject>
+   <wvobject fp_name="/ControlSystem/syzs/cpu/pc/valOut" type="array">
+      <obj_property name="ElementShortName">valOut[15:0]</obj_property>
+      <obj_property name="ObjectShortName">valOut[15:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/ControlSystem/syzs/cpu/pc/count0" type="array">
+      <obj_property name="ElementShortName">count0[15:1]</obj_property>
+      <obj_property name="ObjectShortName">count0[15:1]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/ControlSystem/syzs/cpu/pc/valIn" type="array">
+      <obj_property name="ElementShortName">valIn[15:0]</obj_property>
+      <obj_property name="ObjectShortName">valIn[15:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/ControlSystem/syzs/cpu/pc/res" type="logic">
+      <obj_property name="ElementShortName">res</obj_property>
+      <obj_property name="ObjectShortName">res</obj_property>
+   </wvobject>
+   <wvobject fp_name="/ControlSystem/syzs/cpu/pc/set" type="logic">
+      <obj_property name="ElementShortName">set</obj_property>
+      <obj_property name="ObjectShortName">set</obj_property>
+   </wvobject>
+   <wvobject type="divider" fp_name="divider58">
+      <obj_property name="label">Boot ROM</obj_property>
+      <obj_property name="DisplayName">label</obj_property>
+   </wvobject>
+   <wvobject fp_name="/ControlSystem/syzs/brom/addr" type="array">
+      <obj_property name="ElementShortName">addr[7:0]</obj_property>
+      <obj_property name="ObjectShortName">addr[7:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/ControlSystem/syzs/brom/instrOut" type="array">
+      <obj_property name="ElementShortName">instrOut[15:0]</obj_property>
+      <obj_property name="ObjectShortName">instrOut[15:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/ControlSystem/syzs/brom/debugOut" type="array">
+      <obj_property name="ElementShortName">debugOut[15:0]</obj_property>
+      <obj_property name="ObjectShortName">debugOut[15:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/ControlSystem/syzs/brom/readEn" type="logic">
+      <obj_property name="ElementShortName">readEn</obj_property>
+      <obj_property name="ObjectShortName">readEn</obj_property>
+   </wvobject>
+</wave_config>

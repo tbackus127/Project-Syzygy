@@ -35,8 +35,6 @@ module ControlSystem(
     output dp
   );
   
-  reg [7:0] snoopSelect;
-  
   wire [15:0] wSegsIn;
   wire [15:0] wSwitchesOut;
   wire buttonLeft;
@@ -53,7 +51,7 @@ module ControlSystem(
     .btnDIn(btnD),
     .btnRIn(btnR),
     .segsIn(wSegsIn[15:0]),
-    .dpIn(1'b0),
+    .dpIn(1'b1),
     .switchOut(wSwitchesOut[15:0]),
     .btnLOut(buttonLeft),
     .btnUOut(buttonUp),
@@ -69,7 +67,7 @@ module ControlSystem(
     .clk(clk),
     .en(1'b1),
     .res(buttonDown),
-    .snoopSelect(snoopSelect[7:0]),
+    .snoopSelect(wSwitchesOut[7:0]),
     .miso(JB[2]),
     .snoopOut(wSegsIn[15:0]),
     .serialClock(JB[3]),
@@ -77,10 +75,6 @@ module ControlSystem(
     .mosi(JB[1])
   );
   
-  always @ (posedge clk) begin
-    if(buttonLeft) begin
-      snoopSelect[7:0] <= wSwitchesOut[7:0];
-    end
-  end
+  assign led[15:0] = wSegsIn[15:0];
   
 endmodule

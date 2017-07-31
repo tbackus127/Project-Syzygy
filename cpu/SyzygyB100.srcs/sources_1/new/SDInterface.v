@@ -36,12 +36,14 @@ module SDInterface(
     
     // SD signals (minus dOut and debugOuts)
     input miso,
+    input [3:0] debugRegSelect,
     output serialClockOut,
     output [31:0] dOut,
     output chipSel,
     output mosi,
-    output [15:0] debugOut,   // SD connections, count
-    output [7:0] debugOut2    // Controller State
+    output [15:0] debugOut,
+    output [7:0] debugStateOut,
+    output [3:0] debugSDSignalsOut
   );
 
   // Demultiplexer that chooses a peripheral register to read the value from, and sends its
@@ -66,6 +68,7 @@ module SDInterface(
   //  operations. This register can only be written by the CPU.
   wire [15:0] wR0Output;
   wire [15:0] wR0InstrOut;
+  wire [15:0] wR0DebugOut;
   SyzFETRegister3Out regInstr(
    .dIn(dIn[15:0]),
    .clockSig(cpuClock),
@@ -74,7 +77,7 @@ module SDInterface(
    .asyncReset(reset),
    .dOut(wR0Output[15:0]),
    .dOut2(wR0InstrOut[15:0]),
-   .debugOut()
+   .debugOut(wR0DebugOut[15:0])
   );
   
   // R1: Peripheral's status register. This register can only be written by the controller,
@@ -83,6 +86,7 @@ module SDInterface(
   wire wSetR1;
   wire wEnR1Write;
   wire [15:0] wR1Output;
+  wire [15:0] wR1DebugOut;
   SyzFETRegister2Out regStatus(
    .dIn({13'b0000000000000, wR1StatusIn[2:0]}),
    .clockSig(wSetR1),
@@ -90,7 +94,7 @@ module SDInterface(
    .write(wEnR1Write),
    .asyncReset(reset),
    .dOut(wR1Output[15:0]),
-   .debugOut()
+   .debugOut(wR1DebugOut[15:0])
   );
   
   // R2: Peripheral's data input register. This register's value is read by the controller and
@@ -98,6 +102,7 @@ module SDInterface(
   //  only the CPU.
   wire [15:0] wR2Output;
   wire [15:0] wR2DataOut;
+  wire [15:0] wR2DebugOut;
   SyzFETRegister3Out regDataIn(
    .dIn(dIn[15:0]),
    .clockSig(cpuClock),
@@ -106,7 +111,7 @@ module SDInterface(
    .asyncReset(reset),
    .dOut(wR2Output[15:0]),
    .dOut2(wR2DataOut[15:0]),
-   .debugOut()
+   .debugOut(wR2DebugOut[15:0])
   );
   
   // R3: Peripheral's data output register. This register's value is updated by the controller,
@@ -117,6 +122,7 @@ module SDInterface(
   wire wSetR3;
   wire wEnR3Write;
   wire [15:0] wR3Output;
+  wire [15:0] wR3DebugOut;
   SyzFETRegister2Out regDataOut(
    .dIn(wR3DataOutIn[15:0]),
    .clockSig(wSetR3),
@@ -124,7 +130,7 @@ module SDInterface(
    .write(wEnR3Write),
    .asyncReset(reset),
    .dOut(wR3Output[15:0]),
-   .debugOut()
+   .debugOut(wR3DebugOut[15:0])
   );
   
   // R4: Peripheral's address register. These 16-bit register's values are concatenated together
@@ -132,6 +138,7 @@ module SDInterface(
   //  These registers cannot be written by the controller, only the CPU.
   wire [31:0] wR4Output;
   wire [31:0] wR4AddrOut;
+  wire [15:0] wR4DebugOut;
   SyzFETRegister3Out regAddrLSB(
     .dIn(dIn[15:0]),
     .clockSig(cpuClock),
@@ -140,7 +147,7 @@ module SDInterface(
     .asyncReset(reset),
     .dOut(wR4Output[15:0]),
     .dOut2(wR4AddrOut[15:0]),
-    .debugOut()
+    .debugOut(wR4DebugOut[15:0])
   );
   SyzFETRegister3Out regAddrMSB(
     .dIn(dIn[31:16]),
@@ -163,6 +170,20 @@ module SDInterface(
     .dOut(dOut[31:0])
   );
   
+  // Debug Selection
+  Mux16B8to1 sdIntDbgSel(
+    .dIn0(wR0DebugOut[15:0]),
+    .dIn1(wR1DebugOut[15:0]),
+    .dIn2(wR2DebugOut[15:0]),
+    .dIn3(wR3DebugOut[15:0]),
+    .dIn4(wR4DebugOut[15:0]),
+    .dIn5(16'h0000),
+    .dIn6(16'h0000),
+    .dIn7(16'h0000),
+    .sel(debugRegSelect[2:0]),
+    .dOut(debugOut[15:0])
+  );
+  
   // SD Controller
   SDController controller(
     .ctrlClk(cpuClock),
@@ -181,8 +202,8 @@ module SDInterface(
     .clkR3(wSetR3),
     .chipSelect(chipSel),
     .mosi(mosi),
-    .debugOut(debugOut[15:0]),
-    .debugOut2(debugOut2[7:0])
+    .debugSignalsOut({12'h000, debugSDSignalsOut[3:0]}),
+    .debugStateOut(debugStateOut[7:0])
   );
   
 endmodule
