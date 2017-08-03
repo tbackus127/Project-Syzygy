@@ -25,9 +25,10 @@ copy 2, 3
 
 :wait_SD_init_start
 
-# Get SD interface's R1 value and continue if it's zero
+# Get SD interface's R1 value and continue if it's ready (0x01)
 iogr $conf.PID.SD, $conf.SD.REG_STATUS
-copy 4, 2
+copy 4, 6
+dec
 jne
 
 # =============================================================================

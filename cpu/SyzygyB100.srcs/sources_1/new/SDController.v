@@ -8,6 +8,7 @@ module SDController(
     input exec,
     input reset,
     input miso,
+    input [3:0] debugRegSelect,
     output reg serialClockOut = 1'b0,
     output reg [2:0] status = 3'b001,
     output reg updateStatus = 1'b0,
@@ -17,8 +18,7 @@ module SDController(
     output reg clkR3 = 1'b0,
     output reg chipSelect = 1'b1,
     output mosi,
-    output [15:0] debugSignalsOut,
-    output [7:0] debugStateOut
+    output [15:0] debugOut
   );
   
   // ** Controller Commands **
@@ -39,8 +39,8 @@ module SDController(
   parameter HI = 1'b1;
   
   // Status register constants
-  parameter STATUS_READY = 0;
-  parameter STATUS_BUSY_INIT = 1;
+  parameter STATUS_BUSY_INIT = 0;
+  parameter STATUS_READY = 1;
   parameter STATUS_BUSY_BLKRD = 2;
   parameter STATUS_BUSY_BLKWR = 3;
   parameter STATUS_ERR_INIT = 4;
@@ -56,7 +56,7 @@ module SDController(
   parameter FLUSH_COUNT = 100;
   parameter DESELECT_COUNT = 4;
   parameter BLOCK_BIT_COUNT = 4096;
-  parameter CLOCK_REDUCE_AMT = 255;
+  parameter CLOCK_REDUCE_AMT = 511;
   parameter WORD_LENGTH = 16;
   parameter BLOCK_COUNT = BLOCK_BIT_COUNT / WORD_LENGTH;
   
@@ -144,7 +144,7 @@ module SDController(
                                             
   reg [15:0] count = FLUSH_COUNT;           // The serial clock pulse counter
   
-  reg [7:0] clockCount = 0;                 // The CPU clock pulse counter. The serial clock will
+  reg [8:0] clockCount = 0;                 // The CPU clock pulse counter. The serial clock will
                                             //  not toggle until this value hits zero. This is to
                                             //  prevent the serial clock from running at too high
                                             //  a frequency during the SD card's initialization
@@ -187,12 +187,7 @@ module SDController(
   reg misoVal = 0;
   reg mosiVal = 0;
   
-  // Debug signals, always active
-  assign debugSignalsOut[3] = serialClockOut;
-  assign debugSignalsOut[2] = chipSelect;
-  assign debugSignalsOut[1] = mosiVal;
-  assign debugSignalsOut[0] = misoVal;
-  assign debugStateOut[7:0] = {3'b000, state[4:0]};
+  wire [15:0] wDebugSignals = {12'h000, serialClockOut, chipSelect, mosiVal, misoVal};
   
   // Select between 1, command[MSB], and data[MSB] to use as the MOSI value
   wire wMuxTemp;
@@ -949,5 +944,18 @@ module SDController(
     misoVal <= miso;
     
   end
+  
+  Mux16B8to1 sdDbgMux(
+    .dIn0(wDebugSignals[15:0]),
+    .dIn1({11'b00000000000, state[4:0]}),
+    .dIn2({11'b00000000000, returnState[4:0]}),
+    .dIn3(count[15:0]),
+    .dIn4({8'h00, blockCount[7:0]}),
+    .dIn5(response[15:0]),
+    .dIn6(response[39:24]),
+    .dIn7(data[15:0]),
+    .sel(debugRegSelect[2:0]),
+    .dOut(debugOut[15:0])
+  );
   
 endmodule

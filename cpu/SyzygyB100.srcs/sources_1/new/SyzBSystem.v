@@ -177,7 +177,7 @@ module SyzBSystem(
   //   SnoopPeriph=3: {card signals[3:0], 0000, controller state[7:0]}
   wire [31:0] wDataFromSDInterface;
   wire [15:0] wSDIntrDebugOut;
-  wire [15:0] wSDCardSignalsOut;
+  wire [15:0] wSDCtrlDebugOut;
   SDInterface sdint(
     .cpuClock(clockSig),
     .periphSelect(wPeriphSelectSignals[3]),
@@ -194,8 +194,7 @@ module SyzBSystem(
     .chipSel(chipSelect),
     .mosi(mosi),
     .debugOut(wSDIntrDebugOut[15:0]),
-    .debugStateOut(wSDCardSignalsOut[7:0]),
-    .debugSDSignalsOut(wSDCardSignalsOut[15:12])    
+    .debugControllerOut(wSDCtrlDebugOut[15:0])    
   );
   
   // Peripheral Data Bus
@@ -219,7 +218,7 @@ module SyzBSystem(
     .dIn0(wCPUDebugOut[15:0]),
     .dIn1(wMemIntrDebugOut[15:0]),
     .dIn2(wSDIntrDebugOut[15:0]),
-    .dIn3(wSDCardSignalsOut[15:0]),
+    .dIn3(wSDCtrlDebugOut[15:0]),
     .dIn4(16'h00),
     .dIn5(16'h00),
     .dIn6(16'h00),

@@ -36,14 +36,13 @@ module SDInterface(
     
     // SD signals (minus dOut and debugOuts)
     input miso,
-    input [3:0] debugRegSelect,
+    input [4:0] debugRegSelect,
     output serialClockOut,
     output [31:0] dOut,
     output chipSel,
     output mosi,
     output [15:0] debugOut,
-    output [7:0] debugStateOut,
-    output [3:0] debugSDSignalsOut
+    output [15:0] debugControllerOut
   );
 
   // Demultiplexer that chooses a peripheral register to read the value from, and sends its
@@ -193,6 +192,7 @@ module SDInterface(
     .exec(exec),
     .reset(reset),
     .miso(miso),
+    .debugRegSelect(debugRegSelect[3:0]),
     .serialClockOut(serialClockOut),
     .status(wR1StatusIn[2:0]),
     .updateStatus(wEnR1Write),
@@ -202,8 +202,7 @@ module SDInterface(
     .clkR3(wSetR3),
     .chipSelect(chipSel),
     .mosi(mosi),
-    .debugSignalsOut({12'h000, debugSDSignalsOut[3:0]}),
-    .debugStateOut(debugStateOut[7:0])
+    .debugOut(debugControllerOut[15:0])
   );
   
 endmodule
