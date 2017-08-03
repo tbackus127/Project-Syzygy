@@ -32,6 +32,6 @@ module ClockDivider(
   end
   
   // Stable at 3
-  assign cOut = counter[15];
+  assign cOut = counter[8];
   
 endmodule

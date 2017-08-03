@@ -96,6 +96,7 @@ module SyzygyB100(
   wire wReadEn;
   wire wWriteEn;
   wire [15:0] wInstrRegOut;
+  wire wWriteR5;
   
   // Instruction Decoder connections
   InstructionDecoder instrDec(
@@ -116,7 +117,8 @@ module SyzygyB100(
     .periphRead(extPerReadEn),
     .periphWrite(extPerWriteEn),
     .periphExec(extPerExec),
-    .accumMuxSelect(muxSel[1:0])
+    .accumMuxSelect(muxSel[1:0]),
+    .regWriteR5(wWriteR5)
   );
   assign wAccSrcSelect = muxSel[1];
   assign wAccALUSrc = muxSel[0];
@@ -285,7 +287,7 @@ module SyzygyB100(
     .dIn(wDataBus[15:0] | extPerDIn[31:16]),
     .clockSig(clockSig),
     .read(wRegReadExp[5]),
-    .write(wRegWriteExp[5]),
+    .write(wRegWriteExp[5] | wWriteR5),
     .asyncReset(wRegReset[5]),
     .dOut(wBusInput5[15:0]),
     .dOut2(wIOOut[31:16]),

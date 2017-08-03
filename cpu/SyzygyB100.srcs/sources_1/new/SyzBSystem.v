@@ -145,7 +145,7 @@ module SyzBSystem(
   //     Reg=2: R2 (Data-In)
   //     Reg=3: R0 (Data-Out)
   //     Reg=4: R0 (Address)
-  wire [15:0] wMemIntrDebugOut;
+  wire [31:0] wMemIntrDebugOut;
   wire [15:0] wMemDataOut;
   MemoryInterface memint(
     .cpuClock(clockSig),
@@ -163,7 +163,7 @@ module SyzBSystem(
     .addrToMem(wAddrFromMemIntr[15:0]),
     .memReadEn(wMemRdFromIntr),
     .memWriteEn(wMemWrFromIntr),
-    .debugOut({16'h0000, wMemIntrDebugOut[15:0]})
+    .debugOut(wMemIntrDebugOut[31:0])
   );
   
   // SD card interface (PID=3)
@@ -188,7 +188,7 @@ module SyzBSystem(
     .dIn(wDataToPeriphs[31:0]),
     .exec(wPeriphExec),
     .miso(miso),
-    .debugRegSelect(snoopSelect[3:0]),
+    .debugRegSelect(snoopSelect[4:0]),
     .serialClockOut(serialClock),
     .dOut(wDataFromSDInterface[31:0]),
     .chipSel(chipSelect),

@@ -177,7 +177,8 @@ copy 2, 3
 
 # Get SD interface's R1 value and continue if it's zero
 iogr $conf.PID.SD, $conf.SD.REG_STATUS
-copy 4, 2
+copy 4, 6
+dec
 jne
 
 # -----------------------------------------------------------------------------
@@ -330,7 +331,8 @@ copy 2, 3
 
 # Get SD interface's R1 value and continue if it's zero
 iogr $conf.PID.SD, $conf.SD.REG_STATUS
-copy 4, 2
+copy 4, 6
+sub
 jne
 
 # -----------------------------------------------------------------------------
