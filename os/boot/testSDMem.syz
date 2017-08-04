@@ -10,8 +10,8 @@ copy 2, 8
 push 1
 copy 2, 9
 
-# R10 = 255
-push 255
+# R10 = 254
+push 254
 copy 2, 10
 
 # =============================================================================
@@ -163,7 +163,7 @@ jmp
 :fib_end
 
 # =============================================================================
-# Set up read SD block 0x11 into RAM address 0x0040
+# Set up read SD block 0x11 into RAM address 0x0040 - 0x013F
 # =============================================================================
 
 # -----------------------------------------------------------------------------
@@ -175,7 +175,7 @@ copy 2, 3
 
 :wait_copyToMem_init
 
-# Get SD interface's R1 value and continue if it's zero
+# Get SD interface's R1 value and continue if it's 0x01 (ready)
 iogr $conf.PID.SD, $conf.SD.REG_STATUS
 copy 4, 6
 dec
@@ -197,9 +197,10 @@ iosr $conf.PID.SD, $conf.SD.REG_INSTR
 # -----------------------------------------------------------------------------
 # Set up memory write registers
 
-# Address 0x0040
+# Address 0x0040 to R11
 push 64
-copy 2, 4
+copy 2, 11
+copy 11, 4
 iosr $conf.PID.MEM, $conf.MEM.REG_ADDR
 
 # Write instruction
@@ -247,6 +248,12 @@ iosr $conf.PID.MEM, $conf.MEM.REG_DIN
 ioex $conf.PID.MEM
 
 # -----------------------------------------------------------------------------
+# Increment the address pointer
+copy 11, 6
+inc
+copy 2, 11
+
+# -----------------------------------------------------------------------------
 # Set up SD continue command
 push $conf.SD.CMD_CONTINUE
 copy 2, 4
@@ -273,6 +280,14 @@ jeq
 # -----------------------------------------------------------------------------
 # Tell the SD card to fetch the next two bytes
 ioex $conf.PID.SD
+
+# -----------------------------------------------------------------------------
+# Set and increment the memory pointer
+copy 11, 4
+iosr $conf.PID.MEM, $conf.MEM.REG_ADDR
+copy 11, 6
+inc
+copy 2, 11
 
 # -----------------------------------------------------------------------------
 # Check if the SD card has read a value
@@ -311,17 +326,25 @@ push $lbl.memTransfer_start
 copy 2, 3
 jmp
 
+
+
 :memTransfer_end
-
-
 
 # =============================================================================
 # Read last two bytes into RAM
 # =============================================================================
 
 # -----------------------------------------------------------------------------
-# Tell the SD card to fetch the next two bytes
+# Tell the SD card to fetch the last two bytes
 ioex $conf.PID.SD
+
+# -----------------------------------------------------------------------------
+# Set the last memory pointer (should be 0x013F)
+copy 11, 4
+iosr $conf.PID.MEM, $conf.MEM.REG_ADDR
+
+# -----------------------------------------------------------------------------
+# Check if the SD card has finished reading
 
 # Set up wait jump
 push $lbl.wait_copyToMem_last
@@ -329,14 +352,14 @@ copy 2, 3
 
 :wait_copyToMem_last
 
-# Get SD interface's R1 value and continue if it's zero
+# Get SD interface's R1 value and continue if it's 0x01 (ready after block)
 iogr $conf.PID.SD, $conf.SD.REG_STATUS
 copy 4, 6
 sub
 jne
 
 # -----------------------------------------------------------------------------
-# Transfer the first two bytes from SD to memory
+# Transfer the last two bytes from SD to memory
 iogr $conf.PID.SD, $conf.SD.REG_DOUT
 iosr $conf.PID.MEM, $conf.MEM.REG_DIN
 ioex $conf.PID.MEM
@@ -354,4 +377,5 @@ copy 2, 3
 
 # -----------------------------------------------------------------------------
 # Execute the system command to fetch instructions from RAM rather than ROM
+#   (set flag ID=0 to HI)
 sys cmd $conf.SYS.CMD_VNMODE

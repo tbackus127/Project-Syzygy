@@ -432,8 +432,11 @@ module SDController(
         state = STATE_CLOCK_COUNTDOWN;
         
       end else begin
+        
+        // If this is the end of a block read/write, update status and wait for command
         if(blockMode == HI) begin
-          state = STATE_WAIT_FOR_HOST;
+          state = STATE_UPDATE_R1;
+          nextState = STATE_WAIT_FOR_HOST;
         end else begin
           state = nextState;
         end
@@ -598,8 +601,8 @@ module SDController(
       count = DESELECT_COUNT;
       clockCount = 0;
       blockCount = 0;
-      nextState = STATE_DESELECT;
-      errState = STATE_DESELECT;
+      nextState = STATE_UPDATE_R1;
+      errState = STATUS_READY;
       returnState = STATE_DESELECT;
       data = 0;
       response = 0;
@@ -607,7 +610,7 @@ module SDController(
       mosiSrc = MUX_CONST_HI;
       blockAddr = 0;
       status = STATUS_READY;
-      state = STATE_UPDATE_R1;
+      state = STATE_DESELECT;
       chipSelect = HI;
     end
     
@@ -617,8 +620,8 @@ module SDController(
     STATE_UPDATE_R1: begin
       
       if(clockTicked == HI) begin
-        state = nextState;
         clockTicked = LO;
+        state = nextState;
       end else if(clkR1 == HI) begin
         clkR1 = LO;
       end else if(updateStatus == HI) begin
