@@ -74,7 +74,7 @@ public class VariableFetcher {
           
           // Ignore comments
           if (line.startsWith("#")) continue;
-          String[] tokens = line.split(" ");
+          String[] tokens = line.split("\\s+");
           
           // If it's a valid assignment
           if (tokens.length == 2) {

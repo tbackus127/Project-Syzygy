@@ -11,24 +11,19 @@ import com.rath.syzasm.Assembler;
 
 public class TestAssemblerSys {
   
-  private static final String[] sysErr = {
-      "sys", "sys ", "sys,", "sys ,", "sys sys", "sys flag", "sys flag ", "sys flag,", "sys flag ,",
-      "sys flag -1", "sys flag 0", "sys flag 1,", "sys flag 0, -", "sys flag 16, 0", "sys flag -1, 1",
-      "sys flag 0, 0,", "sys flag -1, -1", "sys flag"
-  };
+  private static final String[] sysErr = { "sys", "sys ", "sys,", "sys ,", "sys sys", "sys cmd",
+      "sys cmd ", "sys cmd,", "sys cmd ,", "sys cmd -1", "sys cmd 0, -", "sys cmd 16, 0",
+      "sys cmd -1, 1", "sys cmd 0, 0,", "sys cmd -1, -1", "sys cmd" };
   
   private static final HashMap<String, Short> sysStd = new HashMap<String, Short>() {
     
     private static final long serialVersionUID = 1L;
     
     {
-      put("sys flag 0, 0", (short) 0x0100);
-      put("sys flag 0, 1", (short) 0x0108);
-      put("sys flag 1, 0", (short) 0x0110);
-      put("sys flag 1, 1", (short) 0x0118);
-      put("sys flag 10, 1", (short) 0x01a8);
-      put("sys flag 15, 0", (short) 0x01f0);
-      put("sys flag 15, 1", (short) 0x01f8);
+      put("sys cmd 0", (short) 0x0100);
+      put("sys cmd 1", (short) 0x0101);
+      put("sys cmd 17", (short) 0x0111);
+      put("sys cmd 255", (short) 0x01ff);
     }
   };
   

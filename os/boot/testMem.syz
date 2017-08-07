@@ -1,0 +1,182 @@
+# R8: Inner sleep loop counter
+# R9: Outer memory loop counter
+# R10: Memory value
+# R11: Memory output
+
+# Pseudocode:
+#   var memVal = 0x0100;
+#   var memOut = 0;
+# 
+#   for(int i = 255; i >= 0; i--) {
+#     sleep(65535);
+#     memVal++;
+#     setMem(i, memVal);
+#     memOut = getMem(i);
+#   }
+
+
+
+# -----------------------------------------------------------------------------
+# Initialize memory data value
+
+push 256
+copy 2, 10
+
+
+
+# -----------------------------------------------------------------------------
+# Initialize memory output check (not necessary, but meh)
+
+push 0
+copy 2, 11
+
+
+
+# -----------------------------------------------------------------------------
+# Initialize outer loop variable
+push 255
+copy 2, 9
+
+:loop_for_0_start
+
+
+
+# -----------------------------------------------------------------------------
+# Jump if the counter is less than zero
+push $lbl.loop_for_0_end
+copy 2, 3
+copy 9, 2
+jlt
+
+
+
+# -----------------------------------------------------------------------------
+# Sleep for 64K ticks
+
+# R2 = 0xFFFF
+push 0
+copy 2, 6
+dec
+
+# R8 = R2 (R8 is counter)
+copy 2, 8
+
+:sleep_loop_0_start
+
+# while (R8 != 0)
+push $lbl.sleep_loop_0_end
+copy 2, 3
+copy 8, 2
+jeq
+
+# R8--
+copy 8, 6
+dec
+copy 2, 8
+
+# (end of loop sleep0)
+push $lbl.sleep_loop_0_start
+copy 2, 3
+jmp
+
+:sleep_loop_0_end
+
+
+
+# -----------------------------------------------------------------------------
+# setMem(R9, R10)
+
+# Check that the memory interface is ready
+
+push $lbl.loop_wait_mem_0
+copy 2, 3
+
+:loop_wait_mem_0
+
+iogr $conf.PID.MEM, $conf.MEM.REG_STATUS
+copy 4, 2
+jne
+
+# mem[R9] = R10 (set: instr, dIn, addr)
+push $conf.MEM.CMD_WRITE
+copy 2, 4
+iosr $conf.PID.MEM, $conf.MEM.REG_INSTR
+copy 10, 4
+iosr $conf.PID.MEM, $conf.MEM.REG_DIN
+copy 9, 4
+iosr $conf.PID.MEM, $conf.MEM.REG_ADDR
+ioex $conf.PID.MEM
+
+
+
+# -----------------------------------------------------------------------------
+# R11 = getMem(R9)
+
+# Check that the memory interface is ready
+
+push $lbl.loop_wait_mem_1
+copy 2, 3
+
+:loop_wait_mem_1
+
+iogr $conf.PID.MEM, $conf.MEM.REG_STATUS
+copy 4, 2
+jne
+
+# R4 = mem[R9] (set: instr, addr)
+push $conf.MEM.CMD_READ
+copy 2, 4
+iosr $conf.PID.MEM, $conf.MEM.REG_INSTR
+
+ioex $conf.PID.MEM
+
+
+# Check that the memory interface is ready
+push $lbl.loop_wait_mem_2
+copy 2, 3
+
+:loop_wait_mem_2
+
+iogr $conf.PID.MEM, $conf.MEM.REG_STATUS
+copy 4, 2
+jne
+
+iogr $conf.PID.MEM, $conf.MEM.REG_DOUT
+
+# R11 = R4
+copy 4, 11
+
+# -----------------------------------------------------------------------------
+# i--
+copy 9, 6
+dec
+copy 2, 9
+
+# -----------------------------------------------------------------------------
+# (end of loop for0)
+push $lbl.loop_for_0_start
+copy 2, 3
+jmp
+
+:loop_for_0_end
+
+# -----------------------------------------------------------------------------
+# Terminate the program
+
+push $lbl.testMem_term
+copy 2, 3
+
+:testMem_term
+jmp
+
+
+
+
+
+
+
+
+
+
+
+

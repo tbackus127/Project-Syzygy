@@ -502,56 +502,42 @@ public class Assembler {
     short num = Opcodes.SYS;
     
     // Split args into tokens
-    final String[] opTokens = str.split("\\s+", 2);
+    final String[] opTokens = str.split("\\s+");
     if (opTokens.length != 2) {
       throw new IllegalArgumentException("Invalid system instruction (line " + line + ").");
     }
     
-    final String cmdStr = opTokens[0].trim();
+    final String opStr = opTokens[0].trim();
     
-    // System flags
-    if (cmdStr.equals("flag")) {
+    // System commands
+    if (opStr.equals("cmd")) {
       
-      final String[] argTokens = opTokens[1].split("\\s*,\\s*", 2);
-      if (argTokens.length != 2) {
-        throw new IllegalArgumentException("Invalid flag operation syntax (line " + line + ").");
-      }
-      final String flagName = argTokens[0].toLowerCase().trim();
-      final String flagValueStr = argTokens[1].toLowerCase().trim();
+      // sys flag $n, $n
+      // sys cmd $n
       
-      // Get the flag index
-      short flagIndex = -1;
+      final String cmdName = opTokens[1].toLowerCase().trim();
+      
+      // Get the command number
+      short cmdIndex = -1;
       try {
-        flagIndex = Short.decode(flagName);
+        cmdIndex = Short.decode(cmdName);
       } catch (NumberFormatException nfe) {
         
         // Check if it's a variable
-        final String lookupStr = VariableFetcher.lookup(flagName);
-        System.out.println("Fetched \"" + flagName + "\", and got \"" + lookupStr + "\".");
+        final String lookupStr = VariableFetcher.lookup(cmdName);
+        System.out.println("Fetched \"" + cmdName + "\", and got \"" + lookupStr + "\".");
         if (lookupStr != null) {
-          flagIndex = Short.decode(lookupStr);
+          cmdIndex = Short.decode(lookupStr);
         } else {
           throw new IllegalArgumentException("Invalid system flag (line " + line + ").");
         }
       }
       
-      if (flagIndex < 0 || flagIndex > 15) {
-        throw new IllegalArgumentException("Flag number must be 0-15 (line " + line + ").");
+      if (cmdIndex < 0 || cmdIndex > 255) {
+        throw new IllegalArgumentException("Flag number must be 0-255 (line " + line + ").");
       }
       
-      num |= (SysInstr.OP_FLAG | (flagIndex << 4));
-      
-      // Get the sysflag's value (either 0 or 1, supports other keywords)
-      short flagValue = -1;
-      if (flagValueStr.equals("1") || flagValueStr.equals("true")) {
-        flagValue = (short) 1;
-      } else if (flagValueStr.equals("0") || flagValueStr.equals("false")) {
-        flagValue = (short) 0;
-      } else {
-        throw new IllegalArgumentException("Flag value not 0 or 1 (line " + line + ").");
-      }
-      
-      num |= (flagValue << 3);
+      num |= SysInstr.OP_FLAG | cmdIndex;
       
     } else {
       throw new IllegalArgumentException("Unrecognized system command (line " + line + ").");
