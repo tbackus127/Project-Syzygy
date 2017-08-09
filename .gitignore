@@ -8,6 +8,7 @@ cpu/SyzygyB100.hw/*
 cpu/SyzygyB100.ip_user_files/*
 cpu/SyzygyB100.runs/*
 cpu/SyzygyB100.sim/*
+cpu/SyzygyB100.srcs/sources_1/bd/*
 cpu/SyzygyB100.xpr
 *.tmp
 *.xpr
