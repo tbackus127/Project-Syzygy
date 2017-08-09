@@ -31,6 +31,7 @@ module MemoryInterface(
     input exec,
     input [15:0] dataFromMem,
     input [3:0] debugRegSelect,
+    input memStatus,
     output [15:0] dOut,
     output [15:0] dataToMem,
     output [15:0] addrToMem,
@@ -76,7 +77,7 @@ module MemoryInterface(
   assign memWriteEn = exec & wInstrOut[0];
   
   // R1: Peripheral's status register
-  // Always READY (0x0)
+  // Not actually a register; just a signal from memory
   
   // R2: Peripheral's data input register
   wire [15:0] wR2Output;
@@ -84,7 +85,7 @@ module MemoryInterface(
   SyzFETRegister3Out regDatIn(
    .dIn(dIn[15:0]),
    .clockSig(cpuClock),
-   .read(wReadEnSignals[2] | memWriteEn),
+   .read(wReadEnSignals[2]),
    .write(wWriteEnSignals[2]),
    .asyncReset(reset),
    .dOut(wR2Output[15:0]),
@@ -93,6 +94,7 @@ module MemoryInterface(
   );
   
   // R3: Peripheral's data output register
+  wire [15:0] wR3Output;
   wire [15:0] wR3DebugOut;
   SyzFETRegister2Out regDatOut(
    .dIn(dataFromMem[15:0]),
@@ -100,7 +102,7 @@ module MemoryInterface(
    .read(wReadEnSignals[3]),
    .write(memReadEn),
    .asyncReset(reset),
-   .dOut(dOut[15:0]),
+   .dOut(wR3Output[15:0]),
    .debugOut(wR3DebugOut[15:0])
   );
   
@@ -118,10 +120,24 @@ module MemoryInterface(
    .debugOut(wR4DebugOut[15:0])
   );
   
+  // Output multiplexer
+  Mux16B8to1 memIntrOutMux (
+    .dIn0(wR0Output[15:0]),
+    .dIn1({15'b000000000000000, memStatus}),
+    .dIn2(wR2Output[15:0]),
+    .dIn3(wR3Output[15:0]),
+    .dIn4(wR4Output[15:0]),
+    .dIn5(16'h0000),
+    .dIn6(16'h0000),
+    .dIn7(16'h0000),
+    .sel(regSelect[3:0]),
+    .dOut(dOut[15:0])
+  );
+  
   // Debug Output OR
   Mux16B8to1 memInterfaceRegSelect (
     .dIn0(wR0DebugOut[15:0]),
-    .dIn1(16'h0000),
+    .dIn1({15'b000000000000000, memStatus}),
     .dIn2(wR2DebugOut[15:0]),
     .dIn3(wR3DebugOut[15:0]),
     .dIn4(wR4DebugOut[15:0]),

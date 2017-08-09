@@ -1,0 +1,127 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<wave_config>
+   <wave_state>
+   </wave_state>
+   <db_ref_list>
+      <db_ref path="ControlSystem_time_impl.wdb" id="1">
+         <top_modules>
+            <top_module name="ControlSystem" />
+            <top_module name="glbl" />
+         </top_modules>
+      </db_ref>
+   </db_ref_list>
+   <zoom_setting>
+      <ZoomStartTime time="0fs"></ZoomStartTime>
+      <ZoomEndTime time="333000000001fs"></ZoomEndTime>
+      <Cursor1Time time="2725055261000fs"></Cursor1Time>
+   </zoom_setting>
+   <WVObjectSize size="22" />
+   <wvobject type="divider" fp_name="divider39">
+      <obj_property name="label">Top Level</obj_property>
+      <obj_property name="DisplayName">label</obj_property>
+   </wvobject>
+   <wvobject fp_name="/ControlSystem/clk" type="logic">
+      <obj_property name="ElementShortName">clk</obj_property>
+      <obj_property name="ObjectShortName">clk</obj_property>
+   </wvobject>
+   <wvobject type="divider" fp_name="divider44">
+      <obj_property name="label">System</obj_property>
+      <obj_property name="DisplayName">label</obj_property>
+   </wvobject>
+   <wvobject fp_name="/ControlSystem/syzs/clockSig" type="logic">
+      <obj_property name="DisplayName">label</obj_property>
+      <obj_property name="ElementShortName">clockSig</obj_property>
+      <obj_property name="ObjectShortName">clockSig</obj_property>
+      <obj_property name="label">Clock</obj_property>
+   </wvobject>
+   <wvobject fp_name="/ControlSystem/syzs/clockPhaseReg" type="logic">
+      <obj_property name="DisplayName">label</obj_property>
+      <obj_property name="ElementShortName">clockPhaseReg</obj_property>
+      <obj_property name="ObjectShortName">clockPhaseReg</obj_property>
+      <obj_property name="label">Phase Reg</obj_property>
+   </wvobject>
+   <wvobject type="divider" fp_name="divider40">
+      <obj_property name="label">Mem Interface</obj_property>
+      <obj_property name="DisplayName">label</obj_property>
+   </wvobject>
+   <wvobject fp_name="/ControlSystem/syzs/memint/clockSig" type="logic">
+      <obj_property name="ElementShortName">clockSig</obj_property>
+      <obj_property name="ObjectShortName">clockSig</obj_property>
+   </wvobject>
+   <wvobject fp_name="/ControlSystem/syzs/memint/regInstr/D" type="array">
+      <obj_property name="DisplayName">label</obj_property>
+      <obj_property name="ElementShortName">D[15:0]</obj_property>
+      <obj_property name="ObjectShortName">D[15:0]</obj_property>
+      <obj_property name="label">InstrIn</obj_property>
+   </wvobject>
+   <wvobject fp_name="/ControlSystem/syzs/memint/regInstr/\data_reg[15]_0 " type="array">
+      <obj_property name="DisplayName">label</obj_property>
+      <obj_property name="ElementShortName">\data_reg[15]_0 [0:0]</obj_property>
+      <obj_property name="ObjectShortName">\data_reg[15]_0 [0:0]</obj_property>
+      <obj_property name="label">InstrOut</obj_property>
+   </wvobject>
+   <wvobject fp_name="/ControlSystem/syzs/memint/regAddr/D" type="array">
+      <obj_property name="DisplayName">label</obj_property>
+      <obj_property name="ElementShortName">D[15:0]</obj_property>
+      <obj_property name="ObjectShortName">D[15:0]</obj_property>
+      <obj_property name="label">AddrIn</obj_property>
+   </wvobject>
+   <wvobject fp_name="/ControlSystem/syzs/memint/regAddr/Q" type="array">
+      <obj_property name="DisplayName">label</obj_property>
+      <obj_property name="ElementShortName">Q[15:0]</obj_property>
+      <obj_property name="ObjectShortName">Q[15:0]</obj_property>
+      <obj_property name="label">AddrOut</obj_property>
+   </wvobject>
+   <wvobject fp_name="/ControlSystem/syzs/memint/regDatIn/D" type="array">
+      <obj_property name="DisplayName">label</obj_property>
+      <obj_property name="ElementShortName">D[15:0]</obj_property>
+      <obj_property name="ObjectShortName">D[15:0]</obj_property>
+      <obj_property name="label">DatInIn</obj_property>
+   </wvobject>
+   <wvobject fp_name="/ControlSystem/syzs/memint/regDatIn/\DEVICE_7SERIES.NO_BMM_INFO.TRUE_DP.SIMPLE_PRIM36.ram " type="array">
+      <obj_property name="DisplayName">label</obj_property>
+      <obj_property name="ElementShortName">\DEVICE_7SERIES.NO_BMM_INFO.TRUE_DP.SIMPLE_PRIM36.ram [15:0]</obj_property>
+      <obj_property name="ObjectShortName">\DEVICE_7SERIES.NO_BMM_INFO.TRUE_DP.SIMPLE_PRIM36.ram [15:0]</obj_property>
+      <obj_property name="label">DatInOut</obj_property>
+   </wvobject>
+   <wvobject fp_name="/ControlSystem/syzs/memint/regDatOut/\data_reg[3]_1 " type="array">
+      <obj_property name="DisplayName">label</obj_property>
+      <obj_property name="ElementShortName">\data_reg[3]_1 [15:0]</obj_property>
+      <obj_property name="ObjectShortName">\data_reg[3]_1 [15:0]</obj_property>
+      <obj_property name="label">DatOutIn</obj_property>
+   </wvobject>
+   <wvobject fp_name="/ControlSystem/syzs/memint/regDatOut/\data_reg[15]_0 " type="array">
+      <obj_property name="DisplayName">label</obj_property>
+      <obj_property name="ElementShortName">\data_reg[15]_0 [15:0]</obj_property>
+      <obj_property name="ObjectShortName">\data_reg[15]_0 [15:0]</obj_property>
+      <obj_property name="label">DatOutOut</obj_property>
+   </wvobject>
+   <wvobject type="divider" fp_name="divider41">
+      <obj_property name="label">Block RAM</obj_property>
+      <obj_property name="DisplayName">label</obj_property>
+   </wvobject>
+   <wvobject fp_name="/ControlSystem/syzs/mem/BRAM_PORTB_clk" type="logic">
+      <obj_property name="ElementShortName">BRAM_PORTB_clk</obj_property>
+      <obj_property name="ObjectShortName">BRAM_PORTB_clk</obj_property>
+   </wvobject>
+   <wvobject fp_name="/ControlSystem/syzs/mem/Q" type="array">
+      <obj_property name="ElementShortName">Q[15:0]</obj_property>
+      <obj_property name="ObjectShortName">Q[15:0]</obj_property>
+   </wvobject>
+   <wvobject type="divider" fp_name="divider42">
+      <obj_property name="label">CPU</obj_property>
+      <obj_property name="DisplayName">label</obj_property>
+   </wvobject>
+   <wvobject fp_name="/ControlSystem/syzs/cpu/regInstr/\data_reg[15]_10 " type="array">
+      <obj_property name="ElementShortName">\data_reg[15]_10 [15:0]</obj_property>
+      <obj_property name="ObjectShortName">\data_reg[15]_10 [15:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/ControlSystem/syzs/cpu/regInstr/\data_reg[15]_11 " type="array">
+      <obj_property name="ElementShortName">\data_reg[15]_11 [15:0]</obj_property>
+      <obj_property name="ObjectShortName">\data_reg[15]_11 [15:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/ControlSystem/syzs/cpu/regInstr/\data_reg[15]_13 " type="array">
+      <obj_property name="ElementShortName">\data_reg[15]_13 [15:0]</obj_property>
+      <obj_property name="ObjectShortName">\data_reg[15]_13 [15:0]</obj_property>
+   </wvobject>
+</wave_config>

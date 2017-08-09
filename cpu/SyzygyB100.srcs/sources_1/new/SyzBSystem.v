@@ -54,29 +54,39 @@ module SyzBSystem(
     .debugOut()
   );
   
-  // System Memory
-  wire [15:0] wMemInstrOut;
+  // Memory address input multiplexer
+  wire [15:0] wMemAddrIn;
   wire [15:0] wAddrFromMemIntr;
+  Mux16B2to1 memAddrInMux(
+    .aIn(wProgCountVal[15:0]),
+    .bIn(wAddrFromMemIntr[15:0]),
+    .sel(clockPhaseReg),
+    .dOut(wMemAddrIn[15:0])
+  );
+  
+  // System Memory
   wire [15:0] wDataFromMemIntr;
-  wire [15:0] wDataToMemIntr;
+  wire [15:0] wDataFromMem;
   wire wMemRdFromIntr;
   wire wMemWrFromIntr;
+  wire wMemBusy;
   SyzMem mem(
     .memClk(clockSig),
-    .addrInPC(wProgCountVal[15:0]),
-    .addrInAcc(wAddrFromMemIntr[15:0]),
+    .addr(wMemAddrIn[15:0]),
+    .en(1'b1),
     .dIn(wDataFromMemIntr[15:0]),
     .readEn(wMemRdFromIntr),
     .writeEn(wMemWrFromIntr),
-    .dOutPC(wMemInstrOut[15:0]),
-    .dOutAcc(wDataToMemIntr[15:0])
+    .dOut(wDataFromMem[15:0]),
+    .busy(wMemBusy)
   );
+  
   
   // Choose instruction source from Boot ROM or system memory
   wire [15:0] wInstrIn;
   Mux16B2to1 muxInstr(
     .aIn(wBootROMOut[15:0]),
-    .bIn(wMemInstrOut[15:0]),
+    .bIn(wDataFromMem[15:0]),
     .sel(wVNMode),
     .dOut(wInstrIn[15:0])
   );
@@ -141,7 +151,7 @@ module SyzBSystem(
   // Debug sources:
   //   SnoopPeriph=1:
   //     Reg=0: R0 (Instruction)
-  //     Reg=1: R1 (Status, always 0x0)
+  //     Reg=1: R1 (Status)
   //     Reg=2: R2 (Data-In)
   //     Reg=3: R0 (Data-Out)
   //     Reg=4: R0 (Address)
@@ -156,8 +166,9 @@ module SyzBSystem(
     .writeEn(wPeriphRegWriteEn),
     .reset(res),
     .exec(wPeriphExec),
-    .dataFromMem(wDataToMemIntr[15:0]),
+    .dataFromMem(wDataFromMem[15:0]),
     .debugRegSelect(snoopSelect[3:0]),
+    .memStatus(wMemBusy),
     .dOut(wMemDataOut[15:0]),
     .dataToMem(wDataFromMemIntr[15:0]),
     .addrToMem(wAddrFromMemIntr[15:0]),

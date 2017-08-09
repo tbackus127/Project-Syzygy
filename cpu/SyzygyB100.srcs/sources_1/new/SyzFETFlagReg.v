@@ -30,35 +30,15 @@ module SyzFETFlagReg(
   );
   
   reg data [15:0];
-  wire [15:0] wOutput;
   
   // Delay buffer
   wire wBuf;
   buf #(1) (wBuf, value);
   
   // Reset on rising reset signal, set data on falling clock signal
-  always @ (posedge asyncReset or negedge clockSig) begin
-    if(asyncReset) begin
-      data[0] <= 1'b0;
-      data[1] <= 1'b0;
-      data[2] <= 1'b0;
-      data[3] <= 1'b0;
-      data[4] <= 1'b0;
-      data[5] <= 1'b0;
-      data[6] <= 1'b0;
-      data[7] <= 1'b0;
-      data[8] <= 1'b0;
-      data[9] <= 1'b0;
-      data[10] <= 1'b0;
-      data[11] <= 1'b0;
-      data[12] <= 1'b0;
-      data[13] <= 1'b0;
-      data[14] <= 1'b0;
-      data[15] <= 1'b0;
-    end else begin
-      if(write) begin
-        data[sel[3:0]] <= wBuf;
-      end
+  always @ (negedge clockSig) begin
+    if(write) begin
+      data[sel] = wBuf;
     end
   end
   

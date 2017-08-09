@@ -22,27 +22,27 @@
 
 module SyzMem(
     input memClk,
-    input [15:0] addrInPC,
-    input [15:0] addrInAcc,
+    input [15:0] addr,
     input [15:0] dIn,
+    input en,
     input readEn,
     input writeEn,
-    output [15:0] dOutPC,
-    output [15:0] dOutAcc
+    output [15:0] dOut,
+    output busy
   );
   
   wire [15:0] wMemDataOut;
-  BRAM_wrapper blkmem (
-    .memClk(memClk),
-    .addrA(addrInPC[15:0]),
-    .dInA(16'h0000),
-    .addrB(addrInAcc[15:0]),
-    .dInB(dIn[15:0]),
-    .wrEnB(writeEn),
-    .dOutA(dOutPC[15:0]),
-    .dOutB(wMemDataOut[15:0])
+  
+  BlockRamDesign_wrapper bram(
+    .addra(addr[15:0]),
+    .clka(memClk),
+    .dina(dIn[15:0]),
+    .douta(wMemDataOut[15:0]),
+    .ena(en),
+    .rsta_busy(busy),
+    .wea({writeEn, writeEn})
   );
   
-  assign dOutAcc[15:0] = (readEn) ? wMemDataOut[15:0] : 16'h0000;
+  assign dOut[15:0] = (readEn) ? wMemDataOut[15:0] : 16'h0000;
   
 endmodule
