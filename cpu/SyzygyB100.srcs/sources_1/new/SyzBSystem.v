@@ -31,12 +31,13 @@ module SyzBSystem(
     output mosi
   );
   
-  // 64000/4: Human-readable
-  // 16/4: Normal Safe Clock
-  parameter CDIV_AMT_MEM = 64000;
+  // 64000/2: Human-readable
+  // 16/2: Normal Safe Clock
+  // Count this number of board clock ticks before inverting the memory clock
+  parameter CDIV_AMT_MEM = 8;
   
-  // This should always be 4 unless I can get away with 2 or 3
-  parameter CDIV_AMT_CPU = 4;
+  // Count this number of memory clock ticks before inverting the CPU clock
+  parameter CDIV_AMT_CPU = 2;
   
   // Clock Phase: 0 = Fetch Instruction, 1 = Decode & Execute
   //   Starts HI so first tick will be LO.
