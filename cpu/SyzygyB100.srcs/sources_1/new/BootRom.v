@@ -30,7 +30,7 @@ module BootRom(
   reg [15:0] rom [0:255];
   
   initial begin
-    $readmemh("../../../../os/boot/testMem.hex", rom);
+    $readmemh("../../../../os/boot/testMemNoSleep.hex", rom);
   end
   
   assign instrOut[15:0] = (readEn) ? rom[addr][15:0] : 16'h0000;

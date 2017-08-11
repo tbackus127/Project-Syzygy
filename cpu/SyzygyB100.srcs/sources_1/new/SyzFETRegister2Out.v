@@ -27,7 +27,7 @@ module SyzFETRegister2Out(
     input clockSig,
     input read,
     input write,
-    input asyncReset,
+    input reset,
     output [15:0] dOut,
     output [15:0] debugOut
   );
@@ -45,8 +45,8 @@ module SyzFETRegister2Out(
   assign debugOut[15:0] = data[15:0];
   
   // Reset on rising reset signal, set data on falling clock signal
-  always @ (posedge asyncReset or negedge clockSig) begin
-    if(asyncReset) begin
+  always @ (negedge clockSig) begin
+    if(reset) begin
       data[15:0] <= 16'h0000;
     end else begin
       if(write) begin

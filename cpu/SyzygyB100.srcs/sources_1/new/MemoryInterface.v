@@ -40,6 +40,9 @@ module MemoryInterface(
     output [31:0] debugOut
   );
   
+  wire memIntClk;
+  assign #7 memIntClk = cpuClock;
+  
   // Demultiplexer that chooses a peripheral register to read the value from, and sends its
   //  value to dOut, where it can be read by the CPU.
   wire [15:0] wReadEnSignals;
@@ -64,10 +67,10 @@ module MemoryInterface(
   wire [15:0] wR0DebugOut;
   SyzFETRegister3Out regInstr(
     .dIn(dIn[15:0]),
-    .clockSig(cpuClock),
+    .clockSig(memIntClk),
     .read(wReadEnSignals[0]),
     .write(wWriteEnSignals[0]),
-    .asyncReset(reset),
+    .reset(reset),
     .dOut(wR0Output[15:0]),
     .dOut2(wInstrOut[15:0]),
     .debugOut(wR0DebugOut[15:0])  
@@ -84,10 +87,10 @@ module MemoryInterface(
   wire [15:0] wR2DebugOut;
   SyzFETRegister3Out regDatIn(
    .dIn(dIn[15:0]),
-   .clockSig(cpuClock),
+   .clockSig(memIntClk),
    .read(wReadEnSignals[2]),
    .write(wWriteEnSignals[2]),
-   .asyncReset(reset),
+   .reset(reset),
    .dOut(wR2Output[15:0]),
    .dOut2(dataToMem[15:0]),
    .debugOut(wR2DebugOut[15:0])
@@ -98,10 +101,10 @@ module MemoryInterface(
   wire [15:0] wR3DebugOut;
   SyzFETRegister2Out regDatOut(
    .dIn(dataFromMem[15:0]),
-   .clockSig(cpuClock),
+   .clockSig(memIntClk),
    .read(wReadEnSignals[3]),
    .write(memReadEn),
-   .asyncReset(reset),
+   .reset(reset),
    .dOut(wR3Output[15:0]),
    .debugOut(wR3DebugOut[15:0])
   );
@@ -111,10 +114,10 @@ module MemoryInterface(
   wire [15:0] wR4DebugOut;
   SyzFETRegister3Out regAddr(
    .dIn(dIn[15:0]),
-   .clockSig(cpuClock),
+   .clockSig(memIntClk),
    .read(wReadEnSignals[4]),
    .write(wWriteEnSignals[4]),
-   .asyncReset(reset),
+   .reset(reset),
    .dOut(wR4Output[15:0]),
    .dOut2(addrToMem[15:0]),
    .debugOut(wR4DebugOut[15:0])
@@ -130,7 +133,7 @@ module MemoryInterface(
     .dIn5(16'h0000),
     .dIn6(16'h0000),
     .dIn7(16'h0000),
-    .sel(regSelect[3:0]),
+    .sel(regSelect[2:0]),
     .dOut(dOut[15:0])
   );
   

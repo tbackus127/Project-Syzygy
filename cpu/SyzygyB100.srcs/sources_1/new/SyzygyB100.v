@@ -153,7 +153,7 @@ module SyzygyB100(
     .value(wSysFlagVal),
     .sel(wSysFlagNum[3:0]),
     .write(wSysFlagWriteEn),
-    .asyncReset(res),
+    .reset(res),
     .dOut(wSysFlags[15:0])
   );
   assign vnMode = wSysFlags[0];
@@ -202,7 +202,7 @@ module SyzygyB100(
     .clockSig(clockSig),
     .read(sysClockPhase),
     .write(~sysClockPhase),
-    .asyncReset(res),
+    .reset(res),
     .dOut(wInstrRegOut[15:0]),
     .debugOut(wDebugOut0[15:0])
   );                                        
@@ -244,7 +244,7 @@ module SyzygyB100(
     .clockSig(clockSig),
     .read(wRegReadExp[2]),
     .write(wRegWriteExp[2]),
-    .asyncReset(wRegReset[2]),
+    .reset(wRegReset[2]),
     .dOut(wBusInput2[15:0]),
     .dOut2(wCompIn[15:0]),
     .debugOut(wDebugOut2[15:0])
@@ -263,7 +263,7 @@ module SyzygyB100(
     .clockSig(clockSig),
     .read(wRegReadExp[3]),
     .write(wRegWriteExp[3]),
-    .asyncReset(wRegReset[3]),
+    .reset(wRegReset[3]),
     .dOut(wBusInput3[15:0]),
     .dOut2(wR3JumpAddr[15:0]),
     .debugOut(wDebugOut3[15:0])
@@ -276,7 +276,7 @@ module SyzygyB100(
     .clockSig(clockSig),
     .read(wRegReadExp[4]),
     .write(wRegWriteExp[4]),
-    .asyncReset(wRegReset[4]),
+    .reset(wRegReset[4]),
     .dOut(wBusInput4[15:0]),
     .dOut2(wIOOut[15:0]),
     .debugOut(wDebugOut4[15:0])
@@ -288,7 +288,7 @@ module SyzygyB100(
     .clockSig(clockSig),
     .read(wRegReadExp[5]),
     .write(wRegWriteExp[5] | wWriteR5),
-    .asyncReset(wRegReset[5]),
+    .reset(wRegReset[5]),
     .dOut(wBusInput5[15:0]),
     .dOut2(wIOOut[31:16]),
     .debugOut(wDebugOut5[15:0])
@@ -302,7 +302,7 @@ module SyzygyB100(
     .clockSig(clockSig),
     .read(wRegReadExp[6]),
     .write(wRegWriteExp[6]),
-    .asyncReset(wRegReset[6]),
+    .reset(wRegReset[6]),
     .dOut(wBusInput6[15:0]),
     .dOut2(wALUAin[15:0]),
     .debugOut(wDebugOut6[15:0])
@@ -315,7 +315,7 @@ module SyzygyB100(
     .clockSig(clockSig),
     .read(wRegReadExp[7]),
     .write(wRegWriteExp[7]),
-    .asyncReset(wRegReset[7]),
+    .reset(wRegReset[7]),
     .dOut(wBusInput7[15:0]),
     .dOut2(wALUBin[15:0]),
     .debugOut(wDebugOut7[15:0])
@@ -331,7 +331,7 @@ module SyzygyB100(
     .clockSig(clockSig),
     .read(wRegReadExp[8]),
     .write(wRegWriteExp[8]),
-    .asyncReset(wRegReset[8]),
+    .reset(wRegReset[8]),
     .dOut(wBusInput8[15:0]),
     .debugOut(wDebugOut8[15:0])
   );
@@ -342,7 +342,7 @@ module SyzygyB100(
     .clockSig(clockSig),
     .read(wRegReadExp[9]),
     .write(wRegWriteExp[9]),
-    .asyncReset(wRegReset[9]),
+    .reset(wRegReset[9]),
     .dOut(wBusInput9[15:0]),
     .debugOut(wDebugOut9[15:0])
   );
@@ -353,7 +353,7 @@ module SyzygyB100(
     .clockSig(clockSig),
     .read(wRegReadExp[10]),
     .write(wRegWriteExp[10]),
-    .asyncReset(wRegReset[10]),
+    .reset(wRegReset[10]),
     .dOut(wBusInput10[15:0]),
     .debugOut(wDebugOut10[15:0])
   );
@@ -364,7 +364,7 @@ module SyzygyB100(
     .clockSig(clockSig),
     .read(wRegReadExp[11]),
     .write(wRegWriteExp[11]),
-    .asyncReset(wRegReset[11]),
+    .reset(wRegReset[11]),
     .dOut(wBusInput11[15:0]),
     .debugOut(wDebugOut11[15:0])
   );
@@ -375,7 +375,7 @@ module SyzygyB100(
     .clockSig(clockSig),
     .read(wRegReadExp[12]),
     .write(wRegWriteExp[12]),
-    .asyncReset(wRegReset[12]),
+    .reset(wRegReset[12]),
     .dOut(wBusInput12[15:0]),
     .debugOut(wDebugOut12[15:0])
   );
@@ -386,7 +386,7 @@ module SyzygyB100(
     .clockSig(clockSig),
     .read(wRegReadExp[13]),
     .write(wRegWriteExp[13]),
-    .asyncReset(wRegReset[13]),
+    .reset(wRegReset[13]),
     .dOut(wBusInput13[15:0]),
     .debugOut(wDebugOut13[15:0])
   );
@@ -397,7 +397,7 @@ module SyzygyB100(
     .clockSig(clockSig),
     .read(wRegReadExp[14]),
     .write(wRegWriteExp[14]),
-    .asyncReset(wRegReset[14]),
+    .reset(wRegReset[14]),
     .dOut(wBusInput14[15:0]),
     .debugOut(wDebugOut14[15:0])
   );
@@ -408,7 +408,7 @@ module SyzygyB100(
     .clockSig(clockSig),
     .read(wRegReadExp[15]),
     .write(wRegWriteExp[15]),
-    .asyncReset(wRegReset[15]),
+    .reset(wRegReset[15]),
     .dOut(wBusInput15[15:0]),
     .debugOut(wDebugOut15[15:0])
   );

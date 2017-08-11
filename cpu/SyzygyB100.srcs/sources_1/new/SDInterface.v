@@ -73,7 +73,7 @@ module SDInterface(
    .clockSig(cpuClock),
    .read(wReadEnSignals[0]),
    .write(wWriteEnSignals[0]),
-   .asyncReset(reset),
+   .reset(reset),
    .dOut(wR0Output[15:0]),
    .dOut2(wR0InstrOut[15:0]),
    .debugOut(wR0DebugOut[15:0])
@@ -91,7 +91,7 @@ module SDInterface(
    .clockSig(wSetR1),
    .read(wReadEnSignals[1]),
    .write(wEnR1Write),
-   .asyncReset(reset),
+   .reset(reset),
    .dOut(wR1Output[15:0]),
    .debugOut(wR1DebugOut[15:0])
   );
@@ -107,7 +107,7 @@ module SDInterface(
    .clockSig(cpuClock),
    .read(wReadEnSignals[2]),
    .write(wWriteEnSignals[2]),
-   .asyncReset(reset),
+   .reset(reset),
    .dOut(wR2Output[15:0]),
    .dOut2(wR2DataOut[15:0]),
    .debugOut(wR2DebugOut[15:0])
@@ -127,7 +127,7 @@ module SDInterface(
    .clockSig(wSetR3),
    .read(wReadEnSignals[3]),
    .write(wEnR3Write),
-   .asyncReset(reset),
+   .reset(reset),
    .dOut(wR3Output[15:0]),
    .debugOut(wR3DebugOut[15:0])
   );
@@ -143,7 +143,7 @@ module SDInterface(
     .clockSig(cpuClock),
     .read(wReadEnSignals[4]),
     .write(wWriteEnSignals[4]),
-    .asyncReset(reset),
+    .reset(reset),
     .dOut(wR4Output[15:0]),
     .dOut2(wR4AddrOut[15:0]),
     .debugOut(wR4DebugOut[15:0])
@@ -153,7 +153,7 @@ module SDInterface(
     .clockSig(cpuClock),
     .read(wReadEnSignals[4]),
     .write(wWriteEnSignals[4]),
-    .asyncReset(reset),
+    .reset(reset),
     .dOut(wR4Output[31:16]),
     .dOut2(wR4AddrOut[31:16]),
     .debugOut()

@@ -19,7 +19,6 @@
 // 
 //////////////////////////////////////////////////////////////////////////////////
 
-
 module SyzBSystem(
     input clk,
     input en,
@@ -32,15 +31,31 @@ module SyzBSystem(
     output mosi
   );
   
+  // 64000/4: Human-readable
+  // 16/4: Normal Safe Clock
+  parameter CDIV_AMT_MEM = 64000;
+  
+  // This should always be 4 unless I can get away with 2 or 3
+  parameter CDIV_AMT_CPU = 4;
+  
   // Clock Phase: 0 = Fetch Instruction, 1 = Decode & Execute
   //   Starts HI so first tick will be LO.
   reg clockPhaseReg = 1'b1;
   
-  // Clock Divider
-  wire clockSig;
-  ClockDivider cdiv (
+  // Clock Divider (Mem)
+  wire clockSigMem;
+  ClockDivider cdivmem (
     .cIn(clk),
-    .cOut(clockSig)
+    .reqCount(CDIV_AMT_MEM),
+    .cOut(clockSigMem)
+  );
+  
+  // Clock Divider (CPU clock, 4x slower than memory clock)
+  wire clockSigCPU;
+  ClockDivider cdivcpu (
+    .cIn(clockSigMem),
+    .reqCount(CDIV_AMT_CPU),
+    .cOut(clockSigCPU)
   );
   
   // Boot Rom
@@ -71,7 +86,7 @@ module SyzBSystem(
   wire wMemWrFromIntr;
   wire wMemBusy;
   SyzMem mem(
-    .memClk(clockSig),
+    .memClk(clockSigMem),
     .addr(wMemAddrIn[15:0]),
     .en(1'b1),
     .dIn(wDataFromMemIntr[15:0]),
@@ -101,7 +116,7 @@ module SyzBSystem(
   wire wPeriphExec;
   wire [15:0] wCPUDebugOut;
   SyzygyB100 cpu(
-    .clockSig(clockSig),
+    .clockSig(clockSigCPU),
     .en(en),
     .res(res),
     .extInstrIn(wInstrIn[15:0]),
@@ -158,7 +173,7 @@ module SyzBSystem(
   wire [31:0] wMemIntrDebugOut;
   wire [15:0] wMemDataOut;
   MemoryInterface memint(
-    .cpuClock(clockSig),
+    .cpuClock(clockSigCPU),
     .periphSelect(wPeriphSelectSignals[2]),
     .dIn(wDataToPeriphs[15:0]),
     .regSelect(wPeriphRegSelect[3:0]),
@@ -190,7 +205,7 @@ module SyzBSystem(
   wire [15:0] wSDIntrDebugOut;
   wire [15:0] wSDCtrlDebugOut;
   SDInterface sdint(
-    .cpuClock(clockSig),
+    .cpuClock(clockSigCPU),
     .periphSelect(wPeriphSelectSignals[3]),
     .regSelect(wPeriphRegSelect[3:0]),
     .readEn(wPeriphRegReadEn),
@@ -238,7 +253,7 @@ module SyzBSystem(
     .dOut(snoopOut[15:0])
   );
   
-  always @ (posedge clockSig) begin
+  always @ (posedge clockSigCPU) begin
     if(en) begin
       clockPhaseReg <= ~clockPhaseReg;
     end

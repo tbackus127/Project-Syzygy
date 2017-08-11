@@ -25,7 +25,7 @@ module SyzFETRegister3Out (
     input clockSig,
     input read,
     input write,
-    input asyncReset,
+    input reset,
     output [15:0] dOut,
     output [15:0] dOut2,
     output [15:0] debugOut
@@ -48,8 +48,8 @@ module SyzFETRegister3Out (
   );
   
   // Reset on rising reset signal, set data on falling clock signal
-  always @ (posedge asyncReset or negedge clockSig) begin
-    if(asyncReset) begin
+  always @ (negedge clockSig) begin
+    if(reset) begin
       data[15:0] <= 16'h0000;
     end else begin
       if(write) begin

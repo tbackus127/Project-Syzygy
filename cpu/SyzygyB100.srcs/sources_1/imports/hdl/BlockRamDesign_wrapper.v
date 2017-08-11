@@ -35,7 +35,7 @@ module BlockRamDesign_wrapper
 
   BlockRamDesign BlockRamDesign_i
        (.addra(addra),
-        .clka(~clka),
+        .clka(clka),
         .dina(dina),
         .douta(douta),
         .ena(ena),

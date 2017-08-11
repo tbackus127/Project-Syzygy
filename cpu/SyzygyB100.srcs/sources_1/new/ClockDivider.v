@@ -22,16 +22,19 @@
 
 module ClockDivider(
     input cIn,
-    output cOut
+    input [31:0] reqCount,
+    output reg cOut
   );
   
-  reg [31:0] counter;
+  reg [31:0] counter = 32'h00000000;
   
-  always @ (posedge cIn) begin
-    counter <= counter + 1;
+  always @ (negedge cIn) begin
+    if(counter == reqCount) begin
+      cOut = ~cOut;
+      counter = 0;
+    end else begin
+      counter = counter + 1;
+    end
   end
-  
-  // Stable at 3
-  assign cOut = counter[8];
   
 endmodule

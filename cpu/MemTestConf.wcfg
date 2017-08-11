@@ -12,116 +12,368 @@
    </db_ref_list>
    <zoom_setting>
       <ZoomStartTime time="0fs"></ZoomStartTime>
-      <ZoomEndTime time="333000000001fs"></ZoomEndTime>
-      <Cursor1Time time="2725055261000fs"></Cursor1Time>
+      <ZoomEndTime time="38550000001fs"></ZoomEndTime>
+      <Cursor1Time time="523701083000fs"></Cursor1Time>
    </zoom_setting>
-   <WVObjectSize size="22" />
-   <wvobject type="divider" fp_name="divider39">
-      <obj_property name="label">Top Level</obj_property>
+   <WVObjectSize size="53" />
+   <wvobject type="divider" fp_name="divider44">
+      <obj_property name="label">Top</obj_property>
       <obj_property name="DisplayName">label</obj_property>
    </wvobject>
    <wvobject fp_name="/ControlSystem/clk" type="logic">
       <obj_property name="ElementShortName">clk</obj_property>
       <obj_property name="ObjectShortName">clk</obj_property>
    </wvobject>
-   <wvobject type="divider" fp_name="divider44">
+   <wvobject fp_name="/ControlSystem/btnL" type="logic">
+      <obj_property name="ElementShortName">btnL</obj_property>
+      <obj_property name="ObjectShortName">btnL</obj_property>
+      <obj_property name="CustomSignalColor">#808080</obj_property>
+      <obj_property name="UseCustomSignalColor">true</obj_property>
+   </wvobject>
+   <wvobject fp_name="/ControlSystem/btnU" type="logic">
+      <obj_property name="ElementShortName">btnU</obj_property>
+      <obj_property name="ObjectShortName">btnU</obj_property>
+      <obj_property name="CustomSignalColor">#808080</obj_property>
+      <obj_property name="UseCustomSignalColor">true</obj_property>
+   </wvobject>
+   <wvobject fp_name="/ControlSystem/btnC" type="logic">
+      <obj_property name="ElementShortName">btnC</obj_property>
+      <obj_property name="ObjectShortName">btnC</obj_property>
+      <obj_property name="CustomSignalColor">#808080</obj_property>
+      <obj_property name="UseCustomSignalColor">true</obj_property>
+   </wvobject>
+   <wvobject fp_name="/ControlSystem/btnR" type="logic">
+      <obj_property name="ElementShortName">btnR</obj_property>
+      <obj_property name="ObjectShortName">btnR</obj_property>
+      <obj_property name="CustomSignalColor">#808080</obj_property>
+      <obj_property name="UseCustomSignalColor">true</obj_property>
+   </wvobject>
+   <wvobject fp_name="/ControlSystem/btnD" type="logic">
+      <obj_property name="ElementShortName">btnD</obj_property>
+      <obj_property name="ObjectShortName">btnD</obj_property>
+      <obj_property name="CustomSignalColor">#808080</obj_property>
+      <obj_property name="UseCustomSignalColor">true</obj_property>
+   </wvobject>
+   <wvobject fp_name="/ControlSystem/sw" type="array">
+      <obj_property name="ElementShortName">sw[15:0]</obj_property>
+      <obj_property name="ObjectShortName">sw[15:0]</obj_property>
+      <obj_property name="CustomSignalColor">#808080</obj_property>
+      <obj_property name="UseCustomSignalColor">true</obj_property>
+   </wvobject>
+   <wvobject type="divider" fp_name="divider45">
       <obj_property name="label">System</obj_property>
       <obj_property name="DisplayName">label</obj_property>
    </wvobject>
-   <wvobject fp_name="/ControlSystem/syzs/clockSig" type="logic">
+   <wvobject fp_name="/ControlSystem/syzs/wProgCountVal" type="array">
       <obj_property name="DisplayName">label</obj_property>
-      <obj_property name="ElementShortName">clockSig</obj_property>
-      <obj_property name="ObjectShortName">clockSig</obj_property>
-      <obj_property name="label">Clock</obj_property>
+      <obj_property name="ElementShortName">wProgCountVal[15:0]</obj_property>
+      <obj_property name="ObjectShortName">wProgCountVal[15:0]</obj_property>
+      <obj_property name="label">Program Counter</obj_property>
+      <obj_property name="CustomSignalColor">#FFA500</obj_property>
+      <obj_property name="UseCustomSignalColor">true</obj_property>
    </wvobject>
-   <wvobject fp_name="/ControlSystem/syzs/clockPhaseReg" type="logic">
+   <wvobject fp_name="/ControlSystem/syzs/wAddrFromMemIntr" type="array">
       <obj_property name="DisplayName">label</obj_property>
-      <obj_property name="ElementShortName">clockPhaseReg</obj_property>
-      <obj_property name="ObjectShortName">clockPhaseReg</obj_property>
-      <obj_property name="label">Phase Reg</obj_property>
+      <obj_property name="ElementShortName">wAddrFromMemIntr[15:0]</obj_property>
+      <obj_property name="ObjectShortName">wAddrFromMemIntr[15:0]</obj_property>
+      <obj_property name="label">Addr:Intr-&gt;Mem</obj_property>
+      <obj_property name="CustomSignalColor">#E0FFFF</obj_property>
+      <obj_property name="UseCustomSignalColor">true</obj_property>
    </wvobject>
-   <wvobject type="divider" fp_name="divider40">
-      <obj_property name="label">Mem Interface</obj_property>
+   <wvobject fp_name="/ControlSystem/syzs/wDataFromMemIntr" type="array">
       <obj_property name="DisplayName">label</obj_property>
+      <obj_property name="ElementShortName">wDataFromMemIntr[15:0]</obj_property>
+      <obj_property name="ObjectShortName">wDataFromMemIntr[15:0]</obj_property>
+      <obj_property name="label">Data:Intr-&gt;Mem</obj_property>
+      <obj_property name="CustomSignalColor">#F0E68C</obj_property>
+      <obj_property name="UseCustomSignalColor">true</obj_property>
    </wvobject>
-   <wvobject fp_name="/ControlSystem/syzs/memint/clockSig" type="logic">
-      <obj_property name="ElementShortName">clockSig</obj_property>
-      <obj_property name="ObjectShortName">clockSig</obj_property>
-   </wvobject>
-   <wvobject fp_name="/ControlSystem/syzs/memint/regInstr/D" type="array">
-      <obj_property name="DisplayName">label</obj_property>
-      <obj_property name="ElementShortName">D[15:0]</obj_property>
-      <obj_property name="ObjectShortName">D[15:0]</obj_property>
-      <obj_property name="label">InstrIn</obj_property>
-   </wvobject>
-   <wvobject fp_name="/ControlSystem/syzs/memint/regInstr/\data_reg[15]_0 " type="array">
-      <obj_property name="DisplayName">label</obj_property>
-      <obj_property name="ElementShortName">\data_reg[15]_0 [0:0]</obj_property>
-      <obj_property name="ObjectShortName">\data_reg[15]_0 [0:0]</obj_property>
-      <obj_property name="label">InstrOut</obj_property>
-   </wvobject>
-   <wvobject fp_name="/ControlSystem/syzs/memint/regAddr/D" type="array">
-      <obj_property name="DisplayName">label</obj_property>
-      <obj_property name="ElementShortName">D[15:0]</obj_property>
-      <obj_property name="ObjectShortName">D[15:0]</obj_property>
-      <obj_property name="label">AddrIn</obj_property>
-   </wvobject>
-   <wvobject fp_name="/ControlSystem/syzs/memint/regAddr/Q" type="array">
-      <obj_property name="DisplayName">label</obj_property>
-      <obj_property name="ElementShortName">Q[15:0]</obj_property>
-      <obj_property name="ObjectShortName">Q[15:0]</obj_property>
-      <obj_property name="label">AddrOut</obj_property>
-   </wvobject>
-   <wvobject fp_name="/ControlSystem/syzs/memint/regDatIn/D" type="array">
-      <obj_property name="DisplayName">label</obj_property>
-      <obj_property name="ElementShortName">D[15:0]</obj_property>
-      <obj_property name="ObjectShortName">D[15:0]</obj_property>
-      <obj_property name="label">DatInIn</obj_property>
-   </wvobject>
-   <wvobject fp_name="/ControlSystem/syzs/memint/regDatIn/\DEVICE_7SERIES.NO_BMM_INFO.TRUE_DP.SIMPLE_PRIM36.ram " type="array">
-      <obj_property name="DisplayName">label</obj_property>
-      <obj_property name="ElementShortName">\DEVICE_7SERIES.NO_BMM_INFO.TRUE_DP.SIMPLE_PRIM36.ram [15:0]</obj_property>
-      <obj_property name="ObjectShortName">\DEVICE_7SERIES.NO_BMM_INFO.TRUE_DP.SIMPLE_PRIM36.ram [15:0]</obj_property>
-      <obj_property name="label">DatInOut</obj_property>
-   </wvobject>
-   <wvobject fp_name="/ControlSystem/syzs/memint/regDatOut/\data_reg[3]_1 " type="array">
-      <obj_property name="DisplayName">label</obj_property>
-      <obj_property name="ElementShortName">\data_reg[3]_1 [15:0]</obj_property>
-      <obj_property name="ObjectShortName">\data_reg[3]_1 [15:0]</obj_property>
-      <obj_property name="label">DatOutIn</obj_property>
-   </wvobject>
-   <wvobject fp_name="/ControlSystem/syzs/memint/regDatOut/\data_reg[15]_0 " type="array">
-      <obj_property name="DisplayName">label</obj_property>
-      <obj_property name="ElementShortName">\data_reg[15]_0 [15:0]</obj_property>
-      <obj_property name="ObjectShortName">\data_reg[15]_0 [15:0]</obj_property>
-      <obj_property name="label">DatOutOut</obj_property>
-   </wvobject>
-   <wvobject type="divider" fp_name="divider41">
-      <obj_property name="label">Block RAM</obj_property>
-      <obj_property name="DisplayName">label</obj_property>
-   </wvobject>
-   <wvobject fp_name="/ControlSystem/syzs/mem/BRAM_PORTB_clk" type="logic">
-      <obj_property name="ElementShortName">BRAM_PORTB_clk</obj_property>
-      <obj_property name="ObjectShortName">BRAM_PORTB_clk</obj_property>
-   </wvobject>
-   <wvobject fp_name="/ControlSystem/syzs/mem/Q" type="array">
-      <obj_property name="ElementShortName">Q[15:0]</obj_property>
-      <obj_property name="ObjectShortName">Q[15:0]</obj_property>
-   </wvobject>
-   <wvobject type="divider" fp_name="divider42">
+   <wvobject type="divider" fp_name="divider50">
       <obj_property name="label">CPU</obj_property>
       <obj_property name="DisplayName">label</obj_property>
    </wvobject>
-   <wvobject fp_name="/ControlSystem/syzs/cpu/regInstr/\data_reg[15]_10 " type="array">
-      <obj_property name="ElementShortName">\data_reg[15]_10 [15:0]</obj_property>
-      <obj_property name="ObjectShortName">\data_reg[15]_10 [15:0]</obj_property>
+   <wvobject fp_name="/ControlSystem/syzs/clockSigCPU" type="logic">
+      <obj_property name="ElementShortName">clockSigCPU</obj_property>
+      <obj_property name="ObjectShortName">clockSigCPU</obj_property>
    </wvobject>
-   <wvobject fp_name="/ControlSystem/syzs/cpu/regInstr/\data_reg[15]_11 " type="array">
-      <obj_property name="ElementShortName">\data_reg[15]_11 [15:0]</obj_property>
-      <obj_property name="ObjectShortName">\data_reg[15]_11 [15:0]</obj_property>
+   <wvobject fp_name="/ControlSystem/syzs/clockPhaseReg" type="logic">
+      <obj_property name="ElementShortName">clockPhaseReg</obj_property>
+      <obj_property name="ObjectShortName">clockPhaseReg</obj_property>
    </wvobject>
-   <wvobject fp_name="/ControlSystem/syzs/cpu/regInstr/\data_reg[15]_13 " type="array">
-      <obj_property name="ElementShortName">\data_reg[15]_13 [15:0]</obj_property>
-      <obj_property name="ObjectShortName">\data_reg[15]_13 [15:0]</obj_property>
+   <wvobject fp_name="/ControlSystem/syzs/cpu/regInstr/\count_reg[5] " type="array">
+      <obj_property name="DisplayName">label</obj_property>
+      <obj_property name="ElementShortName">\count_reg[5] [15:0]</obj_property>
+      <obj_property name="ObjectShortName">\count_reg[5] [15:0]</obj_property>
+      <obj_property name="label">Instr In</obj_property>
+      <obj_property name="CustomSignalColor">#FAAFBE</obj_property>
+      <obj_property name="UseCustomSignalColor">true</obj_property>
+   </wvobject>
+   <wvobject fp_name="/ControlSystem/syzs/cpu/regInstr/Q" type="array">
+      <obj_property name="DisplayName">label</obj_property>
+      <obj_property name="ElementShortName">Q[15:0]</obj_property>
+      <obj_property name="ObjectShortName">Q[15:0]</obj_property>
+      <obj_property name="label">Reg_IR</obj_property>
+      <obj_property name="CustomSignalColor">#FF00FF</obj_property>
+      <obj_property name="UseCustomSignalColor">true</obj_property>
+   </wvobject>
+   <wvobject fp_name="/ControlSystem/syzs/cpu/regInstr/\data_reg[15]_16 " type="array">
+      <obj_property name="DisplayName">label</obj_property>
+      <obj_property name="ElementShortName">\data_reg[15]_16 [15:0]</obj_property>
+      <obj_property name="ObjectShortName">\data_reg[15]_16 [15:0]</obj_property>
+      <obj_property name="label">Reg_Accum</obj_property>
+      <obj_property name="CustomSignalColor">#00FFFF</obj_property>
+      <obj_property name="UseCustomSignalColor">true</obj_property>
+   </wvobject>
+   <wvobject fp_name="/ControlSystem/syzs/cpu/regInstr/\data_reg[15]_28 " type="array">
+      <obj_property name="DisplayName">label</obj_property>
+      <obj_property name="ElementShortName">\data_reg[15]_28 [15:0]</obj_property>
+      <obj_property name="ObjectShortName">\data_reg[15]_28 [15:0]</obj_property>
+      <obj_property name="label">Reg_JA</obj_property>
+      <obj_property name="CustomSignalColor">#00FFFF</obj_property>
+      <obj_property name="UseCustomSignalColor">true</obj_property>
+   </wvobject>
+   <wvobject fp_name="/ControlSystem/syzs/cpu/wDataToPeriphs" type="array">
+      <obj_property name="DisplayName">label</obj_property>
+      <obj_property name="ElementShortName">wDataToPeriphs[31:0]</obj_property>
+      <obj_property name="ObjectShortName">wDataToPeriphs[31:0]</obj_property>
+      <obj_property name="label">Reg_R4R5</obj_property>
+      <obj_property name="CustomSignalColor">#00FFFF</obj_property>
+      <obj_property name="UseCustomSignalColor">true</obj_property>
+   </wvobject>
+   <wvobject fp_name="/ControlSystem/syzs/cpu/regInstr/\data_reg[15]_14 " type="array">
+      <obj_property name="DisplayName">label</obj_property>
+      <obj_property name="ElementShortName">\data_reg[15]_14 [15:0]</obj_property>
+      <obj_property name="ObjectShortName">\data_reg[15]_14 [15:0]</obj_property>
+      <obj_property name="label">Reg_ALUA</obj_property>
+      <obj_property name="CustomSignalColor">#00FFFF</obj_property>
+      <obj_property name="UseCustomSignalColor">true</obj_property>
+   </wvobject>
+   <wvobject fp_name="/ControlSystem/syzs/cpu/regInstr/\data_reg[15]_19 " type="array">
+      <obj_property name="DisplayName">label</obj_property>
+      <obj_property name="ElementShortName">\data_reg[15]_19 [15:0]</obj_property>
+      <obj_property name="ObjectShortName">\data_reg[15]_19 [15:0]</obj_property>
+      <obj_property name="label">Reg_R9</obj_property>
+      <obj_property name="CustomSignalColor">#00FFFF</obj_property>
+      <obj_property name="UseCustomSignalColor">true</obj_property>
+   </wvobject>
+   <wvobject fp_name="/ControlSystem/syzs/cpu/regInstr/\data_reg[15]_20 " type="array">
+      <obj_property name="DisplayName">label</obj_property>
+      <obj_property name="ElementShortName">\data_reg[15]_20 [15:0]</obj_property>
+      <obj_property name="ObjectShortName">\data_reg[15]_20 [15:0]</obj_property>
+      <obj_property name="label">Reg_R10</obj_property>
+      <obj_property name="CustomSignalColor">#00FFFF</obj_property>
+      <obj_property name="UseCustomSignalColor">true</obj_property>
+   </wvobject>
+   <wvobject fp_name="/ControlSystem/syzs/cpu/wDebugOut11" type="array">
+      <obj_property name="DisplayName">label</obj_property>
+      <obj_property name="ElementShortName">wDebugOut11[15:0]</obj_property>
+      <obj_property name="ObjectShortName">wDebugOut11[15:0]</obj_property>
+      <obj_property name="label">Reg_R11(?)</obj_property>
+      <obj_property name="CustomSignalColor">#00FFFF</obj_property>
+      <obj_property name="UseCustomSignalColor">true</obj_property>
+   </wvobject>
+   <wvobject fp_name="/ControlSystem/syzs/cpu/regInstr/wDataBus_0" type="array">
+      <obj_property name="DisplayName">label</obj_property>
+      <obj_property name="ElementShortName">wDataBus_0[15:0]</obj_property>
+      <obj_property name="ObjectShortName">wDataBus_0[15:0]</obj_property>
+      <obj_property name="label">Data Bus</obj_property>
+      <obj_property name="CustomSignalColor">#F0E68C</obj_property>
+      <obj_property name="UseCustomSignalColor">true</obj_property>
+   </wvobject>
+   <wvobject type="divider" fp_name="divider63">
+      <obj_property name="label">Mem Addr Mux</obj_property>
+      <obj_property name="DisplayName">label</obj_property>
+   </wvobject>
+   <wvobject fp_name="/ControlSystem/syzs/memAddrInMux/\count_reg[15] " type="array">
+      <obj_property name="DisplayName">label</obj_property>
+      <obj_property name="ElementShortName">\count_reg[15] [15:0]</obj_property>
+      <obj_property name="ObjectShortName">\count_reg[15] [15:0]</obj_property>
+      <obj_property name="label">PC</obj_property>
+      <obj_property name="CustomSignalColor">#FFA500</obj_property>
+      <obj_property name="UseCustomSignalColor">true</obj_property>
+   </wvobject>
+   <wvobject fp_name="/ControlSystem/syzs/memAddrInMux/Q" type="array">
+      <obj_property name="DisplayName">label</obj_property>
+      <obj_property name="ElementShortName">Q[15:0]</obj_property>
+      <obj_property name="ObjectShortName">Q[15:0]</obj_property>
+      <obj_property name="label">Addr</obj_property>
+      <obj_property name="CustomSignalColor">#E0FFFF</obj_property>
+      <obj_property name="UseCustomSignalColor">true</obj_property>
+   </wvobject>
+   <wvobject fp_name="/ControlSystem/syzs/memAddrInMux/clockPhaseReg" type="logic">
+      <obj_property name="DisplayName">label</obj_property>
+      <obj_property name="ElementShortName">clockPhaseReg</obj_property>
+      <obj_property name="ObjectShortName">clockPhaseReg</obj_property>
+      <obj_property name="label">Sel</obj_property>
+      <obj_property name="CustomSignalColor">#FF0080</obj_property>
+      <obj_property name="UseCustomSignalColor">true</obj_property>
+   </wvobject>
+   <wvobject fp_name="/ControlSystem/syzs/memAddrInMux/addra" type="array">
+      <obj_property name="DisplayName">label</obj_property>
+      <obj_property name="ElementShortName">addra[15:0]</obj_property>
+      <obj_property name="ObjectShortName">addra[15:0]</obj_property>
+      <obj_property name="label">Out</obj_property>
+      <obj_property name="CustomSignalColor">#F0E68C</obj_property>
+      <obj_property name="UseCustomSignalColor">true</obj_property>
+   </wvobject>
+   <wvobject type="divider" fp_name="divider49">
+      <obj_property name="label">Mem Interface</obj_property>
+      <obj_property name="DisplayName">label</obj_property>
+   </wvobject>
+   <wvobject fp_name="/ControlSystem/syzs/clockSigCPU" type="logic">
+      <obj_property name="ElementShortName">clockSigCPU</obj_property>
+      <obj_property name="ObjectShortName">clockSigCPU</obj_property>
+   </wvobject>
+   <wvobject fp_name="/ControlSystem/syzs/memint/D" type="array">
+      <obj_property name="DisplayName">label</obj_property>
+      <obj_property name="ElementShortName">D[15:0]</obj_property>
+      <obj_property name="ObjectShortName">D[15:0]</obj_property>
+      <obj_property name="label">DIn</obj_property>
+      <obj_property name="CustomSignalColor">#F0E68C</obj_property>
+      <obj_property name="UseCustomSignalColor">true</obj_property>
+   </wvobject>
+   <wvobject fp_name="/ControlSystem/syzs/memint/Q" type="array">
+      <obj_property name="DisplayName">label</obj_property>
+      <obj_property name="ElementShortName">Q[15:0]</obj_property>
+      <obj_property name="ObjectShortName">Q[15:0]</obj_property>
+      <obj_property name="label">Reg_Instr</obj_property>
+      <obj_property name="CustomSignalColor">#00FFFF</obj_property>
+      <obj_property name="UseCustomSignalColor">true</obj_property>
+   </wvobject>
+   <wvobject fp_name="/ControlSystem/syzs/memint/\DEVICE_7SERIES.NO_BMM_INFO.SP.SIMPLE_PRIM36.ram " type="array">
+      <obj_property name="DisplayName">label</obj_property>
+      <obj_property name="ElementShortName">\DEVICE_7SERIES.NO_BMM_INFO.SP.SIMPLE_PRIM36.ram [15:0]</obj_property>
+      <obj_property name="ObjectShortName">\DEVICE_7SERIES.NO_BMM_INFO.SP.SIMPLE_PRIM36.ram [15:0]</obj_property>
+      <obj_property name="label">Reg_DIn</obj_property>
+      <obj_property name="CustomSignalColor">#00FFFF</obj_property>
+      <obj_property name="UseCustomSignalColor">true</obj_property>
+   </wvobject>
+   <wvobject fp_name="/ControlSystem/syzs/memint/\data_reg[15] " type="array">
+      <obj_property name="DisplayName">label</obj_property>
+      <obj_property name="ElementShortName">\data_reg[15] [15:0]</obj_property>
+      <obj_property name="ObjectShortName">\data_reg[15] [15:0]</obj_property>
+      <obj_property name="label">Reg_DOut</obj_property>
+      <obj_property name="CustomSignalColor">#00FFFF</obj_property>
+      <obj_property name="UseCustomSignalColor">true</obj_property>
+   </wvobject>
+   <wvobject fp_name="/ControlSystem/syzs/memint/\no_softecc_sel_reg.ce_pri.sel_pipe_reg[4] " type="array">
+      <obj_property name="DisplayName">label</obj_property>
+      <obj_property name="ElementShortName">\no_softecc_sel_reg.ce_pri.sel_pipe_reg[4] [15:0]</obj_property>
+      <obj_property name="ObjectShortName">\no_softecc_sel_reg.ce_pri.sel_pipe_reg[4] [15:0]</obj_property>
+      <obj_property name="label">Reg_Addr</obj_property>
+      <obj_property name="CustomSignalColor">#00FFFF</obj_property>
+      <obj_property name="UseCustomSignalColor">true</obj_property>
+   </wvobject>
+   <wvobject fp_name="/ControlSystem/syzs/memint/E[0]" type="logic">
+      <obj_property name="DisplayName">label</obj_property>
+      <obj_property name="ElementShortName">[0]</obj_property>
+      <obj_property name="ObjectShortName">[0]</obj_property>
+      <obj_property name="label">Exec</obj_property>
+      <obj_property name="CustomSignalColor">#FF0080</obj_property>
+      <obj_property name="UseCustomSignalColor">true</obj_property>
+   </wvobject>
+   <wvobject fp_name="/ControlSystem/syzs/wMemWrFromIntr" type="logic">
+      <obj_property name="DisplayName">label</obj_property>
+      <obj_property name="ElementShortName">wMemWrFromIntr</obj_property>
+      <obj_property name="ObjectShortName">wMemWrFromIntr</obj_property>
+      <obj_property name="label">Mem Write</obj_property>
+      <obj_property name="CustomSignalColor">#FF0080</obj_property>
+      <obj_property name="UseCustomSignalColor">true</obj_property>
+   </wvobject>
+   <wvobject fp_name="/ControlSystem/syzs/memint/rsta_busy" type="logic">
+      <obj_property name="DisplayName">label</obj_property>
+      <obj_property name="ElementShortName">rsta_busy</obj_property>
+      <obj_property name="ObjectShortName">rsta_busy</obj_property>
+      <obj_property name="label">Busy</obj_property>
+      <obj_property name="CustomSignalColor">#FF0080</obj_property>
+      <obj_property name="UseCustomSignalColor">true</obj_property>
+   </wvobject>
+   <wvobject fp_name="/ControlSystem/syzs/memint/wWriteEnSignals[0]" type="logic">
+      <obj_property name="DisplayName">label</obj_property>
+      <obj_property name="ElementShortName">[0]</obj_property>
+      <obj_property name="ObjectShortName">[0]</obj_property>
+      <obj_property name="label">WrR0</obj_property>
+      <obj_property name="CustomSignalColor">#FF0080</obj_property>
+      <obj_property name="UseCustomSignalColor">true</obj_property>
+   </wvobject>
+   <wvobject fp_name="/ControlSystem/syzs/memint/wWriteEnSignals[1]" type="logic">
+      <obj_property name="DisplayName">label</obj_property>
+      <obj_property name="ElementShortName">[1]</obj_property>
+      <obj_property name="ObjectShortName">[1]</obj_property>
+      <obj_property name="label">WrR2</obj_property>
+      <obj_property name="CustomSignalColor">#FF0080</obj_property>
+      <obj_property name="UseCustomSignalColor">true</obj_property>
+   </wvobject>
+   <wvobject fp_name="/ControlSystem/syzs/memint/wWriteEnSignals[2]" type="logic">
+      <obj_property name="DisplayName">label</obj_property>
+      <obj_property name="ElementShortName">[2]</obj_property>
+      <obj_property name="ObjectShortName">[2]</obj_property>
+      <obj_property name="label">WrR4</obj_property>
+      <obj_property name="CustomSignalColor">#FF0080</obj_property>
+      <obj_property name="UseCustomSignalColor">true</obj_property>
+   </wvobject>
+   <wvobject type="divider" fp_name="divider51">
+      <obj_property name="label">Memory</obj_property>
+      <obj_property name="DisplayName">label</obj_property>
+   </wvobject>
+   <wvobject fp_name="/ControlSystem/syzs/clockSigMem" type="logic">
+      <obj_property name="ElementShortName">clockSigMem</obj_property>
+      <obj_property name="ObjectShortName">clockSigMem</obj_property>
+   </wvobject>
+   <wvobject fp_name="/ControlSystem/syzs/clockSigCPU" type="logic">
+      <obj_property name="ElementShortName">clockSigCPU</obj_property>
+      <obj_property name="ObjectShortName">clockSigCPU</obj_property>
+   </wvobject>
+   <wvobject fp_name="/ControlSystem/syzs/clockPhaseReg" type="logic">
+      <obj_property name="ElementShortName">clockPhaseReg</obj_property>
+      <obj_property name="ObjectShortName">clockPhaseReg</obj_property>
+   </wvobject>
+   <wvobject fp_name="/ControlSystem/syzs/mem/Q" type="array">
+      <obj_property name="DisplayName">label</obj_property>
+      <obj_property name="ElementShortName">Q[15:0]</obj_property>
+      <obj_property name="ObjectShortName">Q[15:0]</obj_property>
+      <obj_property name="label">DIn</obj_property>
+      <obj_property name="CustomSignalColor">#F0E68C</obj_property>
+      <obj_property name="UseCustomSignalColor">true</obj_property>
+   </wvobject>
+   <wvobject fp_name="/ControlSystem/syzs/wMemAddrIn" type="array">
+      <obj_property name="DisplayName">label</obj_property>
+      <obj_property name="ElementShortName">wMemAddrIn[15:0]</obj_property>
+      <obj_property name="ObjectShortName">wMemAddrIn[15:0]</obj_property>
+      <obj_property name="label">AddrIn</obj_property>
+      <obj_property name="CustomSignalColor">#E0FFFF</obj_property>
+      <obj_property name="UseCustomSignalColor">true</obj_property>
+   </wvobject>
+   <wvobject fp_name="/ControlSystem/syzs/memint/E[0]" type="logic">
+      <obj_property name="DisplayName">label</obj_property>
+      <obj_property name="ElementShortName">[0]</obj_property>
+      <obj_property name="ObjectShortName">[0]</obj_property>
+      <obj_property name="label">RdEn</obj_property>
+      <obj_property name="CustomSignalColor">#FF0080</obj_property>
+      <obj_property name="UseCustomSignalColor">true</obj_property>
+   </wvobject>
+   <wvobject fp_name="/ControlSystem/syzs/mem/wea[0]" type="logic">
+      <obj_property name="DisplayName">label</obj_property>
+      <obj_property name="ElementShortName">[0]</obj_property>
+      <obj_property name="ObjectShortName">[0]</obj_property>
+      <obj_property name="label">WrEn</obj_property>
+      <obj_property name="CustomSignalColor">#FF0080</obj_property>
+      <obj_property name="UseCustomSignalColor">true</obj_property>
+   </wvobject>
+   <wvobject fp_name="/ControlSystem/syzs/mem/douta" type="array">
+      <obj_property name="DisplayName">label</obj_property>
+      <obj_property name="ElementShortName">douta[15:0]</obj_property>
+      <obj_property name="ObjectShortName">douta[15:0]</obj_property>
+      <obj_property name="label">DOut</obj_property>
+      <obj_property name="CustomSignalColor">#F0E68C</obj_property>
+      <obj_property name="UseCustomSignalColor">true</obj_property>
+   </wvobject>
+   <wvobject fp_name="/ControlSystem/syzs/mem/rsta_busy" type="logic">
+      <obj_property name="DisplayName">label</obj_property>
+      <obj_property name="ElementShortName">rsta_busy</obj_property>
+      <obj_property name="ObjectShortName">rsta_busy</obj_property>
+      <obj_property name="label">Busy</obj_property>
+      <obj_property name="CustomSignalColor">#FF0080</obj_property>
+      <obj_property name="UseCustomSignalColor">true</obj_property>
    </wvobject>
 </wave_config>

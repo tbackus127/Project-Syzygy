@@ -32,10 +32,13 @@ module SyzMem(
   );
   
   wire [15:0] wMemDataOut;
+  wire wDelClk;
+  
+  assign #8 wDelClk = memClk;
   
   BlockRamDesign_wrapper bram(
     .addra(addr[15:0]),
-    .clka(memClk),
+    .clka(wDelClk),
     .dina(dIn[15:0]),
     .douta(wMemDataOut[15:0]),
     .ena(en),

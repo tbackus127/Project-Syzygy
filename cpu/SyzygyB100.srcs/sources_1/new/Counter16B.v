@@ -43,7 +43,7 @@ module Counter16B(
     .dOut(wBuf[15:0])
   );
   
-  always @ (negedge clockSig or posedge res) begin
+  always @ (negedge clockSig) begin
     if(res) count[15:0] <= 16'h0000;
     else if(wSetBuf) count[15:0] <= wBuf[15:0];
     else if (en) count[15:0] <= count[15:0] + 1'b1;
