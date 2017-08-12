@@ -1,69 +1,374 @@
+# =============================================================
+# Bootloader for Syzygy B100 CPU
+# -------------------------------------------------------------
+# Register usage:
+#   R8: Sector count (i)
+#   R9: Byte counter (j)
+#   R10: Return value (for copypasted macros)
+#   R11: Number of sectors to load (needs to be tracked)
+# -------------------------------------------------------------
+# Pseudocode:
+# 
+# bootloader() {
+#   for(i = 0; i - NUM_SECTORS_TO_LOAD < 0; i++) {
+#     var wd = readFirstSDWord(i);
+#     setMem(i << 8, wd);
+#     for(j = 1; j  - 256 < 0; j++) {
+#       wd = readSDWord();
+#       setMem((i << 8) + j, wd);
+#     }
+#   }
+#   vnModeOn();
+# }
+# 
+# readFirstSDWord(sector) {
+#   setReg(SD, R0, CMD_READ);
+#   setReg(SD, R4, sector);
+#   while(getReg(SD, R1) == 0);
+#   exec(SD);
+#   while(getReg(SD, R1) == 0);
+#   var result = getReg(SD, R3);
+#   setReg(SD, R0, CMD_CONTINUE);
+#   return result;
+# }
+# 
+# readSDWord(sector) {
+#   exec(SD);
+#   while(getReg(SD, R1) == 0);
+#   return getReg(SD, R3);
+# }
+#
+# setMem(addr, val) {
+#   setReg(MEM, R0, CMD_WRITE);
+#   setReg(MEM, R4, addr);
+#   setReg(MEM, R2, val);
+#   exec(MEM);
+# }
+# =============================================================
 
-# Fetch SD Block 0
-push $conf.SD.GBLK
+
+
+# -------------------------------------------------------------
+# Set up for loop for iterating through sectors
+
+# !! Change this push value to the number of sectors to load!
+push 1
+copy 2, 11
+
+
+
+# =============================================================
+# Sector loop
+# =============================================================
+
+:sector_loop_start
+
+# -------------------------------------------------------------
+# End the loop if R8  - R11 >= 0
+
+# Set up loop break jump
+push $lbl.sector_loop_end
+copy 2, 3
+
+# Test and jump
+copy 8, 6
+copy 11, 7
+sub
+jge
+
+
+
+# -------------------------------------------------------------
+# Read the first two bytes from SD sector {addr}.
+#     var wd = readFirstSDWord(i);
+
+# Set up read block command
+push $conf.SD.CMD_READBLK
 copy 2, 4
-iosr $conf.PID.SD, 0
-ioex $conf.PID.SD
+iosr $conf.PID.SD, $conf.SD.REG_INSTR
 
-# Set memory instruction
-push $conf.MEM.SET
-copy 2, 4
-iosr $conf.PID.MEM, 0
+# Set up block number
+copy 8, 4
+iosr $conf.PID.SD, $conf.SD.REG_ADDR
 
-# Get SD mem instruction
-push $conf.SD.GET
-copy 2, 4
-iosr $conf.PID.SD, 0
 
-# Set up loop
-push 255
-copy 2, 6
-push $lbl.bwait
+
+# -------------------------------------------------------------
+# Wait for the SD controller to give a ready signal
+
+:wait_SD_start_0
+
+# Set up end jump
+push $lbl.wait_SD_end_0
 copy 2, 3
 
-# Wait for GBLK to finish
-:bwait
-iogr $conf.PID.SD, 1
-jne
+# Get SD controller's status and put in ALU A
+iogr $conf.PID.SD, $conf.SD.REG_STATUS
+copy 4, 6
 
-# Set addresses
-:cpstart
-copy 6, 4
-iosr $conf.PID.MEM, 3
-iosr $conf.PID.SD, 3
+# Break the loop if it's in the ready state
+push $conf.SD.STAT_READY
+copy 2, 7
+sub
+jeq
 
-# Get SD[addr]
-push $lbl.swait
+# Break the loop if it's waiting on a continue (read)
+push $conf.SD.STAT_WAIT_BLKRD
+copy 2, 7
+sub
+jeq
+
+# Break the loop if it's waiting on a continue (write)
+push $conf.SD.STAT_WAIT_BLKWR
+copy 2, 7
+sub
+jeq
+
+# If the controller's status isn't any of those, try again
+push $lbl.wait_SD_start_0
 copy 2, 3
-ioex $conf.PID.SD
-:swait
-iogr $conf.PID.SD, 3
-jne
-
-# Transfer data SD -> Mem
-iogr $conf.PID.SD, 2
-iosr $conf.PID.MEM, 2
-
-# Set memory with SD's value
-push $lbl.mwait
-copy 2, 3
-ioex $conf.PID.MEM
-:mwait
-iogr $conf.PID.MEM, 1
-jne
-
-# Jump to end if done looping
-push $lbl.cpend
-copy 2, 3
-copy 6, 2
-jle
-
-# Decrement loop counter and jump back
-dec
-copy 2, 6
-push $lbl.cpstart
 jmp
 
-# Done. Turn on Von Neumann fetching mode
-:cpend
-sys flag $flags.VNX 1
+:wait_SD_end_0
+
+
+
+# -------------------------------------------------------------
+# Execute the read
+ioex $conf.PID.SD
+
+
+# -------------------------------------------------------------
+# Wait for the SD controller to give a ready signal
+
+:wait_SD_start_1
+
+# Set up end jump
+push $lbl.wait_SD_end_1
+copy 2, 3
+
+# Get SD controller's status and put in ALU A
+iogr $conf.PID.SD, $conf.SD.REG_STATUS
+copy 4, 6
+
+# Break the loop if it's in the ready state
+push $conf.SD.STAT_READY
+copy 2, 7
+sub
+jeq
+
+# Break the loop if it's waiting on a continue (read)
+push $conf.SD.STAT_WAIT_BLKRD
+copy 2, 7
+sub
+jeq
+
+# Break the loop if it's waiting on a continue (write)
+push $conf.SD.STAT_WAIT_BLKWR
+copy 2, 7
+sub
+jeq
+
+# If the controller's status isn't any of those, try again
+push $lbl.wait_SD_start_1
+copy 2, 3
+jmp
+
+:wait_SD_end_1
+
+
+# -------------------------------------------------------------
+# Finish reading first word
+
+# Set up continue command
+push $conf.SD.CMD_CONTINUE
+copy 2, 4
+iosr $conf.PID.SD, $conf.SD.REG_INSTR
+
+# Get the data word and place it in R10
+iogr $conf.PID.SD, $conf.SD.REG_DOUT
+copy 4, 10
+
+
+
+# -------------------------------------------------------------
+# Set memory address.
+
+# Set up write mem instruction
+push $conf.MEM.CMD_WRITE
+copy 2, 4
+iosr $conf.PID.MEM, $conf.MEM.REG_INSTR
+
+# addr = i << 8
+copy 8, 6
+push 8
+copy 2, 7
+lsl
+
+# Set up mem address
+copy 2, 4
+iosr $conf.PID.MEM, $conf.MEM.REG_ADDR
+
+# Set up mem data
+copy 10, 4
+iosr $conf.PID.MEM, $conf.MEM.REG_DIN
+
+# Execute memory command
+ioex $conf.PID.MEM
+
+
+
+# =============================================================
+# Memory Write loop (uses R9 as j)
+# =============================================================
+
+# -------------------------------------------------------------
+# Set up memory write loop
+push 1
+copy 2, 9
+
+:mem_write_loop_start
+
+# -------------------------------------------------------------
+# Set up loop break
+push $lbl.mem_write_loop_end
+copy 2, 3
+
+# -------------------------------------------------------------
+# Check that j < 256 (jump if j - 256 >= 0)
+copy 9, 6
+push 256
+copy 2, 7
+sub
+jge
+
+
+
+# -------------------------------------------------------------
+# Read the next two bytes from the SD card.
+
+# Execute continue command (already waited for ready)
+ioex $conf.PID.SD
+
+
+
+# -------------------------------------------------------------
+# Wait for the SD controller to give a ready signal
+
+:wait_SD_start_2
+
+# Set up end jump
+push $lbl.wait_SD_end_2
+copy 2, 3
+
+# Get SD controller's status and put in ALU A
+iogr $conf.PID.SD, $conf.SD.REG_STATUS
+copy 4, 6
+
+# Break the loop if it's in the ready state
+push $conf.SD.STAT_READY
+copy 2, 7
+sub
+jeq
+
+# Break the loop if it's waiting on a continue (read)
+push $conf.SD.STAT_WAIT_BLKRD
+copy 2, 7
+sub
+jeq
+
+# Break the loop if it's waiting on a continue (write)
+push $conf.SD.STAT_WAIT_BLKWR
+copy 2, 7
+sub
+jeq
+
+# If the controller's status isn't any of those, try again
+push $lbl.wait_SD_start_2
+copy 2, 3
+jmp
+
+:wait_SD_end_2
+
+
+
+# -------------------------------------------------------------
+# Get the data word and place it in R10
+iogr $conf.PID.SD, $conf.SD.REG_DOUT
+copy 4, 10
+
+
+# -------------------------------------------------------------
+# Set memory address {addr} to {val}.
+
+# Set write instruction
+push $conf.MEM.CMD_WRITE
+copy 2, 4
+iosr $conf.PID.MEM, $conf.MEM.REG_INSTR
+
+# Calculate address: (R8 << 8) + R9
+copy 8, 6
+push 8
+copy 2, 7
+lsl
+copy 2, 6
+copy 9, 7
+add
+copy 2, 4
+iosr $conf.PID.MEM, $conf.MEM.REG_ADDR
+
+copy 10, 4
+iosr $conf.PID.MEM, $conf.MEM.REG_DIN
+
+ioex $conf.PID.MEM
+
+# -------------------------------------------------------------
+# Memory write loop update step
+
+# j++
+copy 9, 6
+inc
+copy 2, 9
+
+# Jump back to the top of the write loop
+push $lbl.mem_write_loop_start
+copy 2, 3
+jmp
+
+
+
+:mem_write_loop_end
+
+# -------------------------------------------------------------
+# Memory write loop update step
+
+# i++
+copy 8, 6
+inc
+copy 2, 8
+
+# Jump back to the top of the write loop
+push $lbl.sector_loop_start
+copy 2, 3
+jmp
+
+
+# -------------------------------------------------------------
+# End of bootloader, relinquish control to memory
+
+:sector_loop_end
+
+push 0
+copy 2, 3
+sys cmd $conf.SYS.CMD_VNMODE
+
+
+
+
+
+
+
+
+
+
+

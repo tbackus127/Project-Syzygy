@@ -32,8 +32,8 @@ module SyzBSystem(
     output mosi
   );
   
-  // 64000/2: Human-readable
-  // 8/2: Normal Safe Clock
+  // 128000/2: Human-readable clock cycles
+  // 3/2: Normal Safe Clock
   // Count this number of board clock ticks before inverting the memory clock
   parameter CDIV_AMT_MEM = 3;
   
