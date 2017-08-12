@@ -33,9 +33,9 @@ module SyzBSystem(
   );
   
   // 64000/2: Human-readable
-  // 16/2: Normal Safe Clock
+  // 8/2: Normal Safe Clock
   // Count this number of board clock ticks before inverting the memory clock
-  parameter CDIV_AMT_MEM = 8;
+  parameter CDIV_AMT_MEM = 3;
   
   // Count this number of memory clock ticks before inverting the CPU clock
   parameter CDIV_AMT_CPU = 2;

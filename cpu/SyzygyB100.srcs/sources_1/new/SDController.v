@@ -56,7 +56,7 @@ module SDController(
   parameter FLUSH_COUNT = 100;
   parameter DESELECT_COUNT = 4;
   parameter BLOCK_BIT_COUNT = 4096;
-  parameter CLOCK_REDUCE_AMT = 1023;
+  parameter CLOCK_REDUCE_AMT = 1023;  // Calculation: stable at 42 (397kHz)
   parameter WORD_LENGTH = 16;
   parameter BLOCK_COUNT = BLOCK_BIT_COUNT / WORD_LENGTH;
   

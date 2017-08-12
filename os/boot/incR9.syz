@@ -1,0 +1,68 @@
+# This program increments R8 each time R9 reaches zero (from 0xFFFF), 
+#   which is incremented each time R6 reaches zero (from 0xFFFF).
+
+# Start of main loop (incrementing R8)
+:COUNT_START 
+
+# Get 0xFFFF into R9
+push 0
+copy 2, 6
+dec
+copy 2, 9
+
+# Start of outer loop (decrementing R9)
+:OUTER_START
+
+# Check if R9 is zero, and exit the outer loop if it is
+push $lbl.OUTER_END
+copy 2, 3   
+copy 9, 2   
+jeq
+
+# Set up the inner loop's 0xFFFF (stored in R6)
+push 0
+copy 2, 6
+dec
+copy 2, 6
+
+# Start of the inner loop (decrementing R6)
+:INNER_START
+
+# Check if R6 is zero, and exit the inner loop if it is
+push $lbl.INNER_END
+copy 2, 3
+copy 6, 2
+jeq
+
+# Decrement R6's value
+dec
+copy 2, 6
+
+# Jump back to the start of the inner loop
+push $lbl.INNER_START
+copy 2, 3
+jmp
+
+:INNER_END
+
+# Decrement R9
+copy 9, 6
+dec
+copy 2, 9
+
+# Jump back to the start of the outer loop
+push $lbl.OUTER_START
+copy 2, 3
+jmp
+
+:OUTER_END
+
+# Increment R8
+copy 8, 6
+inc
+copy 2, 8
+
+# Jump back to the beginning
+push $lbl.COUNT_START
+copy 2, 3
+jmp
