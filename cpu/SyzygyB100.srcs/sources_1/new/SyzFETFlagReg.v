@@ -29,7 +29,7 @@ module SyzFETFlagReg(
     output [15:0] dOut
   );
   
-  reg [15:0] data;
+  reg [15:0] data = 16'h0000;
   
   // Delay buffer
   wire wBuf;
@@ -48,10 +48,10 @@ module SyzFETFlagReg(
   
   // Concatenate all data signals to one 16-bit value for output signals
   assign dOut[15:0] = {
-    data[0], data[1], data[2], data[3],
-    data[4], data[5], data[6], data[7],
-    data[8], data[9], data[10], data[11],
-    data[12], data[13], data[14], data[15]
+    data[15], data[14], data[13], data[12],
+    data[11], data[10], data[9], data[8],
+    data[7], data[6], data[5], data[4],
+    data[3], data[2], data[1], data[0]
   };
   
 endmodule

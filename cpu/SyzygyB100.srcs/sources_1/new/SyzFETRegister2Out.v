@@ -32,7 +32,7 @@ module SyzFETRegister2Out(
     output [15:0] debugOut
   );
 
-  reg [15:0] data;
+  reg [15:0] data = 16'h0000;
   wire [15:0] wOutput;
   
   wire [15:0] wBuf;

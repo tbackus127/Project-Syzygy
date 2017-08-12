@@ -31,6 +31,7 @@ module Counter16B(
   );
   
   reg [15:0] count = 16'h0000;
+  reg firstCountFlag = 1'b0;
   
   // Delay set and data lines to prevent reading from next number before register
   //   is set
@@ -44,9 +45,14 @@ module Counter16B(
   );
   
   always @ (negedge clockSig) begin
-    if(res) count[15:0] <= 16'h0000;
-    else if(wSetBuf) count[15:0] <= wBuf[15:0];
-    else if (en) count[15:0] <= count[15:0] + 1'b1;
+    if(firstCountFlag == 1'b0) begin
+      firstCountFlag <= 1'b1;
+    end else begin
+      if(res == 1'b1) count[15:0] <= 16'h0000;
+      else if(wSetBuf == 1'b1) count[15:0] <= wBuf[15:0];
+      else if (en == 1'b1) count[15:0] <= count[15:0] + 1'b1;
+    end
+    
   end
   
   assign debugOut[15:0] = count[15:0];

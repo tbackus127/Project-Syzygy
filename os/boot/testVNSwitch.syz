@@ -1,0 +1,159 @@
+# R8: Memory pointer
+# R9: Shift value
+
+# --------------------------------------------
+# Setup
+
+# Set up memory write instruction
+push $conf.MEM.CMD_WRITE
+copy 2, 4
+iosr $conf.PID.MEM, $conf.MEM.REG_INSTR
+
+# Set memory pointer to 0
+push 0
+copy 2, 8
+
+# Put 0x8000 in R7 for quick adding (can't push negative numbers)
+push 32767
+copy 2, 6
+neg
+copy 2, 7
+
+# --------------------------------------------
+# Set Instruction: push 1 (0x8001)
+
+# Set and increment memory address
+copy 8, 4
+iosr $conf.PID.MEM, $conf.MEM.REG_ADDR
+copy 4, 6
+inc
+copy 2, 8
+
+# Set mem[0] to 0x8001
+push 1
+copy 2, 6
+add
+copy 2, 4
+iosr $conf.PID.MEM, $conf.MEM.REG_DIN
+ioex $conf.PID.MEM
+
+# --------------------------------------------
+# Set Instruction: copy 2, 7 (0x1270)
+
+copy 8, 4
+iosr $conf.PID.MEM, $conf.MEM.REG_ADDR
+copy 4, 6
+inc
+copy 2, 8
+
+push 4720
+copy 2, 4
+iosr $conf.PID.MEM, $conf.MEM.REG_DIN
+ioex $conf.PID.MEM
+
+# --------------------------------------------
+# Set Instruction: copy 2, 9 (0x1290)
+
+copy 8, 4
+iosr $conf.PID.MEM, $conf.MEM.REG_ADDR
+copy 4, 6
+inc
+copy 2, 8
+
+push 4752
+copy 2, 4
+iosr $conf.PID.MEM, $conf.MEM.REG_DIN
+ioex $conf.PID.MEM
+
+# --------------------------------------------
+# Set Instruction: copy 9, 6 (0x1960) :start
+
+copy 8, 4
+iosr $conf.PID.MEM, $conf.MEM.REG_ADDR
+copy 4, 6
+inc
+copy 2, 8
+
+push 6496
+copy 2, 4
+iosr $conf.PID.MEM, $conf.MEM.REG_DIN
+ioex $conf.PID.MEM
+
+# --------------------------------------------
+# Set Instruction: lrl (0x3302)
+
+copy 8, 4
+iosr $conf.PID.MEM, $conf.MEM.REG_ADDR
+copy 4, 6
+inc
+copy 2, 8
+
+push 13058
+copy 2, 4
+iosr $conf.PID.MEM, $conf.MEM.REG_DIN
+ioex $conf.PID.MEM
+
+# --------------------------------------------
+# Set Instruction: copy 2, 9 (0x1290)
+
+copy 8, 4
+iosr $conf.PID.MEM, $conf.MEM.REG_ADDR
+copy 4, 6
+inc
+copy 2, 8
+
+push 4752
+copy 2, 4
+iosr $conf.PID.MEM, $conf.MEM.REG_DIN
+ioex $conf.PID.MEM
+
+# --------------------------------------------
+# Set Instruction: push $lbl.start (0x8003)
+
+copy 8, 4
+iosr $conf.PID.MEM, $conf.MEM.REG_ADDR
+copy 4, 6
+inc
+copy 2, 8
+
+push 3
+copy 2, 6
+add
+copy 2, 4
+iosr $conf.PID.MEM, $conf.MEM.REG_DIN
+ioex $conf.PID.MEM
+
+# --------------------------------------------
+# Set Instruction: copy 2, 3 (0x1230)
+
+copy 8, 4
+iosr $conf.PID.MEM, $conf.MEM.REG_ADDR
+copy 4, 6
+inc
+copy 2, 8
+
+push 4656
+copy 2, 4
+iosr $conf.PID.MEM, $conf.MEM.REG_DIN
+ioex $conf.PID.MEM
+
+# --------------------------------------------
+# Set Instruction: jmp (0x2e00)
+
+copy 8, 4
+iosr $conf.PID.MEM, $conf.MEM.REG_ADDR
+copy 4, 6
+inc
+copy 2, 8
+
+push 11776
+copy 2, 4
+iosr $conf.PID.MEM, $conf.MEM.REG_DIN
+ioex $conf.PID.MEM
+
+# --------------------------------------------
+# Perform the VN switch
+
+push 0
+copy 2, 3
+sys cmd $conf.SYS.CMD_VNMODE

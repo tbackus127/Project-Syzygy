@@ -26,6 +26,7 @@ module SyzBSystem(
     input [7:0] snoopSelect,
     input miso,
     output [15:0] snoopOut,
+    output vnMode,
     output serialClock,
     output chipSelect,
     output mosi
@@ -69,6 +70,7 @@ module SyzBSystem(
     .instrOut(wBootROMOut[15:0]),
     .debugOut()
   );
+  assign vnMode = wVNMode;
   
   // Memory address input multiplexer
   wire [15:0] wMemAddrIn;
@@ -91,7 +93,7 @@ module SyzBSystem(
     .addr(wMemAddrIn[15:0]),
     .en(1'b1),
     .dIn(wDataFromMemIntr[15:0]),
-    .readEn(wMemRdFromIntr),
+    .readEn(wMemRdFromIntr | ~clockPhaseReg),
     .writeEn(wMemWrFromIntr),
     .dOut(wDataFromMem[15:0]),
     .busy(wMemBusy)

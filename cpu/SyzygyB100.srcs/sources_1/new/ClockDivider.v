@@ -23,7 +23,7 @@
 module ClockDivider(
     input cIn,
     input [31:0] reqCount,
-    output reg cOut
+    output reg cOut = 0
   );
   
   reg [31:0] counter = 32'h00000000;

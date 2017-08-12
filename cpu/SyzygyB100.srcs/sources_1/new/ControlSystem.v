@@ -11,7 +11,7 @@
 // Tool Versions: 
 // Description: 
 // 
-// Dependencies: 
+// Dependencies:
 // 
 // Revision:
 // Revision 0.01 - File Created
@@ -42,6 +42,7 @@ module ControlSystem(
   wire buttonCenter;
   wire buttonDown;
   wire buttonRight;
+  wire wDPIn;
   InputNormalizer inorm(
     .clk(clk),
     .switchIn(sw[15:0]),
@@ -51,7 +52,7 @@ module ControlSystem(
     .btnDIn(btnD),
     .btnRIn(btnR),
     .segsIn(wSegsIn[15:0]),
-    .dpIn(1'b1),
+    .dpIn(~wDPIn),
     .switchOut(wSwitchesOut[15:0]),
     .btnLOut(buttonLeft),
     .btnUOut(buttonUp),
@@ -70,6 +71,7 @@ module ControlSystem(
     .snoopSelect(wSwitchesOut[7:0]),
     .miso(JB[2]),
     .snoopOut(wSegsIn[15:0]),
+    .vnMode(wDPIn),
     .serialClock(JB[3]),
     .chipSelect(JB[0]),
     .mosi(JB[1])
