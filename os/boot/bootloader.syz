@@ -24,9 +24,9 @@
 # readFirstSDWord(sector) {
 #   setReg(SD, R0, CMD_READ);
 #   setReg(SD, R4, sector);
-#   while(getReg(SD, R1) == 0);
+#   waitUntilSDReady();
 #   exec(SD);
-#   while(getReg(SD, R1) == 0);
+#   waitUntilSDReady();
 #   var result = getReg(SD, R3);
 #   setReg(SD, R0, CMD_CONTINUE);
 #   return result;
@@ -34,7 +34,7 @@
 # 
 # readSDWord(sector) {
 #   exec(SD);
-#   while(getReg(SD, R1) == 0);
+#   waitUntilSDReady();
 #   return getReg(SD, R3);
 # }
 #
@@ -44,6 +44,16 @@
 #   setReg(MEM, R2, val);
 #   exec(MEM);
 # }
+#
+# waitUntilSDReady() {
+#   while(true) {
+#     var stat = getReg(SD, R1);
+#     if(stat == STATUS_READY) break;
+#     if(stat == STATUS_WAIT_BLKRD) break;
+#     if(stat == STATUS_WAIT_BLKWR) break;
+#   }
+# }
+# 
 # =============================================================
 
 
