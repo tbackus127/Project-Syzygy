@@ -28,17 +28,20 @@ module KeyboardControl(
     input btnC,
     input btnD,
     input btnR,
-    inout PS2Clk,
-    inout PS2Data,
+    input PS2Clk,
+    input PS2Data,
     inout [3:0] JB,
     output [15:0] led,
     output [6:0] seg,
     output [3:0] an,
-    output dp
-    
+    output dp  
   );
   
-  wire [15:0] wSegsIn;
+  reg [3:0] regNum;
+  reg [15:0] regData;
+  reg intrRdEn;
+  reg intrWrEn;
+  
   wire [15:0] wSwitchesOut;
   wire buttonLeft;
   wire buttonUp;
@@ -54,7 +57,7 @@ module KeyboardControl(
     .btnCIn(btnC),
     .btnDIn(btnD),
     .btnRIn(btnR),
-    .segsIn(wSegsIn[15:0]),
+    .segsIn(regData[15:0]),
     .dpIn(~wDPIn),
     .switchOut(wSwitchesOut[15:0]),
     .btnLOut(buttonLeft),
@@ -81,18 +84,45 @@ module KeyboardControl(
     .cOut(wCPUClk)
   );
   
-  PS2Controller ps2Ctrl(
-    .ps2CtrlClk(wCPUClk),
-    .readKeycode(1'b1),
-    .res(1'b0),
-    .ps2clk(PS2Clk),
-    .ps2data(PS2Data),
-    .keycode(wSegsIn[7:0]),
-    .writeEn(),
-    .writeClk(),
-    .ctrlBusy(wDPIn)
+  wire [15:0] wKeycodeOut;
+  KeyboardInterface kbdIntr(
+    .ctrlClock(clk),
+    .cpuClock(wCPUClk),
+    .periphSelect(1'b1),
+    .dIn(16'h0000),
+    .regSelect(regNum[3:0]),
+    .readEn(intrRdEn),
+    .writeEn(intrWrEn),
+    .reset(1'b0),
+    .exec(buttonCenter),
+    .debugRegSelect(4'h0),
+    .ps2Clk(PS2Clk),
+    .ps2Dat(PS2Data),
+    .dOut(wKeycodeOut[15:0]),
+    .debugOut()
   );
   
-  assign led[15:0] = wSwitchesOut[15:0];
+  always @ (posedge clk) begin
+    if(buttonUp == 1'b1) begin
+      regNum[3:0] = wSwitchesOut[3:0];
+    end
+    
+    if(buttonDown == 1'b1) begin
+      regData[15:0] = wSwitchesOut[15:0];
+    end
+    
+    if(buttonLeft == 1'b1) begin
+      intrRdEn = 1'b1;
+      regData[15:0] = wKeycodeOut[15:0];
+    end else begin
+      intrRdEn = 1'b0;
+    end
+    
+    if(buttonRight == 1'b1) begin
+      intrWrEn = 1'b1;
+    end else begin
+      intrWrEn = 1'b0;
+    end
+  end
   
 endmodule

@@ -129,7 +129,7 @@ module MemIntrControl(
       intrWrEn = 1'b1;
     end else begin
       intrWrEn = 1'b0;
-   end
+    end
   end
   
   assign led[15:0] = switches[15:0];

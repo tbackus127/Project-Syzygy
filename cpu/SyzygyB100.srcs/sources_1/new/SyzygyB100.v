@@ -39,6 +39,8 @@ module SyzygyB100(
   );
   
   // Data bus connections, prevents nets having multiple drivers
+  wire [3:0] wRegReadSel;
+  wire [15:0] wDataBus;
   wire [15:0] wBusInput2;
   wire [15:0] wBusInput3;
   wire [15:0] wBusInput4;
@@ -53,7 +55,9 @@ module SyzygyB100(
   wire [15:0] wBusInput13;
   wire [15:0] wBusInput14;
   wire [15:0] wBusInput15;
-  Or16B16Way dataBusOr (
+  Mux16B16to1 dataBusMux (
+    .dIn0(16'hf000),              // Copying "R0" to any other register will copy 0xf000
+    .dIn1(16'hffff),              // Likewise for R1 (0xffff)
     .dIn2(wBusInput2[15:0]),
     .dIn3(wBusInput3[15:0]),
     .dIn4(wBusInput4[15:0]),
@@ -68,9 +72,9 @@ module SyzygyB100(
     .dIn13(wBusInput13[15:0]),
     .dIn14(wBusInput14[15:0]),
     .dIn15(wBusInput15[15:0]),
+    .sel(wRegReadSel[3:0]),
     .dOut(wDataBus[15:0])
   );
-  wire [15:0] wDataBus;
   
   // Register reset lines
   wire [15:0] wRegReset;
@@ -86,7 +90,6 @@ module SyzygyB100(
   wire wSysFlagVal;
   wire wSysFlagWriteEn;
   wire [14:0] wPushVal;
-  wire [3:0] wRegReadSel;
   wire [3:0] wRegWriteSel;
   wire [3:0] wPeriphSel;
   wire [2:0] wJumpCondition;
