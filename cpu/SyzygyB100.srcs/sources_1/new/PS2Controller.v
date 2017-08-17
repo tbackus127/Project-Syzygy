@@ -29,7 +29,6 @@ module PS2Controller(
     output reg [15:0] keycode,
     output writeEn,
     output reg writeClk,
-    output reg ctrlBusy,
     output [15:0] debugOut
   );
   

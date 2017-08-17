@@ -25,7 +25,11 @@ module SyzBSystem(
     input res,
     input [7:0] snoopSelect,
     input miso,
+    input ps2Clk,
+    input ps2Dat,
     output [15:0] snoopOut,
+    output [15:0] ledsOut,
+    output [15:0] segsOut,
     output vnMode,
     output serialClock,
     output chipSelect,
@@ -161,9 +165,39 @@ module SyzBSystem(
   
   // LEDs (PID=0)
   // TODO: Make LED interface
+  wire [15:0] wLEDIntrOut;
+  wire [15:0] wLEDDebugOut;
+  LEDInterface ledIntr(
+    .cpuClock(clockSigCPU),
+    .periphSelect(wPeriphSelectSignals[0]),
+    .dIn(wDataToPeriphs[15:0]),
+    .regSelect(wPeriphRegSelect[3:0]),
+    .readEn(wPeriphRegReadEn),
+    .writeEn(wPeriphRegWriteEn),
+    .reset(res),
+    .exec(wPeriphExec),
+    .dOut(wLEDIntrOut[15:0]),
+    .ledsOut(ledsOut[15:0]),
+    .debugOut(wLEDDebugOut[15:0])
+  );
   
   // 7-segment display (PID=1)
   // TODO: Make 7Seg interface
+  wire [15:0] wSegIntrOut;
+  wire [15:0] wSegDebugOut;
+  SevSegInterface segIntr(
+    .cpuClock(clockSigCPU),
+    .periphSelect(wPeriphSelectSignals[1]),
+    .dIn(wDataToPeriphs[15:0]),
+    .regSelect(wPeriphRegSelect[3:0]),
+    .readEn(wPeriphRegReadEn),
+    .writeEn(wPeriphRegWriteEn),
+    .reset(res),
+    .exec(wPeriphExec),
+    .dOut(wSegIntrOut[15:0]),
+    .segsOut(segsOut[15:0]),
+    .debugOut(wSegDebugOut[15:0])
+  );
   
   // Memory (PID=2)
   // Debug sources:
@@ -226,12 +260,45 @@ module SyzBSystem(
     .debugControllerOut(wSDCtrlDebugOut[15:0])    
   );
   
+  // Monitor Interface (PID = 5)
+  // TODO: This
+  
+  // Keyboard Interface (PID = 6)
+  // Debug Sources:
+  //   SnoopPeriph=6:
+  //     0: R0 (instruction (unused))
+  //     1: R1 (status)
+  //     2: R2 (keycode)
+  wire [15:0] wKbdDataOut;
+  wire [15:0] wKbdDebugOut;
+  KeyboardInterface kbdIntr(
+    .ctrlClock(clk),
+    .cpuClock(clockSigCPU),
+    .periphSelect(wPeriphSelectSignals[6]),
+    .dIn(wDataToPeriphs[15:0]),
+    .regSelect(wPeriphRegSelect[3:0]),
+    .readEn(wPeriphRegReadEn),
+    .writeEn(wPeriphRegWriteEn),
+    .reset(res),
+    .exec(wPeriphExec),
+    .debugRegSelect(snoopSelect[3:0]),
+    .ps2Clk(ps2Clk),
+    .ps2Dat(ps2Dat),
+    .dOut(wKbdDataOut[15:0]),
+    .debugOut(wKbdDebugOut[15:0])
+  );
+  
   // Peripheral Data Bus
-  Or32B4Way periphDataOr(
-    .aIn(32'h00000000),
-    .bIn(32'h00000000),
-    .cIn({16'h0000, wMemDataOut[15:0]}),
-    .dIn(wDataFromSDInterface[31:0]),
+  Mux32B8to1 periphDataMux (
+    .dIn0({16'h0000, wLEDIntrOut[15:0]}),
+    .dIn1({16'h0000, wSegIntrOut[15:0]}),
+    .dIn2({16'h0000, wMemDataOut[15:0]}),
+    .dIn3(wDataFromSDInterface[31:0]),
+    .dIn4(32'h00000000),
+    .dIn5(32'h00000000),
+    .dIn6({16'h0000, wKbdDataOut[15:0]}),
+    .dIn7(32'h00000000),
+    .sel(),
     .dOut(wDataFromPeriphs[31:0])
   );
   
@@ -243,19 +310,25 @@ module SyzBSystem(
   //   1: Memory Interface
   //   2: SD Interface
   //   3: SD Controller
-  Mux16B8to1 periphIntrfaceSelect(
+  //   4: LED Interface
+  //   5: VGA Interface (WIP)
+  //   6: Keyboard Interface
+  //   7: Seven Segment Display Interface
+  Mux16B8to1 periphDbgOutSel (
     .dIn0(wCPUDebugOut[15:0]),
     .dIn1(wMemIntrDebugOut[15:0]),
     .dIn2(wSDIntrDebugOut[15:0]),
     .dIn3(wSDCtrlDebugOut[15:0]),
-    .dIn4(16'h00),
+    .dIn4(wLEDDebugOut[15:0]),
     .dIn5(16'h00),
-    .dIn6(16'h00),
-    .dIn7(16'h00),
+    .dIn6(wKbdDebugOut[15:0]),
+    .dIn7(wSegDebugOut[15:0]),
     .sel(snoopSelect[6:4]),
     .dOut(snoopOut[15:0])
   );
   
+  // Set the clock phase register to half the CPU clock's frequency
+  //   (controls memory access in two stages: fetch instruction & data access
   always @ (posedge clockSigCPU) begin
     if(en) begin
       clockPhaseReg <= ~clockPhaseReg;

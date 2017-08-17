@@ -21,8 +21,8 @@
 
 
 module KeyboardInterface(
-    input ctrlClock,
-    input cpuClock,
+    input ctrlClock,        // 100MHz board clock
+    input cpuClock,         // CPU clock
     input periphSelect,
     input [15:0] dIn,
     input [3:0] regSelect,
@@ -72,6 +72,7 @@ module KeyboardInterface(
       .debugOut(wR0DebugOut[15:0])
     );
   
+  // R1: Status (0x0000 = Ready, anything else = busy)
   reg status = 1'b0;
   
   // R2: Data Out (keycode)
@@ -83,13 +84,14 @@ module KeyboardInterface(
   SyzFETRegister2Out keyReg(
     .dIn(wKeycodeIn[15:0]),
     .clockSig(ctrlClock),
-    .read(1'b1),                    // TODO: Change this to wReadEnSignals[0] when working
+    .read(wReadEnSignals[2]),
     .write(1'b1),
     .reset(reset),
     .dOut(wR2Out[15:0]),
     .debugOut(wR2DebugOut[15:0])
   );
   
+  // Converts wonky PS/2 scancodes to ones that make sense
   wire [15:0] wKeycodeOut;
   SyzKeycodeConverter conv(
     .convClk(ctrlClock),
@@ -97,7 +99,7 @@ module KeyboardInterface(
     .keyOut(wKeycodeIn[15:0])
   );
   
-  wire wBusy;
+  // Abstracts away the PS/2 signal receiver
   PS2Controller ps2Ctrl(
     .ps2CtrlClk(ctrlClock),
     .readKeycode(wReadEnable),
@@ -107,10 +109,10 @@ module KeyboardInterface(
     .keycode(wKeycodeOut[15:0]),
     .writeEn(wSetKeyReg),
     .writeClk(wKeyRegClk),
-    .ctrlBusy(wBusy),
     .debugOut(debugOut[15:0])
   );
   
+  // Output select
   Mux16B8to1 kbdOutMux(
     .dIn0(wR0Out[15:0]),
     .dIn1({15'b000000000000000, status}),
@@ -124,6 +126,7 @@ module KeyboardInterface(
     .dOut(dOut[15:0])
   );
   
+  // Debug output select
   Mux16B8to1 kbdDbgOutMux(
     .dIn0(wR0DebugOut[15:0]),
     .dIn1({15'b000000000000000, status}),
@@ -134,11 +137,7 @@ module KeyboardInterface(
     .dIn6(16'h0000),
     .dIn7(16'h0000),
     .sel(debugRegSelect[2:0]),
-    .dOut()                                 // TODO: Make this the output when done
+    .dOut(debugOut[15:0])
   );
-  
-  always @ (posedge ctrlClock) begin
-    status = wBusy;
-  end
   
 endmodule
