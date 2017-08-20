@@ -177,7 +177,7 @@ module SyzBSystem(
     .reset(res),
     .exec(wPeriphExec),
     .dOut(wLEDIntrOut[15:0]),
-    .ledsOut(ledsOut[15:0]),
+    .ledsOut(ledsOut[15:0]),                                   // TODO: Used to be ledsOut[15:0]
     .debugOut(wLEDDebugOut[15:0])
   );
   
@@ -260,6 +260,8 @@ module SyzBSystem(
     .debugControllerOut(wSDCtrlDebugOut[15:0])    
   );
   
+  // PID=4 (UNUSED)
+  
   // Monitor Interface (PID = 5)
   // TODO: This
   
@@ -280,13 +282,14 @@ module SyzBSystem(
     .readEn(wPeriphRegReadEn),
     .writeEn(wPeriphRegWriteEn),
     .reset(res),
-    .exec(wPeriphExec),
-    .debugRegSelect(snoopSelect[3:0]),
+    .debugRegSelect(snoopSelect[2:0]),
     .ps2Clk(ps2Clk),
     .ps2Dat(ps2Dat),
     .dOut(wKbdDataOut[15:0]),
     .debugOut(wKbdDebugOut[15:0])
   );
+  
+//  assign ledsOut[15:0] = wKbdDataOut[15:0];               // TODO: Delete when done
   
   // Peripheral Data Bus
   Mux32B8to1 periphDataMux (
@@ -298,7 +301,7 @@ module SyzBSystem(
     .dIn5(32'h00000000),
     .dIn6({16'h0000, wKbdDataOut[15:0]}),
     .dIn7(32'h00000000),
-    .sel(),
+    .sel(wPeriphSelect[2:0]),
     .dOut(wDataFromPeriphs[31:0])
   );
   

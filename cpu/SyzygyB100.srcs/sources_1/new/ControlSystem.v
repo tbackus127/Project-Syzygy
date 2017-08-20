@@ -73,14 +73,14 @@ module ControlSystem(
     .snoopSelect(wSwitchesOut[7:0]),
     .miso(JB[2]),
     .ps2Clk(PS2Clk),
-    .ps2Dat(PS2Dat),
+    .ps2Dat(PS2Data),
     .snoopOut(wSegsIn[15:0]),
+    .ledsOut(led[15:0]),
+    .segsOut(),                       // TODO: Make this wSegsIn[15:0] when done
     .vnMode(wDPIn),
     .serialClock(JB[3]),
     .chipSelect(JB[0]),
     .mosi(JB[1])
   );
-  
-  assign led[15:0] = wSegsIn[15:0];
   
 endmodule

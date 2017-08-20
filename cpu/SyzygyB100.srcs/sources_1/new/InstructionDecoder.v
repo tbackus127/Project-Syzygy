@@ -38,7 +38,7 @@ module InstructionDecoder(
     output reg periphWrite = 1'b0,
     output reg periphExec = 1'b0,
     output reg [1:0] accumMuxSelect = 2'b00,
-    output reg regWriteR5 = 1'b0
+    output reg ioWrite = 1'b0
   );
   
   // Instruction decoder behavior description
@@ -65,7 +65,7 @@ module InstructionDecoder(
       periphWrite <= 1'b0;
       periphExec <= 1'b0;
       accumMuxSelect[1:0] <= 2'b10;
-      regWriteR5 <= 1'b0;
+      ioWrite <= 1'b0;
       
     // If it's a standard instruction
     end else begin
@@ -104,7 +104,7 @@ module InstructionDecoder(
                   periphWrite <= 1'b0;
                   periphExec <= 1'b0;
                   accumMuxSelect[1:0] <= 2'b00;
-                  regWriteR5 <= 1'b0;
+                  ioWrite <= 1'b0;
                 end
                 
                 // VN Mode OFF: Sets flag 0 to false
@@ -126,7 +126,7 @@ module InstructionDecoder(
                   periphWrite <= 1'b0;
                   periphExec <= 1'b0;
                   accumMuxSelect[1:0] <= 2'b00;
-                  regWriteR5 <= 1'b0;
+                  ioWrite <= 1'b0;
                 end
                 
                 // Unused syscommands
@@ -148,7 +148,7 @@ module InstructionDecoder(
                   periphWrite <= 1'b0;
                   periphExec <= 1'b0;
                   accumMuxSelect[1:0] <= 2'b00;
-                  regWriteR5 <= 1'b0;
+                  ioWrite <= 1'b0;
                 end
               endcase
             end
@@ -172,7 +172,7 @@ module InstructionDecoder(
               periphWrite <= 1'b0;
               periphExec <= 1'b0;
               accumMuxSelect[1:0] <= 2'b00;
-              regWriteR5 <= 1'b0;
+              ioWrite <= 1'b0;
             end
           endcase
         end
@@ -196,7 +196,7 @@ module InstructionDecoder(
           periphWrite <= 1'b0;
           periphExec <= 1'b0;
           accumMuxSelect[1:0] <= 2'b00;
-          regWriteR5 <= 1'b0;
+          ioWrite <= 1'b0;
         end
         
         // Jump
@@ -218,7 +218,7 @@ module InstructionDecoder(
           periphWrite <= 1'b0;
           periphExec <= 1'b0;
           accumMuxSelect[1:0] <= 2'b00;
-          regWriteR5 <= 1'b0;
+          ioWrite <= 1'b0;
         end
         
         // ALU
@@ -240,7 +240,7 @@ module InstructionDecoder(
           periphWrite <= 1'b0;
           periphExec <= 1'b0;
           accumMuxSelect[1:0] <= 2'b11;
-          regWriteR5 <= 1'b0;
+          ioWrite <= 1'b0;
         end
         
         // I/O
@@ -258,20 +258,17 @@ module InstructionDecoder(
           periphWrite <= instrIn[2] & (~instrIn[3]);
           periphExec <= instrIn[3];
           accumMuxSelect[1:0] <= 2'b00;
+          readEn <= 1'b0;
+          regReadSelect[3:0] <= 4'b0000;
+          regWriteSelect[3:0] <= 4'b0000;
+          writeEn <= 1'b0;
           
           // If we're getting a value from a peripheral, enable R4/R5 write
           if(instrIn[2] == 1'b0) begin
-            regWriteR5 <= 1'b1;
-            regReadSelect[3:0] <= 4'b0000;
-            regWriteSelect[3:0] <= 4'b0100;
-            readEn <= 1'b0;
-            writeEn <= 1'b1;
+            ioWrite <= 1'b1;
           end else begin
-            regWriteR5 <= 1'b0;
-            regReadSelect[3:0] <= 4'b0000;
-            regWriteSelect[3:0] <= 4'b0000;
-            readEn <= 1'b0;
-            writeEn <= 1'b0;
+            ioWrite <= 1'b0;
+            
           end
         end
         
@@ -294,7 +291,7 @@ module InstructionDecoder(
           periphWrite <= 1'b0;
           periphExec <= 1'b0;
           accumMuxSelect[1:0] <= 2'b00;
-          regWriteR5 <= 1'b0;
+          ioWrite <= 1'b0;
         end
         
       endcase

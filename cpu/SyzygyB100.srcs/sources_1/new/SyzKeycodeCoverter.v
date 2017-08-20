@@ -26,6 +26,9 @@ module SyzKeycodeConverter(
     output reg [15:0] keyOut = 16'h0000
   );
   
+  // How many keys to keep a history of (stk[0] is always 0x00 to prevent errors)
+  parameter STACK_SIZE = 4;
+  
   // Protocol codes
   parameter KEYCODE_RELEASE = 8'hf0;
   
@@ -137,27 +140,25 @@ module SyzKeycodeConverter(
   reg keyHeld = 1'b0;
   
   always @ (posedge convClk) begin
-    
-    // Key down
-    if(keyIn[15:8] == keyIn[7:0]) begin
+  
+    // Key released
+    if(keyIn[15:8] == KEYCODE_RELEASE) begin
       
-      // Switch on key state flags
-      keyHeld <= 1'b1;
+      // Switch off modifier flags
       if(keyIn[7:0] == KEYCODE_SHIFT) shiftHeld <= 1'b0;
       else if(keyIn[7:0] == KEYCODE_CTRL) ctrlHeld <= 1'b0;
       else if(keyIn[7:0] == KEYCODE_ALT) altHeld <= 1'b0;
+      else keyHeld <= 1'b0; 
       
-    // Key released
+    // Key pressed
     end else begin
-      if(keyIn[15:8] == KEYCODE_RELEASE) begin
-        
-        // Switch off modifier flags
-        keyHeld <= 1'b0;
+
+        // Switch on key state flags
         if(keyIn[7:0] == KEYCODE_SHIFT) shiftHeld <= 1'b1;
         else if(keyIn[7:0] == KEYCODE_CTRL) ctrlHeld <= 1'b1;
         else if(keyIn[7:0] == KEYCODE_ALT) altHeld <= 1'b1;
+        else keyHeld <= 1'b1;
         
-      end
     end
     
     // Convert PS/2 code to SYZ code
@@ -191,29 +192,26 @@ module SyzKeycodeConverter(
       KEYCODE_NUM8: keyOut[7:0] = 8'h1b;
       KEYCODE_NUM9: keyOut[7:0] = 8'h1c;
       KEYCODE_NUMDEC: keyOut[7:0] = 8'h1d;
-      KEYCODE_SHIFT: keyOut[7:0] = 8'h1e;
-      KEYCODE_ALT: keyOut[7:0] = 8'h1f;
-      KEYCODE_CTRL: keyOut[7:0] = 8'h20;
-      KEYCODE_A: keyOut[7:0] = 8'h21;
-      KEYCODE_B: keyOut[7:0] = 8'h22;
-      KEYCODE_C: keyOut[7:0] = 8'h23;
-      KEYCODE_D: keyOut[7:0] = 8'h24;
-      KEYCODE_E: keyOut[7:0] = 8'h25;
-      KEYCODE_F: keyOut[7:0] = 8'h26;
-      KEYCODE_G: keyOut[7:0] = 8'h27;
-      KEYCODE_H: keyOut[7:0] = 8'h28;
-      KEYCODE_I: keyOut[7:0] = 8'h29;
-      KEYCODE_J: keyOut[7:0] = 8'h2a;
-      KEYCODE_K: keyOut[7:0] = 8'h2b;
-      KEYCODE_L: keyOut[7:0] = 8'h2c;
-      KEYCODE_M: keyOut[7:0] = 8'h2d;
-      KEYCODE_N: keyOut[7:0] = 8'h2e;
-      KEYCODE_O: keyOut[7:0] = 8'h2f;
-      KEYCODE_P: keyOut[7:0] = 8'h30;
-      KEYCODE_Q: keyOut[7:0] = 8'h31;
-      KEYCODE_R: keyOut[7:0] = 8'h32;
-      KEYCODE_S: keyOut[7:0] = 8'h33;
-      KEYCODE_T: keyOut[7:0] = 8'h34;
+      KEYCODE_A: keyOut[7:0] = 8'h1e;
+      KEYCODE_B: keyOut[7:0] = 8'h1f;
+      KEYCODE_C: keyOut[7:0] = 8'h20;
+      KEYCODE_D: keyOut[7:0] = 8'h21;
+      KEYCODE_E: keyOut[7:0] = 8'h22;
+      KEYCODE_F: keyOut[7:0] = 8'h23;
+      KEYCODE_G: keyOut[7:0] = 8'h24;
+      KEYCODE_H: keyOut[7:0] = 8'h25;
+      KEYCODE_I: keyOut[7:0] = 8'h26;
+      KEYCODE_J: keyOut[7:0] = 8'h27;
+      KEYCODE_K: keyOut[7:0] = 8'h28;
+      KEYCODE_L: keyOut[7:0] = 8'h29;
+      KEYCODE_M: keyOut[7:0] = 8'h2a;
+      KEYCODE_N: keyOut[7:0] = 8'h2b;
+      KEYCODE_O: keyOut[7:0] = 8'h2c;
+      KEYCODE_P: keyOut[7:0] = 8'h3d;
+      KEYCODE_Q: keyOut[7:0] = 8'h3e;
+      KEYCODE_R: keyOut[7:0] = 8'h3f;
+      KEYCODE_S: keyOut[7:0] = 8'h40;
+      KEYCODE_T: keyOut[7:0] = 8'h44;
       KEYCODE_U: keyOut[7:0] = 8'h35;
       KEYCODE_V: keyOut[7:0] = 8'h36;
       KEYCODE_W: keyOut[7:0] = 8'h37;
@@ -246,10 +244,7 @@ module SyzKeycodeConverter(
       default: keyOut[7:0] = 8'h00;
     endcase
     
-    keyOut[8] <= shiftHeld;
-    keyOut[9] <= ctrlHeld;
-    keyOut[10] <= altHeld;
-    keyOut[11] <= keyHeld;
+    keyOut[11:8] <= {keyHeld, altHeld, ctrlHeld, shiftHeld};
   end
   
 endmodule

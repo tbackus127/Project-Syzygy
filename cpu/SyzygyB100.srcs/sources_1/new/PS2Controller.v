@@ -22,13 +22,10 @@
 
 module PS2Controller(
     input ps2CtrlClk,
-    input readKeycode,
-    input res,
-    inout ps2clk,
-    inout ps2data,
+    input ps2clk,
+    input ps2data,
     output reg [15:0] keycode,
     output writeEn,
-    output reg writeClk,
     output [15:0] debugOut
   );
   

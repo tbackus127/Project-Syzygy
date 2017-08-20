@@ -1,0 +1,50 @@
+
+# Keycode format: 0000 hacs kkkk kkkk
+
+# Set up keycode held mask
+push 11
+copy 2, 9
+push 1
+copy 2, 10
+
+# Start loop
+:testKBD_loop_start
+
+# Get the current keycode
+iogr $conf.PID.KBD, $conf.KBD.REG_KEYCODE
+copy 4, 6
+
+# If the 11th bit is not set, branch
+push $lbl.testKBD_if0_branch
+copy 2, 3
+
+# Mask the 11th bit
+copy 9, 7
+lsr
+copy 2, 6
+copy 10, 7
+and
+jle
+
+# If the key is held, set R8 to its keycode
+copy 4, 8
+push $lbl.testKBD_if0_end
+copy 2, 3
+jmp
+
+# If the key was released, set the keycode value to 0
+:testKBD_if0_branch
+
+push 0
+copy 2, 8
+
+:testKBD_if0_end
+
+# Set the LEDs to the keycode (0 if no key held)
+copy 8, 4
+iosr $conf.PID.LED, $conf.LED.REG_DATA
+
+# Jump back
+push $lbl.testKBD_loop_start
+copy 2, 3
+jmp

@@ -29,16 +29,12 @@ module KeyboardInterface(
     input readEn,
     input writeEn,
     input reset,
-    input exec,
-    input [3:0] debugRegSelect,
+    input [2:0] debugRegSelect,
     input ps2Clk,
     input ps2Dat,
     output [15:0] dOut,
-    output [31:0] debugOut
+    output [15:0] debugOut
   );
-  
-  wire wReadEnable;
-  assign wReadEnable = periphSelect & readEn;
   
   // Demultiplexer that chooses a peripheral register to read the value from, and sends its
   //  value to dOut, where it can be read by the CPU.
@@ -80,11 +76,10 @@ module KeyboardInterface(
   wire [15:0] wR2Out;
   wire [15:0] wR2DebugOut;
   wire wSetKeyReg;
-  wire wKeyRegClk;
   SyzFETRegister2Out keyReg(
     .dIn(wKeycodeIn[15:0]),
     .clockSig(ctrlClock),
-    .read(wReadEnSignals[2]),
+    .read(1'b1),                  // Was wReadEnSignals[2]
     .write(1'b1),
     .reset(reset),
     .dOut(wR2Out[15:0]),
@@ -102,14 +97,11 @@ module KeyboardInterface(
   // Abstracts away the PS/2 signal receiver
   PS2Controller ps2Ctrl(
     .ps2CtrlClk(ctrlClock),
-    .readKeycode(wReadEnable),
-    .res(reset),
     .ps2clk(ps2Clk),
     .ps2data(ps2Dat),
     .keycode(wKeycodeOut[15:0]),
     .writeEn(wSetKeyReg),
-    .writeClk(wKeyRegClk),
-    .debugOut(debugOut[15:0])
+    .debugOut()
   );
   
   // Output select
@@ -122,7 +114,7 @@ module KeyboardInterface(
     .dIn5(16'h0000),
     .dIn6(16'h0000),
     .dIn7(16'h0000),
-    .sel(regSelect[2:0]),
+    .sel(3'b010),
     .dOut(dOut[15:0])
   );
   

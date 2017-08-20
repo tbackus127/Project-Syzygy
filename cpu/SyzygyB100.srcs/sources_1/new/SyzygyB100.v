@@ -91,7 +91,6 @@ module SyzygyB100(
   wire wSysFlagWriteEn;
   wire [14:0] wPushVal;
   wire [3:0] wRegWriteSel;
-  wire [3:0] wPeriphSel;
   wire [2:0] wJumpCondition;
   wire [1:0] muxSel;
   wire wAccSrcSelect;
@@ -99,7 +98,7 @@ module SyzygyB100(
   wire wReadEn;
   wire wWriteEn;
   wire [15:0] wInstrRegOut;
-  wire wWriteR5;
+  wire wIOInstruction;
   
   // Instruction Decoder connections
   InstructionDecoder instrDec(
@@ -121,7 +120,7 @@ module SyzygyB100(
     .periphWrite(extPerWriteEn),
     .periphExec(extPerExec),
     .accumMuxSelect(muxSel[1:0]),
-    .regWriteR5(wWriteR5)
+    .ioWrite(wIOInstruction)
   );
   assign wAccSrcSelect = muxSel[1];
   assign wAccALUSrc = muxSel[0];
@@ -272,13 +271,29 @@ module SyzygyB100(
     .debugOut(wDebugOut3[15:0])
   );
   
+  // I/O Source Muxes
+  wire [15:0] wR4Src;
+  wire [15:0] wR5Src;
+  Mux16B2to1 ioLSBMux(
+    .aIn(wDataBus[15:0]),
+    .bIn(extPerDIn[15:0]),
+    .sel(wIOInstruction),
+    .dOut(wR4Src[15:0])
+  );
+  Mux16B2to1 ioMSBMux(
+    .aIn(wDataBus[15:0]),
+    .bIn(extPerDIn[31:16]),
+    .sel(wIOInstruction),
+    .dOut(wR5Src[15:0])
+  );
+  
   // R4: I/O LSB
   wire [31:0] wIOOut;
   SyzFETRegister3Out regIOLSB(
-    .dIn(wDataBus[15:0] | extPerDIn[15:0]),
+    .dIn(wR4Src[15:0]),
     .clockSig(clockSig),
     .read(wRegReadExp[4]),
-    .write(wRegWriteExp[4]),
+    .write(wRegWriteExp[4] | wIOInstruction),
     .reset(wRegReset[4]),
     .dOut(wBusInput4[15:0]),
     .dOut2(wIOOut[15:0]),
@@ -287,10 +302,10 @@ module SyzygyB100(
   
   // R5: I/O MSB
   SyzFETRegister3Out regIOMSB(
-    .dIn(wDataBus[15:0] | extPerDIn[31:16]),
+    .dIn(wR5Src[15:0]),
     .clockSig(clockSig),
     .read(wRegReadExp[5]),
-    .write(wRegWriteExp[5] | wWriteR5),
+    .write(wRegWriteExp[5] | wIOInstruction),
     .reset(wRegReset[5]),
     .dOut(wBusInput5[15:0]),
     .dOut2(wIOOut[31:16]),
