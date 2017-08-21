@@ -21,14 +21,16 @@
 
 
 module SyzMem(
+    input en,
     input memClk,
     input [15:0] addr,
     input [15:0] dIn,
-    input en,
     input readEn,
     input writeEn,
+    input vgaClk,
+    input [15:0] vgaAddr,
     output [15:0] dOut,
-    output busy
+    output [15:0] vgaOut
   );
   
   wire [15:0] wMemDataOut;
@@ -38,12 +40,17 @@ module SyzMem(
   
   BlockRamDesign_wrapper bram(
     .addra(addr[15:0]),
+    .addrb(vgaAddr[15:0]),
     .clka(wDelClk),
+    .clkb(vgaClk),
     .dina(dIn[15:0]),
+    .dinb(16'h0000),
     .douta(wMemDataOut[15:0]),
+    .doutb(vgaOut[15:0]),
     .ena(en),
-    .rsta_busy(busy),
-    .wea({writeEn, writeEn})
+    .enb(en),
+    .wea({writeEn, writeEn}),
+    .web(2'b00)
   );
   
   assign dOut[15:0] = (readEn) ? wMemDataOut[15:0] : 16'h0000;

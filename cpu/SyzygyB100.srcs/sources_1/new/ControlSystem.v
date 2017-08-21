@@ -34,7 +34,12 @@ module ControlSystem(
     output [15:0] led,
     output [6:0] seg,
     output [3:0] an,
-    output dp
+    output dp,
+    output [3:0] vgaRed,
+    output [3:0] vgaGreen,
+    output [3:0] vgaBlue,
+    output Hsync,
+    output Vsync
   );
   
   wire [15:0] wSegsIn;
@@ -80,7 +85,12 @@ module ControlSystem(
     .vnMode(wDPIn),
     .serialClock(JB[3]),
     .chipSelect(JB[0]),
-    .mosi(JB[1])
+    .mosi(JB[1]),
+    .vgaRed(vgaRed[3:0]),
+    .vgaGreen(vgaGreen[3:0]),
+    .vgaBlue(vgaBlue[3:0]),
+    .hSync(Hsync),
+    .vSync(Vsync)
   );
   
 endmodule

@@ -33,33 +33,29 @@ module SyzBSystem(
     output vnMode,
     output serialClock,
     output chipSelect,
-    output mosi
+    output mosi,
+    output [3:0] vgaRed,
+    output [3:0] vgaGreen,
+    output [3:0] vgaBlue,
+    output hSync,
+    output vSync
   );
   
-  // 128000/2: Human-readable clock cycles
-  // 3/2: Normal Safe Clock
-  // Count this number of board clock ticks before inverting the memory clock
-  parameter CDIV_AMT_MEM = 3;
+  // 2560000: Human-readable clock cycles
+  // 1: Normal Safe Clock
   
   // Count this number of memory clock ticks before inverting the CPU clock
-  parameter CDIV_AMT_CPU = 2;
+  // Clock is divided by this number, plus one.
+  parameter CDIV_AMT_CPU = 1;
   
   // Clock Phase: 0 = Fetch Instruction, 1 = Decode & Execute
   //   Starts HI so first tick will be LO.
   reg clockPhaseReg = 1'b1;
   
-  // Clock Divider (Mem)
-  wire clockSigMem;
-  ClockDivider cdivmem (
-    .cIn(clk),
-    .reqCount(CDIV_AMT_MEM),
-    .cOut(clockSigMem)
-  );
-  
   // Clock Divider (CPU clock, 4x slower than memory clock)
   wire clockSigCPU;
   ClockDivider cdivcpu (
-    .cIn(clockSigMem),
+    .cIn(clk),
     .reqCount(CDIV_AMT_CPU),
     .cOut(clockSigCPU)
   );
@@ -91,18 +87,20 @@ module SyzBSystem(
   wire [15:0] wDataFromMem;
   wire wMemRdFromIntr;
   wire wMemWrFromIntr;
-  wire wMemBusy;
+  wire [15:0] wVGAAddr;
+  wire [15:0] wPixelData;
   SyzMem mem(
-    .memClk(clockSigMem),
-    .addr(wMemAddrIn[15:0]),
     .en(1'b1),
+    .memClk(clk),
+    .addr(wMemAddrIn[15:0]),
     .dIn(wDataFromMemIntr[15:0]),
     .readEn(wMemRdFromIntr | ~clockPhaseReg),
     .writeEn(wMemWrFromIntr),
+    .vgaClk(clk),
+    .vgaAddr(wVGAAddr[15:0]),
     .dOut(wDataFromMem[15:0]),
-    .busy(wMemBusy)
+    .vgaOut(wPixelData[15:0])
   );
-  
   
   // Choose instruction source from Boot ROM or system memory
   wire [15:0] wInstrIn;
@@ -220,7 +218,7 @@ module SyzBSystem(
     .exec(wPeriphExec),
     .dataFromMem(wDataFromMem[15:0]),
     .debugRegSelect(snoopSelect[3:0]),
-    .memStatus(wMemBusy),
+    .memStatus(1'b0),
     .dOut(wMemDataOut[15:0]),
     .dataToMem(wDataFromMemIntr[15:0]),
     .addrToMem(wAddrFromMemIntr[15:0]),
@@ -263,7 +261,17 @@ module SyzBSystem(
   // PID=4 (UNUSED)
   
   // Monitor Interface (PID = 5)
-  // TODO: This
+  VGAInterface vgaIntr(
+    .clk(clk),
+    .reset(res),
+    .pixelData(wPixelData[15:0]),
+    .vgaAddr(wVGAAddr[15:0]),
+    .colorRed(vgaRed[3:0]),
+    .colorGreen(vgaGreen[3:0]),
+    .colorBlue(vgaBlue[3:0]),
+    .hSync(hSync),
+    .vSync(vSync)
+  );
   
   // Keyboard Interface (PID = 6)
   // Debug Sources:
