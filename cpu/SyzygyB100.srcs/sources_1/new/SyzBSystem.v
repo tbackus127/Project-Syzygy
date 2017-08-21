@@ -45,7 +45,7 @@ module SyzBSystem(
   // 1: Normal Safe Clock
   
   // Count this number of memory clock ticks before inverting the CPU clock
-  // Clock is divided by this number, plus one.
+  // Clock is divided this many times, plus one.
   parameter CDIV_AMT_CPU = 1;
   
   // Clock Phase: 0 = Fetch Instruction, 1 = Decode & Execute
@@ -96,7 +96,7 @@ module SyzBSystem(
     .dIn(wDataFromMemIntr[15:0]),
     .readEn(wMemRdFromIntr | ~clockPhaseReg),
     .writeEn(wMemWrFromIntr),
-    .vgaClk(clk),
+    .vgaClk(~clk),
     .vgaAddr(wVGAAddr[15:0]),
     .dOut(wDataFromMem[15:0]),
     .vgaOut(wPixelData[15:0])
