@@ -21,7 +21,7 @@
 
 
 module VGAInterface(
-    input clk,
+    input vgaClock,
     input reset,
     input [15:0] pixelData,
     output [15:0] vgaAddr,
@@ -46,7 +46,7 @@ module VGAInterface(
   wire [9:0] wVCount;
   wire wInDispArea;
   VGAController vgaCtrl(
-    .clk(clk),
+    .vgaClock(vgaClock),
     .reset(reset),
     .hCount(wHCount[9:0]),
     .vCount(wVCount[9:0]),
@@ -59,7 +59,7 @@ module VGAInterface(
   assign vgaAddr[15:0] = (40 * wVCount[8:0]) + wHCount[9:4] + VID_MEM_OFFSET;
   
   // Select the corresponding bit for image data
-  assign wPixelValue = pixelData[wHCount[3:0]];
+  assign wPixelValue = pixelData[~wHCount[3:0]];
   
   // If the counters are in the display area, set the RGB signals according
   //   to its respective bit

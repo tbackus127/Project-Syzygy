@@ -207,11 +207,11 @@ module SyzKeycodeConverter(
       KEYCODE_M: keyOut[7:0] = 8'h2a;
       KEYCODE_N: keyOut[7:0] = 8'h2b;
       KEYCODE_O: keyOut[7:0] = 8'h2c;
-      KEYCODE_P: keyOut[7:0] = 8'h3d;
-      KEYCODE_Q: keyOut[7:0] = 8'h3e;
-      KEYCODE_R: keyOut[7:0] = 8'h3f;
-      KEYCODE_S: keyOut[7:0] = 8'h40;
-      KEYCODE_T: keyOut[7:0] = 8'h44;
+      KEYCODE_P: keyOut[7:0] = 8'h2d;
+      KEYCODE_Q: keyOut[7:0] = 8'h2e;
+      KEYCODE_R: keyOut[7:0] = 8'h2f;
+      KEYCODE_S: keyOut[7:0] = 8'h30;
+      KEYCODE_T: keyOut[7:0] = 8'h34;
       KEYCODE_U: keyOut[7:0] = 8'h35;
       KEYCODE_V: keyOut[7:0] = 8'h36;
       KEYCODE_W: keyOut[7:0] = 8'h37;

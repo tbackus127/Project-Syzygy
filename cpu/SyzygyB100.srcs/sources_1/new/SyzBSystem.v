@@ -96,7 +96,7 @@ module SyzBSystem(
     .dIn(wDataFromMemIntr[15:0]),
     .readEn(wMemRdFromIntr | ~clockPhaseReg),
     .writeEn(wMemWrFromIntr),
-    .vgaClk(~clk),
+    .vgaClk(clk),
     .vgaAddr(wVGAAddr[15:0]),
     .dOut(wDataFromMem[15:0]),
     .vgaOut(wPixelData[15:0])
@@ -175,7 +175,7 @@ module SyzBSystem(
     .reset(res),
     .exec(wPeriphExec),
     .dOut(wLEDIntrOut[15:0]),
-    .ledsOut(ledsOut[15:0]),                                   // TODO: Used to be ledsOut[15:0]
+    .ledsOut(ledsOut[15:0]),             // TODO: Used to be ledsOut[15:0]
     .debugOut(wLEDDebugOut[15:0])
   );
   
@@ -262,7 +262,7 @@ module SyzBSystem(
   
   // Monitor Interface (PID = 5)
   VGAInterface vgaIntr(
-    .clk(clk),
+    .vgaClock(clk),
     .reset(res),
     .pixelData(wPixelData[15:0]),
     .vgaAddr(wVGAAddr[15:0]),
