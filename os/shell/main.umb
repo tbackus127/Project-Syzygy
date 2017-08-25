@@ -1,0 +1,161 @@
+# Main OS interface
+# syscalls used:
+#   free()
+#   array()
+#   pollkey()
+# Libraries used:
+#   Keyboard
+
+# Lines to display on the screen before scrolling
+param MAX_LINES = 16;
+
+# Input buffer capacity
+param MAX_CHARS = 64;
+
+# Cursor blink counter
+param MAX_BLINK_COUNT = 10000;
+
+
+# -----------------------------------------------------------------------------
+# Initialization of input buffers and other arrays
+# -----------------------------------------------------------------------------
+func buildInputBuffer(var buf) {
+  set buf = array(MAX_LINES);
+  for(var i = 0; i < MAX_LINES; set i = i + 1) {
+    set buf[i] = array(MAX_CHARS);
+  }
+  return buf;
+}
+
+# -----------------------------------------------------------------------------
+# Gets the Nth bit of a 16-bit number
+#   val: The number to extract a bit from
+#   index: The bit number, 0-15, with 15 being the most-significant
+# -----------------------------------------------------------------------------
+func getBit(var val, var index) {
+  return (val >> index) & (-1 << (index + 1));
+}
+
+# -----------------------------------------------------------------------------
+# Checks if a key is held down by checking its 7th bit flag
+#   key: The keycode from the keyboard
+# -----------------------------------------------------------------------------
+func isKeyHeld(var key) {
+  return .getBit(key, @Keyboard:BIT_HELD);
+}
+
+# -----------------------------------------------------------------------------
+# Returns a keycode only if a key has been released
+# -----------------------------------------------------------------------------
+func getKeyRelease() {
+  var key = .pollKey();
+  if(.isKeyHeld(key)) {
+    if(keyFlag == 1) {
+      set keyFlag = 0;
+      return key;
+    } else {
+      return 0;
+    }
+  } else {
+    set keyFlag = 1;
+    return 0;
+  }
+  .free(key);
+}
+
+# -----------------------------------------------------------------------------
+# Deallocates a 2D array
+# -----------------------------------------------------------------------------
+func free2d(var arr, var size) {
+  for(var i = 0; i < size; set i = i + 1) {
+    .free(arr[i]);
+  }
+  .free(arr);
+}
+
+# -----------------------------------------------------------------------------
+# Executes a command
+# -----------------------------------------------------------------------------
+func executeCommand(var sysLine, var cursorPos) {
+  
+  # TODO: This
+  
+}
+
+# -----------------------------------------------------------------------------
+# Performs a screen update
+# -----------------------------------------------------------------------------
+func updateScreen(var sysIn, var lineNum, var cursorPos, var blinkState) {
+  
+  # TODO: This
+  
+}
+
+# -----------------------------------------------------------------------------
+# Main function
+# -----------------------------------------------------------------------------
+func main() {
+  
+  var running = 1;
+  var key = 0;
+  var lineNum = 0;
+  var sysIn = .buildInputBuffer(sysIn);
+  var cursorPos = 0;
+  var blinkCount = 0;
+  var blinkState = 0;
+  var keyFlag = 0;
+  
+  while(running > 0) {
+    
+    set key = .getKeyReleased();
+    
+    # Execute command
+    if(key == @Keyboard:KEYCODE_ENTER) {
+      .executeCommand(sysIn[lineNum], cursorPos);
+      
+      # If we're at the bottom of the screen, scroll the text up
+      if(lineNum < MAX_LINES - 1) {
+        set lineNum = lineNum + 1;
+      } else {
+        for(var i = 0; i < lineNum - 1; set i = i + 1) {
+          set sysIn[i] = sysIn[i + 1];
+        }
+      }
+      
+      set cursorPos = 0;
+      
+    # Delete character
+    } else if(key == @Keyboard:KEYCODE_BACKSPACE) {
+      
+      if(cursorPos > 0) {
+        set sysIn[cursorPos] = 0;
+        set cursorPos = cursorPos - 1;
+      }
+    
+    # Some other key
+    } else {
+    
+      if(key != 0) {
+      
+        if(cursorPos < 64) {
+          set sysIn[lineNum][cursorPos] = key;
+          set cursorPos = cursorPos + 1;
+        }
+      
+      } else {
+      
+        if(blinkCount <= MAX_BLINK_COUNT) {
+          set blinkCount = blinkCount + 1;
+        } else {
+          set blinkState = !blinkState;
+          set blinkCount = 0;
+        }
+      
+      }
+    }
+    
+    .updateScreen(sysIn, lineNum, cursorPos, blinkState);
+  }
+  
+  .free2d(sysIn);
+}
