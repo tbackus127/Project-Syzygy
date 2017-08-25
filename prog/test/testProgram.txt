@@ -1,0 +1,9 @@
+
+# Test Program for HLL
+
+func main() {
+  while(1) {
+    print("YOU DIDN'T SAY THE MAGIC WORD\n");
+    sleep(65535);
+  }
+}

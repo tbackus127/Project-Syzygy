@@ -1,0 +1,52 @@
+:: Umbra HLL for Syzygy B100 ::
+
+
+
+>> Keywords
+func, set, call, while, for, if, else, return
+
+
+
+
+
+
+>> Grammar
+
+PROGRAM ::= COMMAND; COMMAND; ...
+COMMAND ::= 
+EXPR ::= 
+
+
+
+
+func NAME {
+  PROGRAM
+}
+
+set IDENTIFIER_VAR = EXPR;
+
+call IDENTIFIER_FUNC(ARGLIST)
+
+while(EXPR) {
+  PROGRAM
+}
+
+for(EXPR; EXPR; EXPR) {
+  PROGRAM
+}
+
+if(EXPR) {
+  PROGRAM
+} else {
+  PROGRAM
+}
+
+
+
+
+
+
+
+
+
+
