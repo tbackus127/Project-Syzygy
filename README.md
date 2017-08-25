@@ -8,7 +8,7 @@ The B100, unlike its 8\-bit counterpart, the A100, has 16 registers available (R
 * R2: ALU accumulator, comparison register, push instruction destination
 * R3: Jump address
 * R4: Bits 0-15 of peripheral I/O
-* R5: Bits 16-31 of peripheral I/O (if peripheral has 32-bit mode enabled)
+* R5: Bits 16-31 of peripheral I/O (if peripheral can accept 32-bit values; ignored otherwise)
 * R6: ALU operand 0 (A-side)
 * R7: ALU operand 1 (B-side)
 * R8\-RF: General purpose
@@ -33,7 +33,7 @@ push - Sets R2 to the specified number.
   
 copy - Copy the contents of one register to another
 0001 ssss dddd n___
-  s: source register
+  s: source register; if s = 0, 0xF000 will be copied; if s = 1, 0xFFFF will be copied
   d: destination register
   n: negate value before writing
   
@@ -89,17 +89,14 @@ io - Peripheral I/O operations
 
 # SyzOS (Currently planning; everything is tentative)
 
-An original minimal command line operating system for the Syzygy B100 CPU, written in SYZ assembly.
+An original minimal command line operating system for the Syzygy B100 CPU.
 
 ## Memory layout
 
-* 0x0000: Stack frame pointer
-* 0x0001 - 0x000F: (unknown)
-* 0x0010 - 0x1FFF: OS Instructions
-* 0x2000 - 0x2FFF: Call stack (4KB)
-* 0x3000 - 0x3FFF: Allocation tracker (4KB, but only need 2KB)
-* 0x4000 - 0x7FFF: Program memory (16KB, loaded from SD card when a program is ran)
-* 0x8000 - 0xFFFF: Heap (32KB)
+* OS Instructions - Up to 4KB
+* Program Memory - Up to 16KB
+* Stack/Heap - Up to 8KB
+* Video Memory - 0xB000 - 0xFAFF
 
 ### Call stack frame
 
@@ -116,5 +113,5 @@ Measured in offset (16-bit words) from address in stack pointer
 
 ## Planned features
 * Create and edit text files
-* Boots from SD card; not hard-coded on FPGA
+* Boots from SD card; not hard-coded on FPGA (DONE!)
 * Assemble and run programs within the operating system
