@@ -3,43 +3,7 @@
 
 
 >> Keywords
-func, set, call, while, for, if, else, return
-
-
-
-
-
-
->> Grammar
-
-PROGRAM ::= COMMAND; COMMAND; ...
-COMMAND ::= 
-EXPR ::= 
-
-
-
-
-func NAME {
-  PROGRAM
-}
-
-set IDENTIFIER_VAR = EXPR;
-
-call IDENTIFIER_FUNC(ARGLIST)
-
-while(EXPR) {
-  PROGRAM
-}
-
-for(EXPR; EXPR; EXPR) {
-  PROGRAM
-}
-
-if(EXPR) {
-  PROGRAM
-} else {
-  PROGRAM
-}
+param, func, set, while, for, if, else, return
 
 
 
@@ -47,6 +11,94 @@ if(EXPR) {
 
 
 
+>> Syntax
 
+SKIP ::= \s+\r+\n+
+SKIP ::= #(.)*
+
+ASL ::= "<<<"
+ASR ::= ">>>"
+
+LTE ::= "<="
+GTE ::= ">="
+LOR ::= "||"
+LAND ::= "&&"
+INC ::= "++"
+DEC ::= "--"
+LSL ::= "<<"
+LSR ::= ">>"
+
+LPAREN ::= "("
+RPAREN ::= ")"
+LBRACE ::= "{"
+RBRACE ::= "}"
+LSQBR ::= "["
+RSQBR ::= "]"
+PERIOD ::= "."
+SLASH ::= "/"
+BSLASH ::= "\\"
+EXPOINT ::= "!"
+SEMICOLON ::= ";"
+COLON ::= ":"
+ATSIGN ::= "@"
+PLUS ::= "+"
+HYPHEN ::= "-"
+ASTERISK ::= "*"
+PERCENT ::= "%"
+CARET ::= "^"
+TILDE ::= "~"
+DQUOTE ::= "\""
+GT ::= ">"
+LT ::= "<"
+COMMA ::= ","
+
+PARAMDECL ::= param IDENTIFIER EQUALS NUMBER SEMICOLON
+
+PROGRAM ::= COMMAND*
+
+IDENTIFIER ::= [A-Za-z]+[A-Za-z0-9_]*
+
+VARIABLE ::= VARIABLE LSQBR VARIABLE RSQBR |
+             IDENTIFIER |
+             NUMBER
+
+REFERENCE ::= ATSIGN IDENTIFIER COLON IDENTIFIER
+
+NUMBER ::= ((0x)[0-9a-fA-F]{0,3}) | (HYPHEN)?([0-9]{1,5}) |
+           REFERENCE
+
+VARLIST ::= var IDENTIFIER (COMMA var IDENTIFIER)* SEMICOLON
+
+COMMAND ::= set VARIABLE EQUALS EXPR SEMICOLON |
+            var IDENTIFIER (EQUALS EXPR)? SEMICOLON |
+            while LPAREN EXPR RPAREN LBRACE PROGRAM RBRACE SEMICOLON |
+            if LPAREN EXPR RPAREN LBRACE PROGRAM RBRACE (else if LPAREN EXPR RPAREN LBRACE PROGRAM RBRACE)* (else LPAREN EXPR RPAREN LBRACE PROGRAM RBRACE)? |
+            for LPAREN COMMAND? SEMICOLON EXPR? SEMICOLON COMMAND? RPAREN LBRACE PROGRAM RBRACE |
+            return EXPR SEMICOLON
+            EXPR SEMICOLON
+            
+FUNCDECL ::= func IDENTIFIER LPAREN VARLIST RPAREN LBRACE PROGRAM RBRACE SEMICOLON
+
+EXPRLIST ::= EXPR (COMMA EXPR)*
+
+FUNCINVOKE ::= PERIOD IDENTIFIER LPAREN EXPRLIST RPAREN
+
+EXPR ::= EXPR PLUS EXPR |
+         EXPR HYPHEN EXPR |
+         EXPR ASTERISK EXPR |
+         EXPR SLASH EXPR |
+         EXPR PERCENT EXPR |
+         EXPR CARET EXPR |
+         EXPR VBAR EXPR |
+         EXPR AMPER EXPR |
+         EXPR LSL EXPR |
+         EXPR LSR EXPR |
+         EXPR ASR EXPR |
+         EXPR ASL EXPR |
+         EXPOINT EXPR |
+         FUNCINVOKE |
+         LPAREN EXPR RPAREN |
+         VARIABLE |
+         NUMBER
 
 

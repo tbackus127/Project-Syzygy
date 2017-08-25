@@ -20,9 +20,9 @@ param MAX_BLINK_COUNT = 10000;
 # Initialization of input buffers and other arrays
 # -----------------------------------------------------------------------------
 func buildInputBuffer(var buf) {
-  set buf = array(MAX_LINES);
+  set buf = .array(MAX_LINES);
   for(var i = 0; i < MAX_LINES; set i = i + 1) {
-    set buf[i] = array(MAX_CHARS);
+    set buf[i] = .array(MAX_CHARS);
   }
   return buf;
 }
@@ -41,7 +41,7 @@ func getBit(var val, var index) {
 #   key: The keycode from the keyboard
 # -----------------------------------------------------------------------------
 func isKeyHeld(var key) {
-  return .getBit(key, @Keyboard:BIT_HELD);
+  return .getBit(key, @KBD:BIT_HELD);
 }
 
 # -----------------------------------------------------------------------------
@@ -110,7 +110,7 @@ func main() {
     set key = .getKeyReleased();
     
     # Execute command
-    if(key == @Keyboard:KEYCODE_ENTER) {
+    if(key == @KBD:KEYCODE_ENTER) {
       .executeCommand(sysIn[lineNum], cursorPos);
       
       # If we're at the bottom of the screen, scroll the text up
@@ -125,7 +125,7 @@ func main() {
       set cursorPos = 0;
       
     # Delete character
-    } else if(key == @Keyboard:KEYCODE_BACKSPACE) {
+    } else if(key == @KBD:KEYCODE_BACKSPACE) {
       
       if(cursorPos > 0) {
         set sysIn[cursorPos] = 0;
