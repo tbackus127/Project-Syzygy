@@ -2,6 +2,8 @@ options
 {
   STATIC = false;
   COMMON_TOKEN_ACTION = true;
+  DEBUG_PARSER = true;
+  DEBUG_TOKEN_MANAGER = true;
 }
 
 // --------------------------------------------------------------------------------------------------------------------
@@ -13,11 +15,17 @@ import java.io.*;
 
 public class UmbraCmp {
 
-  private PrintStream fout;
+  private FileInputStream fin;
+  private PrintWriter fout;
 
+  public UmbraCmp(final FileInputStream fin, final PrintWriter fout) {
+    this.fin = fin;
+    this.fout = fout;
+  }
+  
   public static void main(String[] args) throws IOException {
     
-    if(!checkFile(args) {
+    if(!checkFile(args)) {
       return;
     }
     
@@ -52,7 +60,7 @@ public class UmbraCmp {
       System.err.println("The file \"" + umbFile.getName() + "\" does not exist!");
       return false;
     }
-    if(!umbFile.endsWith(".umb") {
+    if(!args[0].endsWith(".umb")) {
       System.err.println("Pass a valid .umb file.");
     }
     
@@ -68,11 +76,11 @@ public class UmbraCmp {
 class CodeGenerator {
   
   public String getAsm(final String op) {
-    
+    return null;
   }
   
   private String translateExpression(final String expr) {
-    
+    return null;
   }
   
 }
@@ -89,11 +97,31 @@ TOKEN_MGR_DECLS: {
 }
 
 SKIP: {
-  "\r" |
-  "\n" |
-  "\t" |
-  < "#" (~["\n"])* "\n" > 
+  " "| "\t" | "\n" | "\r" | "\f"
 }
+
+
+// --------------------------------------------------------------------------------------------------------------------
+// Comments
+
+MORE :
+{
+  "#" : IN_SINGLE_LINE_COMMENT
+}
+
+<IN_SINGLE_LINE_COMMENT>
+SPECIAL_TOKEN :
+{
+  <SINGLE_LINE_COMMENT: "\n" | "\r" | "\r\n" > : DEFAULT
+}
+
+<IN_SINGLE_LINE_COMMENT>
+MORE :
+{
+  < ~[] >
+}
+
+
 
 // --------------------------------------------------------------------------------------------------------------------
 // Operators
@@ -112,13 +140,12 @@ TOKEN: {
   < OP_PLUS:"+"> |
   < OP_HYPHEN:"-"> |
   < OP_ASTERISK:"*"> |
+  < OP_EQUALS:"="> |
   < OP_FSLASH:"/"> |
   < OP_PERCENT: "%"> |
   < OP_CARET: "^"> |
-  
   < OP_GT: ">"> |
-  < OP_LT: "<"> |
-
+  < OP_LT: "<">
 }
 
 // --------------------------------------------------------------------------------------------------------------------
@@ -157,7 +184,7 @@ TOKEN: {
 
 TOKEN: {
   
-  < IDENTIFIER: ["a"-"z","A"-"Z"] ("a"-"z","A"-"Z","0"-"9","_")* >
+  < IDENTIFIER: ["a"-"z","A"-"Z"] (["a"-"z","A"-"Z","0"-"9","_"])*  >
 |  
   < REFERENCE: "@" <IDENTIFIER> ":" <IDENTIFIER> >
 |
@@ -200,7 +227,7 @@ void Program() :
 
   ( ParamDeclaration() )*
   ( FunctionDeclaration() )*
-  ( MainDeclaration() ){1}
+  MainDeclaration()
   ( FunctionDeclaration() )*
   <EOF>
     
@@ -234,29 +261,30 @@ void ParamDeclaration() :
 void ArgList() :
 {}
 {
-  <RW_VAR> <IDENTIFIER> (<SEP_COMMA> <RW_VAR> <IDENTIFIER>)* >
+  <RW_VAR> <IDENTIFIER> (<SEP_COMMA> <RW_VAR> <IDENTIFIER>)*
 }
 
 void StatementList() :
 {}
 {
   Statement()
-  (StatementList() )*
+  (LOOKAHEAD(2) StatementList() )*
 }
 
 void Statement() :
+{}
 {
-  Operation() |
-  ControlStructure()
+  ( Operation() ) |
+  ( ControlStructure() )
 }
 
 void Operation() : 
 {}
 {
   (
-    SetOperation() |
-    VarDeclaration() |
-    VarInitializaiton() |
+    LOOKAHEAD(3) SetOperation() |
+    LOOKAHEAD(3) VarDeclaration() |
+    VarInitialization() |
     ReturnOperation() |
     Expression()
   )
@@ -274,42 +302,43 @@ void ControlStructure() :
 void SetOperation() :
 {}
 {
-  <KW_SET> <IDENTIFIER> <TOK_EQUALS> Expression()
+  <RW_SET> <IDENTIFIER> <OP_EQUALS> Expression()
 }
 
 void VarDeclaration() :
 {}
 {
-  <KW_VAR> <IDENTIFIER>
+  <RW_VAR> <IDENTIFIER>
 }
 
-void VarInitializaiton() :
+void VarInitialization() :
 {}
 {
-  <KW_VAR> <IDENTIFIER> <TOK_EQUALS> Expression()
+  <RW_VAR> <IDENTIFIER> <OP_EQUALS> Expression()
 }
 
 void ReturnOperation() :
 {}
 {
-  <KW_RETURN> (Expression())?
+  <RW_RETURN> (Expression())?
 }
 
 void ConditionalBranch() :
 {}
 {
-  <KW_IF> <TOK_LPAREN> Expression() <TOK_RPAREN> <SEP_LBRACE>
+  <RW_IF> <SEP_LPAREN> Expression() <SEP_RPAREN> <SEP_LBRACE>
     StatementList()
   <SEP_RBRACE>
   
-  (
-    <KW_ELSE> <KW_IF> <TOK_LPAREN> Expression() <TOK_RPAREN> <SEP_LBRACE>
+  
+  ( LOOKAHEAD(2) 
+    <RW_ELSE> <RW_IF> <SEP_LPAREN> Expression() <SEP_RPAREN> <SEP_LBRACE>
       StatementList()
     <SEP_RBRACE>
   )*
   
   (
-    <KW_ELSE> <TOK_LPAREN> Expression() <TOK_RPAREN> <SEP_LBRACE>
+    <RW_ELSE> <SEP_LPAREN> Expression() <SEP_RPAREN> <SEP_LBRACE>
       StatementList()
     <SEP_RBRACE>
   )?
@@ -318,7 +347,7 @@ void ConditionalBranch() :
 void WhileLoop() :
 {}
 {
-  <KW_WHILE> <TOK_LPAREN> Expression() <TOK_RPAREN> <SEP_LBRACE>
+  <RW_WHILE> <SEP_LPAREN> Expression() <SEP_RPAREN> <SEP_LBRACE>
     StatementList()
   <SEP_RBRACE>
 }
@@ -326,7 +355,7 @@ void WhileLoop() :
 void ForLoop() :
 {}
 {
-  <KW_FOR> <TOK_LPAREN> (VarInitialization())? <SEP_SEMICOLON> Expression() <SEP_SEMICOLON> SetOperation() <TOK_RPAREN> <SEP_LBRACE>
+  <RW_FOR> <SEP_LPAREN> (VarInitialization())? <SEP_SEMICOLON> Expression() <SEP_SEMICOLON> SetOperation() <SEP_RPAREN> <SEP_LBRACE>
     StatementList()
   <SEP_RBRACE>
 }
@@ -334,14 +363,45 @@ void ForLoop() :
 void Expression() :
 {}
 {
+  <SEP_LPAREN> Expression() <SEP_RPAREN> |
+  <OP_EXPOINT> Expression() |
   
+  LOOKAHEAD(3) ExpressionHead() <OP_ASHIFTL> Expression() |
+  LOOKAHEAD(3) ExpressionHead() <OP_ASHIFTR> Expression() |
+  LOOKAHEAD(3) ExpressionHead() <OP_LSL> Expression() |
+  LOOKAHEAD(3) ExpressionHead() <OP_LSR> Expression() |
+  
+  LOOKAHEAD(3) ExpressionHead() <OP_LTE> Expression() |
+  LOOKAHEAD(3) ExpressionHead() <OP_GTE> Expression() |
+  LOOKAHEAD(3) ExpressionHead() <OP_LT> Expression() |
+  LOOKAHEAD(3) ExpressionHead() <OP_GT> Expression() |
+  
+  LOOKAHEAD(3) ExpressionHead() <OP_PLUS> Expression() |
+  LOOKAHEAD(3) ExpressionHead() <OP_HYPHEN> Expression() |
+  LOOKAHEAD(3) ExpressionHead() <OP_ASTERISK> Expression() |
+  LOOKAHEAD(3) ExpressionHead() <OP_FSLASH> Expression() |
+  LOOKAHEAD(3) ExpressionHead() <OP_CARET> Expression() |
+  LOOKAHEAD(3) ExpressionHead() <OP_PERCENT> Expression()
 }
 
+void ExpressionHead() :
+{}
+{
+  FunctionCall() |
+  <IDENTIFIER> |
+  <REFERENCE> |
+  <LIT_GENERAL>
+}
 
+void FunctionCall() :
+{}
+{
+  <OP_PERIOD> <IDENTIFIER> <SEP_LPAREN> ( ValueList() )? <SEP_RPAREN>
+}
 
-
-
-
-
-
+void ValueList() :
+{}
+{
+  Expression() (<SEP_COMMA> Expression() )*
+}
 
