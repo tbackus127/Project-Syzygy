@@ -1,0 +1,347 @@
+options
+{
+  STATIC = false;
+  COMMON_TOKEN_ACTION = true;
+}
+
+// --------------------------------------------------------------------------------------------------------------------
+// Parser Declaration
+
+PARSER_BEGIN(UmbraCmp)
+
+import java.io.*;
+
+public class UmbraCmp {
+
+  private PrintStream fout;
+
+  public static void main(String[] args) throws IOException {
+    
+    if(!checkFile(args) {
+      return;
+    }
+    
+    // Get input/output file names
+    final String inFileName = args[0];
+    final String outFileName = inFileName.replaceFirst("[.][^.]+$", "") + ".syz";
+    
+    final FileInputStream fileIn = new FileInputStream(inFileName);
+    final PrintWriter fileOut = new PrintWriter(outFileName);
+    
+    fileOut.println("# Compiled with UmbraCmp");
+    
+    final UmbraCmp compiler = new UmbraCmp(fileIn, fileOut);
+    
+    try {
+      compiler.Program();
+    } catch(ParseException pe) {
+      System.err.println(pe.getMessage());
+    }
+    
+    fileOut.close();
+  }
+  
+  private static final boolean checkFile(String[] args) {
+    if(args.length != 1) {
+      printUsage();
+      return false;
+    }
+    
+    final File umbFile = new File(args[0]);
+    if(!umbFile.exists()) {
+      System.err.println("The file \"" + umbFile.getName() + "\" does not exist!");
+      return false;
+    }
+    if(!umbFile.endsWith(".umb") {
+      System.err.println("Pass a valid .umb file.");
+    }
+    
+    return true;
+  }
+  
+  private static final void printUsage() {
+    System.err.println("Usage:\"java UmbraCmp <PATH_TO_UMB_FILE>\".");
+  }
+
+}
+
+class CodeGenerator {
+  
+  public String getAsm(final String op) {
+    
+  }
+  
+  private String translateExpression(final String expr) {
+    
+  }
+  
+}
+
+PARSER_END(UmbraCmp)
+
+// --------------------------------------------------------------------------------------------------------------------
+// Tokens
+
+TOKEN_MGR_DECLS: {
+  void CommonTokenAction(Token t) {
+    System.out.println("Token: " + t.image);
+  }
+}
+
+SKIP: {
+  "\r" |
+  "\n" |
+  "\t" |
+  < "#" (~["\n"])* "\n" > 
+}
+
+// --------------------------------------------------------------------------------------------------------------------
+// Operators
+
+TOKEN: {
+  < OP_ASHIFTL:"<<<"> |
+  < OP_ASHIFTR:">>>"> |
+  < OP_LTE:"<="> |
+  < OP_GTE:">="> |
+  < OP_LSL:"<<"> |
+  < OP_LSR:">>"> |
+  < OP_PERIOD: "."> |
+  < OP_BSLASH: "\\"> |
+  < OP_EXPOINT: "!"> |
+  < OP_ATSIGN: "@"> |
+  < OP_PLUS:"+"> |
+  < OP_HYPHEN:"-"> |
+  < OP_ASTERISK:"*"> |
+  < OP_FSLASH:"/"> |
+  < OP_PERCENT: "%"> |
+  < OP_CARET: "^"> |
+  
+  < OP_GT: ">"> |
+  < OP_LT: "<"> |
+
+}
+
+// --------------------------------------------------------------------------------------------------------------------
+// Separators
+TOKEN: {
+  < SEP_LPAREN:"("> |
+  < SEP_RPAREN:")"> |
+  < SEP_LBRACE:"{"> |
+  < SEP_RBRACE:"}"> |
+  < SEP_LSQBR:"["> |
+  < SEP_RSQBR:"]"> |
+  < SEP_COMMA: ","> |
+  < SEP_SEMICOLON: ";"> |
+  < SEP_COLON: ":"> |
+  < SEP_DQUOTE: "\"">
+}
+
+// --------------------------------------------------------------------------------------------------------------------
+// Reserved Words
+TOKEN: {
+  
+  < RW_VAR: "var" > |
+  < RW_SET: "set" > |
+  < RW_PARAM: "param" > |
+  < RW_IF: "if" > |
+  < RW_ELSE: "else" > |
+  < RW_MAIN: "main" > |
+  < RW_FUNC: "func" > |
+  < RW_FOR: "for" > |
+  < RW_RETURN: "return" > |
+  < RW_WHILE: "while" >
+}
+
+// --------------------------------------------------------------------------------------------------------------------
+// Values
+
+TOKEN: {
+  
+  < IDENTIFIER: ["a"-"z","A"-"Z"] ("a"-"z","A"-"Z","0"-"9","_")* >
+|  
+  < REFERENCE: "@" <IDENTIFIER> ":" <IDENTIFIER> >
+|
+  < LIT_GENERAL: <LIT_NUMBER> | <LIT_CHAR> | <LIT_STRING> >
+|
+  < LIT_NUMBER: <LIT_DECIMAL> | <LIT_HEX> >
+|
+  < #LIT_DECIMAL: ["1"-"9"] (["0"-"9"])* >
+|
+  < #LIT_HEX: "0x" (["0"-"9","a"-"f","A"-"F"]){1,4} >
+|
+  < LIT_CHAR:
+    "'"
+    (   
+      (~["\"","\\","\n"]) | 
+      ("\\" ( ["n","\\","'","\""]))
+    )*
+    "'"
+  >
+|
+  < LIT_STRING:
+    "\""
+    (   
+      (~["\"","\\","\n"]) | 
+      ("\\" ( ["n","\\","'","\""]))
+    )*
+    "\""
+  >
+  
+  
+}
+
+
+// --------------------------------------------------------------------------------------------------------------------
+// Grammar
+
+void Program() :
+{}
+{
+
+  ( ParamDeclaration() )*
+  ( FunctionDeclaration() )*
+  ( MainDeclaration() ){1}
+  ( FunctionDeclaration() )*
+  <EOF>
+    
+}
+
+void MainDeclaration() :
+{}
+{
+  <RW_MAIN> <SEP_LBRACE>
+    StatementList()
+  <SEP_RBRACE>
+}
+
+void FunctionDeclaration() :
+{}
+{
+  <RW_FUNC> <IDENTIFIER> <SEP_LPAREN> ArgList() <SEP_RPAREN> <SEP_LBRACE>
+    StatementList()
+  <SEP_RBRACE>
+  
+}
+
+void ParamDeclaration() :
+{}
+{
+ 
+  <RW_PARAM> <IDENTIFIER> <OP_EQUALS> <LIT_GENERAL> <SEP_SEMICOLON>
+  
+}
+
+void ArgList() :
+{}
+{
+  <RW_VAR> <IDENTIFIER> (<SEP_COMMA> <RW_VAR> <IDENTIFIER>)* >
+}
+
+void StatementList() :
+{}
+{
+  Statement()
+  (StatementList() )*
+}
+
+void Statement() :
+{
+  Operation() |
+  ControlStructure()
+}
+
+void Operation() : 
+{}
+{
+  (
+    SetOperation() |
+    VarDeclaration() |
+    VarInitializaiton() |
+    ReturnOperation() |
+    Expression()
+  )
+  <SEP_SEMICOLON>
+}
+
+void ControlStructure() :
+{}
+{
+  ConditionalBranch() |
+  WhileLoop() |
+  ForLoop()
+}
+
+void SetOperation() :
+{}
+{
+  <KW_SET> <IDENTIFIER> <TOK_EQUALS> Expression()
+}
+
+void VarDeclaration() :
+{}
+{
+  <KW_VAR> <IDENTIFIER>
+}
+
+void VarInitializaiton() :
+{}
+{
+  <KW_VAR> <IDENTIFIER> <TOK_EQUALS> Expression()
+}
+
+void ReturnOperation() :
+{}
+{
+  <KW_RETURN> (Expression())?
+}
+
+void ConditionalBranch() :
+{}
+{
+  <KW_IF> <TOK_LPAREN> Expression() <TOK_RPAREN> <SEP_LBRACE>
+    StatementList()
+  <SEP_RBRACE>
+  
+  (
+    <KW_ELSE> <KW_IF> <TOK_LPAREN> Expression() <TOK_RPAREN> <SEP_LBRACE>
+      StatementList()
+    <SEP_RBRACE>
+  )*
+  
+  (
+    <KW_ELSE> <TOK_LPAREN> Expression() <TOK_RPAREN> <SEP_LBRACE>
+      StatementList()
+    <SEP_RBRACE>
+  )?
+}
+
+void WhileLoop() :
+{}
+{
+  <KW_WHILE> <TOK_LPAREN> Expression() <TOK_RPAREN> <SEP_LBRACE>
+    StatementList()
+  <SEP_RBRACE>
+}
+
+void ForLoop() :
+{}
+{
+  <KW_FOR> <TOK_LPAREN> (VarInitialization())? <SEP_SEMICOLON> Expression() <SEP_SEMICOLON> SetOperation() <TOK_RPAREN> <SEP_LBRACE>
+    StatementList()
+  <SEP_RBRACE>
+}
+
+void Expression() :
+{}
+{
+  
+}
+
+
+
+
+
+
+
+
+

@@ -10,6 +10,7 @@ cpu/SyzygyB100.runs/*
 cpu/SyzygyB100.sim/*
 cpu/SyzygyB100.srcs/sources_1/bd/*
 cpu/SyzygyB100.xpr
+prog/javacc/*
 *.tmp
 *.xpr
 *.bak
