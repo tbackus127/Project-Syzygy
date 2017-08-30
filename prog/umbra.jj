@@ -12,78 +12,27 @@ options
 PARSER_BEGIN(UmbraCmp)
 
 import java.io.*;
+import java.util.List;
+import java.util.ArrayList;
 
 public class UmbraCmp {
 
-  private FileInputStream fin;
-  private PrintWriter fout;
-
-  public UmbraCmp(final FileInputStream fin, final PrintWriter fout) {
-    this.fin = fin;
-    this.fout = fout;
-  }
-  
-  public static void main(String[] args) throws IOException {
-    
-    if(!checkFile(args)) {
-      return;
-    }
-    
-    // Get input/output file names
-    final String inFileName = args[0];
-    final String outFileName = inFileName.replaceFirst("[.][^.]+$", "") + ".syz";
-    
-    final FileInputStream fileIn = new FileInputStream(inFileName);
-    final PrintWriter fileOut = new PrintWriter(outFileName);
-    
-    fileOut.println("# Compiled with UmbraCmp");
-    
-    final UmbraCmp compiler = new UmbraCmp(fileIn, fileOut);
+  public Program parse() {
     
     try {
-      compiler.Program();
-    } catch(ParseException pe) {
-      System.err.println(pe.getMessage());
+      return Program();
+    } catch (TokenMgrError tme) {
+      System.err.println(tme.getMessage);
+      return null;
+    } catch (ParseException pe) {
+      System.err.println(pe.getMessage);
+      return null;
     }
     
-    fileOut.close();
-  }
-  
-  private static final boolean checkFile(String[] args) {
-    if(args.length != 1) {
-      printUsage();
-      return false;
-    }
-    
-    final File umbFile = new File(args[0]);
-    if(!umbFile.exists()) {
-      System.err.println("The file \"" + umbFile.getName() + "\" does not exist!");
-      return false;
-    }
-    if(!args[0].endsWith(".umb")) {
-      System.err.println("Pass a valid .umb file.");
-    }
-    
-    return true;
-  }
-  
-  private static final void printUsage() {
-    System.err.println("Usage:\"java UmbraCmp <PATH_TO_UMB_FILE>\".");
   }
 
 }
 
-class CodeGenerator {
-  
-  public String getAsm(final String op) {
-    return null;
-  }
-  
-  private String translateExpression(final String expr) {
-    return null;
-  }
-  
-}
 
 PARSER_END(UmbraCmp)
 
@@ -97,29 +46,10 @@ TOKEN_MGR_DECLS: {
 }
 
 SKIP: {
-  " "| "\t" | "\n" | "\r" | "\f"
+  " "| "\t" | "\n" | "\r" | <"#" (~["\n","\r"])* ("\n"|"\r"|"\r\n")>
 }
 
 
-// --------------------------------------------------------------------------------------------------------------------
-// Comments
-
-MORE :
-{
-  "#" : IN_SINGLE_LINE_COMMENT
-}
-
-<IN_SINGLE_LINE_COMMENT>
-SPECIAL_TOKEN :
-{
-  <SINGLE_LINE_COMMENT: "\n" | "\r" | "\r\n" > : DEFAULT
-}
-
-<IN_SINGLE_LINE_COMMENT>
-MORE :
-{
-  < ~[] >
-}
 
 
 
@@ -127,56 +57,26 @@ MORE :
 // Operators
 
 TOKEN: {
-  < OP_ASHIFTL:"<<<"> |
-  < OP_ASHIFTR:">>>"> |
-  < OP_LTE:"<="> |
-  < OP_GTE:">="> |
-  < OP_LSL:"<<"> |
-  < OP_LSR:">>"> |
-  < OP_PERIOD: "."> |
-  < OP_BSLASH: "\\"> |
-  < OP_EXPOINT: "!"> |
-  < OP_ATSIGN: "@"> |
-  < OP_PLUS:"+"> |
-  < OP_HYPHEN:"-"> |
-  < OP_ASTERISK:"*"> |
-  < OP_EQUALS:"="> |
-  < OP_FSLASH:"/"> |
-  < OP_PERCENT: "%"> |
-  < OP_CARET: "^"> |
-  < OP_GT: ">"> |
-  < OP_LT: "<">
+  
+  "<<<", ">>>", "<=", ">=", "<<", ">>", "\.", "!", "@", "+", "-", "*",
+  "=", "/", "%", "^", ">", "<"
+  
 }
 
 // --------------------------------------------------------------------------------------------------------------------
 // Separators
 TOKEN: {
-  < SEP_LPAREN:"("> |
-  < SEP_RPAREN:")"> |
-  < SEP_LBRACE:"{"> |
-  < SEP_RBRACE:"}"> |
-  < SEP_LSQBR:"["> |
-  < SEP_RSQBR:"]"> |
-  < SEP_COMMA: ","> |
-  < SEP_SEMICOLON: ";"> |
-  < SEP_COLON: ":"> |
-  < SEP_DQUOTE: "\"">
+  
+  "(", ")", "{", "}", "[", "]", ",", ";", ":", "\""
+  
 }
 
 // --------------------------------------------------------------------------------------------------------------------
 // Reserved Words
 TOKEN: {
   
-  < RW_VAR: "var" > |
-  < RW_SET: "set" > |
-  < RW_PARAM: "param" > |
-  < RW_IF: "if" > |
-  < RW_ELSE: "else" > |
-  < RW_MAIN: "main" > |
-  < RW_FUNC: "func" > |
-  < RW_FOR: "for" > |
-  < RW_RETURN: "return" > |
-  < RW_WHILE: "while" >
+  "var", "set", "param", "if", "else", "main", "func", "for", "return", "while"
+  
 }
 
 // --------------------------------------------------------------------------------------------------------------------
@@ -222,166 +122,237 @@ TOKEN: {
 // Grammar
 
 void Program() :
-{}
+{
+  List<ParamDeclaration> paramDeclList = new ArrayList<ParamDeclaration>();
+  List<FunctionDeclaration> funcDeclList = new ArrayList<FunctionDeclaration>();
+  MainDeclaration mainDecl;
+  ParamDeclaration pd;
+  FunctionDeclaration fd;
+}
 {
 
-  ( ParamDeclaration() )*
-  ( FunctionDeclaration() )*
-  MainDeclaration()
-  ( FunctionDeclaration() )*
+  ( pd = ParamDeclaration() { paramDeclList.add(pd); } )*
+  ( mainDecl = MainDeclaration() )
+  ( fd = FunctionDeclaration() {funcDeclList.add(fd); } )*
   <EOF>
-    
+  { return new Program(paramDeclList, mainDecl, funcDeclList); }
 }
 
 void MainDeclaration() :
-{}
 {
-  <RW_MAIN> <SEP_LBRACE>
-    StatementList()
-  <SEP_RBRACE>
+  StatementList statementList;
+}
+{
+  "main" "{"
+    ( statementList = StatementList() )
+  "}"
+  
+  { return new MainDeclaration(statementList); }
 }
 
 void FunctionDeclaration() :
-{}
 {
-  <RW_FUNC> <IDENTIFIER> <SEP_LPAREN> ArgList() <SEP_RPAREN> <SEP_LBRACE>
-    StatementList()
-  <SEP_RBRACE>
+  ArgList argList;
+  StatementList statementList;
+}
+{
+  "func" <IDENTIFIER> "(" argList = ArgList() ")" "{"
+    statementList = StatementList()
+  "}"
   
+  { return new FunctionDeclaration(argList, statementList); }
 }
 
 void ParamDeclaration() :
-{}
+{
+  Token id;
+  Token lit;
+}
 {
  
-  <RW_PARAM> <IDENTIFIER> <OP_EQUALS> <LIT_GENERAL> <SEP_SEMICOLON>
+  "param" (id = <IDENTIFIER>) "=" (lit = <LIT_GENERAL>) ";"
   
+  { return new ParamDeclaration(id, lit); }
 }
 
 void ArgList() :
-{}
 {
-  <RW_VAR> <IDENTIFIER> (<SEP_COMMA> <RW_VAR> <IDENTIFIER>)*
+  ArgListHead head;
+  List<ArgListTail> tail = new ArrayList<ArgListTail>();
+  ArgListTail t;
+}
+{
+  head = ArgListHead() ( t = ArgListTail() {tail.add(t); } )*
+  
+  { return new ArgList(head, tail); }
+}
+
+void ArgListHead() :
+{
+  Token id;
+}
+{
+  "var" id = <IDENTIFIER>
+  
+  { return new Variable(id.image()); }
+}
+
+void ArgListTail() :
+{
+  Token id;
+}
+{
+  "," "var" id = <IDENTIFIER>
+  
+  { return new Variable(id.image()); }
 }
 
 void StatementList() :
-{}
 {
-  Statement()
-  (LOOKAHEAD(2) StatementList() )*
+  List<StatementList> sl = new ArrayList<StatementList>();
+  Statement st;
+}
+{
+  
+  (LOOKAHEAD(2) st = Statement() { sl.add(st); } )+
+  
+  { return new StatementList(sl); }
 }
 
 void Statement() :
-{}
 {
-  ( Operation() ) |
-  ( ControlStructure() )
+  Operation op;
+  ControlStructure cs;
+}
+{
+  ( op = Operation() )
+  { return new Operation(op); }
+|
+  ( cs = ControlStructure() )
+  { return new ControlStructure(cs); }
 }
 
 void Operation() : 
-{}
+{
+  SetOperation sop;
+  VarDeclaration vDecl;
+  VarInitialization vInit;
+  ReturnOperation retOp;
+  Expression expr;
+}
 {
   (
-    LOOKAHEAD(3) SetOperation() |
-    LOOKAHEAD(3) VarDeclaration() |
-    VarInitialization() |
-    ReturnOperation() |
-    Expression()
+    LOOKAHEAD(3) sop = SetOperation()
+    { return new SetOperation(sop) }
+  |
+    LOOKAHEAD(3) vDecl = VarDeclaration()
+    { return new VarDeclaration(vDecl) }
+  |
+    vInit = VarInitialization()
+    { return new VarInitialization(vInit) }
+  |
+    retOp = ReturnOperation()
+    { return new ReturnOperation(retOp) }
+  |
+    expr = Expression()
+    { return new Expression(expr) }
   )
-  <SEP_SEMICOLON>
+  ";"
 }
 
 void ControlStructure() :
 {}
 {
-  ConditionalBranch() |
-  WhileLoop() |
+  ConditionalBranch()
+|
+  WhileLoop()
+|
   ForLoop()
 }
 
 void SetOperation() :
 {}
 {
-  <RW_SET> <IDENTIFIER> <OP_EQUALS> Expression()
+  "set" <IDENTIFIER> "=" Expression()
 }
 
 void VarDeclaration() :
 {}
 {
-  <RW_VAR> <IDENTIFIER>
+  "var" <IDENTIFIER>
 }
 
 void VarInitialization() :
 {}
 {
-  <RW_VAR> <IDENTIFIER> <OP_EQUALS> Expression()
+  "var" <IDENTIFIER> "=" Expression()
 }
 
 void ReturnOperation() :
 {}
 {
-  <RW_RETURN> (Expression())?
+  "return" (Expression())?
 }
 
 void ConditionalBranch() :
 {}
 {
-  <RW_IF> <SEP_LPAREN> Expression() <SEP_RPAREN> <SEP_LBRACE>
+  "if" "(" Expression() ")" "{"
     StatementList()
-  <SEP_RBRACE>
+  "}"
   
   
   ( LOOKAHEAD(2) 
-    <RW_ELSE> <RW_IF> <SEP_LPAREN> Expression() <SEP_RPAREN> <SEP_LBRACE>
+    "else" "if" "(" Expression() ")" "{"
       StatementList()
-    <SEP_RBRACE>
+    "}"
   )*
   
   (
-    <RW_ELSE> <SEP_LPAREN> Expression() <SEP_RPAREN> <SEP_LBRACE>
+    "else" "(" Expression() ")" "{"
       StatementList()
-    <SEP_RBRACE>
+    "}"
   )?
 }
 
 void WhileLoop() :
 {}
 {
-  <RW_WHILE> <SEP_LPAREN> Expression() <SEP_RPAREN> <SEP_LBRACE>
+  "while" "(" Expression() ")" "{"
     StatementList()
-  <SEP_RBRACE>
+  "}"
 }
 
 void ForLoop() :
 {}
 {
-  <RW_FOR> <SEP_LPAREN> (VarInitialization())? <SEP_SEMICOLON> Expression() <SEP_SEMICOLON> SetOperation() <SEP_RPAREN> <SEP_LBRACE>
+  "for" "(" (VarInitialization())? ";" Expression() ";" SetOperation() ")" "{"
     StatementList()
-  <SEP_RBRACE>
+  "}"
 }
 
 void Expression() :
 {}
 {
-  <SEP_LPAREN> Expression() <SEP_RPAREN> |
-  <OP_EXPOINT> Expression() |
+  "(" Expression() ")" |
+  "!" Expression() |
   
-  LOOKAHEAD(3) ExpressionHead() <OP_ASHIFTL> Expression() |
-  LOOKAHEAD(3) ExpressionHead() <OP_ASHIFTR> Expression() |
-  LOOKAHEAD(3) ExpressionHead() <OP_LSL> Expression() |
-  LOOKAHEAD(3) ExpressionHead() <OP_LSR> Expression() |
+  LOOKAHEAD(3) ExpressionHead() "<<<" Expression() |
+  LOOKAHEAD(3) ExpressionHead() ">>>" Expression() |
+  LOOKAHEAD(3) ExpressionHead() "<<" Expression() |
+  LOOKAHEAD(3) ExpressionHead() ">>" Expression() |
   
-  LOOKAHEAD(3) ExpressionHead() <OP_LTE> Expression() |
-  LOOKAHEAD(3) ExpressionHead() <OP_GTE> Expression() |
-  LOOKAHEAD(3) ExpressionHead() <OP_LT> Expression() |
-  LOOKAHEAD(3) ExpressionHead() <OP_GT> Expression() |
+  LOOKAHEAD(3) ExpressionHead() "<=" Expression() |
+  LOOKAHEAD(3) ExpressionHead() ">=" Expression() |
+  LOOKAHEAD(3) ExpressionHead() "<" Expression() |
+  LOOKAHEAD(3) ExpressionHead() ">" Expression() |
   
-  LOOKAHEAD(3) ExpressionHead() <OP_PLUS> Expression() |
-  LOOKAHEAD(3) ExpressionHead() <OP_HYPHEN> Expression() |
-  LOOKAHEAD(3) ExpressionHead() <OP_ASTERISK> Expression() |
-  LOOKAHEAD(3) ExpressionHead() <OP_FSLASH> Expression() |
-  LOOKAHEAD(3) ExpressionHead() <OP_CARET> Expression() |
-  LOOKAHEAD(3) ExpressionHead() <OP_PERCENT> Expression()
+  LOOKAHEAD(3) ExpressionHead() "+" Expression() |
+  LOOKAHEAD(3) ExpressionHead() "-" Expression() |
+  LOOKAHEAD(3) ExpressionHead() "*" Expression() |
+  LOOKAHEAD(3) ExpressionHead() "/" Expression() |
+  LOOKAHEAD(3) ExpressionHead() "^" Expression() |
+  LOOKAHEAD(3) ExpressionHead() "%" Expression()
 }
 
 void ExpressionHead() :
@@ -396,12 +367,12 @@ void ExpressionHead() :
 void FunctionCall() :
 {}
 {
-  <OP_PERIOD> <IDENTIFIER> <SEP_LPAREN> ( ValueList() )? <SEP_RPAREN>
+  "\." <IDENTIFIER> "(" ( ValueList() )? ")"
 }
 
 void ValueList() :
 {}
 {
-  Expression() (<SEP_COMMA> Expression() )*
+  Expression() ("," Expression() )*
 }
 
