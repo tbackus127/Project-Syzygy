@@ -11,6 +11,8 @@ options
 
 PARSER_BEGIN(UmbraCmp)
 
+package com.rath.umbra;
+
 import java.io.*;
 import java.util.List;
 import java.util.ArrayList;
