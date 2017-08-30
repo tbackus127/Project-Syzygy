@@ -58,16 +58,45 @@ SKIP: {
 
 TOKEN: {
   
-  "<<<", ">>>", "<=", ">=", "<<", ">>", "\.", "!", "@", "+", "-", "*",
-  "=", "/", "%", "^", ">", "<"
+  <OP_ASL: "<<<" >
+|
+  <OP_ASR: ">>>" >
+|
+  <OP_LTE: "<=" >
+|
+  <OP_GTE: ">=" >
+|
+  <OP_LSL: "<<" >
+|
+  <OP_LSR: ">>" >
+|
+  <OP_EXCL: "!" >
+|
+  <OP_PLUS: "+" >
+|
+  <OP_HYPHEN: "-" >
+|
+  <OP_ASTER: "*" >
+|
+  <OP_EQUAL: "=" >
+|
+  <OP_SLASH: "/" >
+|
+  <OP_PERCENT: "%" >
+|
+  <OP_CARET: "^" >
+|
+  <OP_GT: ">" >
+|
+  <OP_LT: "<" >
   
 }
 
 // --------------------------------------------------------------------------------------------------------------------
-// Separators
+// Separators / Misc tokens
 TOKEN: {
   
-  "(", ")", "{", "}", "[", "]", ",", ";", ":", "\""
+  "(", ")", "{", "}", "[", "]", ",", ";", ":", "\"", "@", "\."
   
 }
 
@@ -133,46 +162,47 @@ void Program() :
 
   ( pd = ParamDeclaration() { paramDeclList.add(pd); } )*
   ( mainDecl = MainDeclaration() )
-  ( fd = FunctionDeclaration() {funcDeclList.add(fd); } )*
+  ( fd = FunctionDeclaration {funcDeclList.add(fd); } )*
   <EOF>
   { return new Program(paramDeclList, mainDecl, funcDeclList); }
 }
 
 void MainDeclaration() :
 {
-  StatementList statementList;
+  StatementList body;
 }
 {
   "main" "{"
-    ( statementList = StatementList() )
+    ( body = StatementList() )
   "}"
   
-  { return new MainDeclaration(statementList); }
+  { return new MainDeclaration(body); }
 }
 
 void FunctionDeclaration() :
 {
+  Token name;
   ArgList argList;
-  StatementList statementList;
+  StatementList body;
 }
 {
-  "func" <IDENTIFIER> "(" argList = ArgList() ")" "{"
-    statementList = StatementList()
+  "func" name = <IDENTIFIER> "(" argList = ArgList() ")" "{"
+    body = StatementList()
   "}"
   
-  { return new FunctionDeclaration(argList, statementList); }
+  { return new FunctionDeclaration(name, argList, body); }
 }
 
 void ParamDeclaration() :
 {
   Token id;
-  Token lit;
+  Token value;
 }
 {
  
-  "param" (id = <IDENTIFIER>) "=" (lit = <LIT_GENERAL>) ";"
+  "param" (id = <IDENTIFIER>) "=" (value = <LIT_GENERAL>) ";"
   
-  { return new ParamDeclaration(id, lit); }
+  { return new ParamDeclaration(id, value); }
 }
 
 void ArgList() :
@@ -182,7 +212,7 @@ void ArgList() :
   ArgListTail t;
 }
 {
-  head = ArgListHead() ( t = ArgListTail() {tail.add(t); } )*
+  head = ArgListHead() ( t = {tail.add(ArgListTail()); } )*
   
   { return new ArgList(head, tail); }
 }
@@ -209,50 +239,50 @@ void ArgListTail() :
 
 void StatementList() :
 {
-  List<StatementList> sl = new ArrayList<StatementList>();
+  List<StatementList> list = new ArrayList<StatementList>();
   Statement st;
 }
 {
   
-  (LOOKAHEAD(2) st = Statement() { sl.add(st); } )+
+  (LOOKAHEAD(2) st = Statement() { list.add(st); } )+
   
-  { return new StatementList(sl); }
+  { return new StatementList(list); }
 }
 
 void Statement() :
 {
-  Operation op;
-  ControlStructure cs;
+  Operation operation;
+  ControlStructure controlStructure;
 }
 {
-  ( op = Operation() )
-  { return new Operation(op); }
+  ( operation = Operation() )
+  { return new Operation(operation); }
 |
-  ( cs = ControlStructure() )
-  { return new ControlStructure(cs); }
+  ( controlStructure = ControlStructure() )
+  { return new ControlStructure(controlStructure); }
 }
 
 void Operation() : 
 {
-  SetOperation sop;
-  VarDeclaration vDecl;
-  VarInitialization vInit;
-  ReturnOperation retOp;
+  SetOperation setOperation;
+  VarDeclaration varDeclaration;
+  VarInitialization varInitialization;
+  ReturnOperation returnOperation;
   Expression expr;
 }
 {
   (
-    LOOKAHEAD(3) sop = SetOperation()
-    { return new SetOperation(sop) }
+    LOOKAHEAD(3) setOperation = SetOperation()
+    { return new SetOperation(setOperation) }
   |
-    LOOKAHEAD(3) vDecl = VarDeclaration()
-    { return new VarDeclaration(vDecl) }
+    LOOKAHEAD(3) varDeclaration = VarDeclaration()
+    { return new VarDeclaration(varDeclaration) }
   |
-    vInit = VarInitialization()
-    { return new VarInitialization(vInit) }
+    varInitialization = VarInitialization()
+    { return new VarInitialization(varInitialization) }
   |
-    retOp = ReturnOperation()
-    { return new ReturnOperation(retOp) }
+    returnOperation = ReturnOperation()
+    { return new ReturnOperation(returnOperation) }
   |
     expr = Expression()
     { return new Expression(expr) }
@@ -261,118 +291,202 @@ void Operation() :
 }
 
 void ControlStructure() :
-{}
 {
-  ConditionalBranch()
+   ConditionalBranch conditionalBranch;
+   WhileLoop whileLoop;
+   ForLoop forLoop;
+}
+{
+  conditionalBranch = ConditionalBranch()
+  { return new ConditionalBranch(conditionalBranch); }
 |
-  WhileLoop()
+  whileLoop = WhileLoop()
+  { return new WhileLoop(whileLoop); }
 |
-  ForLoop()
+  forLoop = ForLoop()
+  { return new ForLoop(forLoop); }
 }
 
 void SetOperation() :
-{}
 {
-  "set" <IDENTIFIER> "=" Expression()
+  Token id;
+  Expression expr;
+}
+{
+  "set" id = <IDENTIFIER> "=" expr = Expression()
+  { return new SetOperation(id, expr); }
 }
 
 void VarDeclaration() :
-{}
 {
-  "var" <IDENTIFIER>
+  Token id;
+}
+{
+  "var" id = <IDENTIFIER>
+  { return new Variable(id.image()); }
 }
 
 void VarInitialization() :
-{}
 {
-  "var" <IDENTIFIER> "=" Expression()
+  Token id;
+  Expression expr;
+}
+{
+  "var" id = <IDENTIFIER> "=" expr = Expression()
+  { return new VarInitialization(id, expr); }
 }
 
 void ReturnOperation() :
-{}
 {
-  "return" (Expression())?
+  Expression expr;
+}
+{
+  "return" (expr = Expression())?
+  { return new ReturnOperation(expr); }
 }
 
 void ConditionalBranch() :
-{}
 {
-  "if" "(" Expression() ")" "{"
-    StatementList()
+  Expression ifExpr;
+  List<Expression> elsifExprList = new ArrayList<Expression>();
+  Expression elseExpr;
+  
+  StatementList ifBody;
+  List<StatementList> elsifStatementBodyList = new ArrayList<StatementList>();
+  Expression elseBody;
+  
+  Expression elsifExpr;
+  StatementList elsifStatementList;
+}
+{
+  "if" "(" ifExpr = Expression() ")" "{"
+    ifBody = StatementList()
   "}"
   
   
   ( LOOKAHEAD(2) 
-    "else" "if" "(" Expression() ")" "{"
-      StatementList()
+    "else" "if" "(" elsifExpr = Expression() { elsifExprList.add(elsifExpr); } ")" "{"
+      elsifStatementList = StatementList() { elsifStatementBodyList.add(elsifStatementList); }
     "}"
   )*
   
   (
-    "else" "(" Expression() ")" "{"
-      StatementList()
+    "else" "(" elseExpr = Expression() ")" "{"
+      elseBody = StatementList()
     "}"
   )?
+  
+  { return new ConditionalBranch(ifExpr, elsifExprList, elseExpr, ifBody, elsifStatementBodyList, elseBody); }
 }
 
 void WhileLoop() :
-{}
 {
-  "while" "(" Expression() ")" "{"
-    StatementList()
+  Expression conditional;
+  StatementList body;
+}
+{
+  "while" "(" conditional = Expression() ")" "{"
+    body = StatementList()
   "}"
+  
+  { return new WhileLoop(conditional, body); }
 }
 
 void ForLoop() :
-{}
 {
-  "for" "(" (VarInitialization())? ";" Expression() ";" SetOperation() ")" "{"
-    StatementList()
+  VarInitialization init;
+  Expression conditional;
+  SetOperation setOperation;
+  StatementList body;
+}
+{
+  "for" "(" (init = VarInitialization())? ";" conditional = Expression() ";" setOperation = SetOperation() ")" "{"
+    body = StatementList()
   "}"
+  
+  { return new ForLoop(init, conditional, setOperation, body); }
 }
 
 void Expression() :
-{}
+{
+  Token op;
+  ExpressionHead head;
+  Expression tail;
+}
 {
   "(" Expression() ")" |
   "!" Expression() |
   
-  LOOKAHEAD(3) ExpressionHead() "<<<" Expression() |
-  LOOKAHEAD(3) ExpressionHead() ">>>" Expression() |
-  LOOKAHEAD(3) ExpressionHead() "<<" Expression() |
-  LOOKAHEAD(3) ExpressionHead() ">>" Expression() |
+  LOOKAHEAD(3) head = ExpressionHead() op = <OP_ASL> tail = Expression()
+|
+  LOOKAHEAD(3) head = ExpressionHead() op = <OP_ASR> tail = Expression()
+|
+  LOOKAHEAD(3) head = ExpressionHead() op = <OP_LSL> tail = Expression()
+|
+  LOOKAHEAD(3) head = ExpressionHead() op = <OP_LSR> tail = Expression()
+|  
+  LOOKAHEAD(3) head = ExpressionHead() op = <OP_LTE> tail = Expression()
+|
+  LOOKAHEAD(3) head = ExpressionHead() op = <OP_GTE> tail = Expression()
+|
+  LOOKAHEAD(3) head = ExpressionHead() op = <OP_LT> tail = Expression()
+|
+  LOOKAHEAD(3) head = ExpressionHead() op = <OP_GT> tail = Expression()
+|  
+  LOOKAHEAD(3) head = ExpressionHead() op = <OP_PLUS> tail = Expression()
+|
+  LOOKAHEAD(3) head = ExpressionHead() op = <OP_HYPHEN> tail = Expression()
+|
+  LOOKAHEAD(3) head = ExpressionHead() op = <OP_ASTER> tail = Expression()
+|
+  LOOKAHEAD(3) head = ExpressionHead() op = <OP_SLASH> tail = Expression()
+|
+  LOOKAHEAD(3) head = ExpressionHead() op = <OP_CARET> tail = Expression()
+|
+  LOOKAHEAD(3) head = ExpressionHead() op = <OP_PERCENT> tail = Expression()
   
-  LOOKAHEAD(3) ExpressionHead() "<=" Expression() |
-  LOOKAHEAD(3) ExpressionHead() ">=" Expression() |
-  LOOKAHEAD(3) ExpressionHead() "<" Expression() |
-  LOOKAHEAD(3) ExpressionHead() ">" Expression() |
-  
-  LOOKAHEAD(3) ExpressionHead() "+" Expression() |
-  LOOKAHEAD(3) ExpressionHead() "-" Expression() |
-  LOOKAHEAD(3) ExpressionHead() "*" Expression() |
-  LOOKAHEAD(3) ExpressionHead() "/" Expression() |
-  LOOKAHEAD(3) ExpressionHead() "^" Expression() |
-  LOOKAHEAD(3) ExpressionHead() "%" Expression()
+  { return new Expression(op, head, tail); }
 }
 
 void ExpressionHead() :
-{}
 {
-  FunctionCall() |
-  <IDENTIFIER> |
-  <REFERENCE> |
-  <LIT_GENERAL>
+  FunctionCall func;
+  Token id;
+  Token referenceName;
+  Token value;
+}
+{
+  func = FunctionCall()
+  { return new FunctionCall(func); }
+|
+  id = <IDENTIFIER>
+  { return new Variable(id.getImage()); }
+|
+  referenceName = <REFERENCE>
+  { return new Variable(referenceName.getImage()); }
+|
+  value = <LIT_GENERAL>
+  { return new Variable(value.getImage()); }
 }
 
 void FunctionCall() :
-{}
 {
-  "\." <IDENTIFIER> "(" ( ValueList() )? ")"
+  Token id;
+  ValueList valueList;
+}
+{
+  "\." id = <IDENTIFIER> "(" ( valueList = ValueList() )? ")"
+  { return new FunctionCall(id, valueList); }
 }
 
 void ValueList() :
-{}
 {
-  Expression() ("," Expression() )*
+  Expression exprHead;
+  List<Expression> exprList;
+  Expression exprTail;
+}
+{
+  exprHead = Expression() ("," exprTail = Expression() { exprList.add(exprTail); } )*
+  { return new ValueList(exprHead, exprList); }
 }
 
