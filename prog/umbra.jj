@@ -20,7 +20,7 @@ public class UmbraCmp {
   public Program parse() {
     
     try {
-      return Program();
+      return PROGRAM();
     } catch (TokenMgrError tme) {
       System.err.println(tme.getMessage);
       return null;
@@ -89,6 +89,10 @@ TOKEN: {
   <OP_GT: ">" >
 |
   <OP_LT: "<" >
+|
+  <SEP_LPAREN: "(" >
+|
+  <SEP_RPAREN: ")" >
   
 }
 
@@ -96,7 +100,7 @@ TOKEN: {
 // Separators / Misc tokens
 TOKEN: {
   
-  "(" | ")" | "{" | "}" | "[" | "]" | "," | ";" | ":" | "\"" | "@" | "."
+  "{" | "}" | "[" | "]" | "," | ";" | ":" | "\"" | "@" | "."
   
 }
 
@@ -150,7 +154,7 @@ TOKEN: {
 // --------------------------------------------------------------------------------------------------------------------
 // Grammar
 
-void Program() :
+Program PROGRAM() :
 {
   List<ParamDeclaration> paramDeclList = new ArrayList<ParamDeclaration>();
   List<FunctionDeclaration> funcDeclList = new ArrayList<FunctionDeclaration>();
@@ -160,40 +164,40 @@ void Program() :
 }
 {
 
-  ( pd = ParamDeclaration() { paramDeclList.add(pd); } )*
-  ( mainDecl = MainDeclaration() )
-  ( fd = FunctionDeclaration() {funcDeclList.add(fd); } )*
+  ( pd = PARAM_DECLARATION() { paramDeclList.add(pd); } )*
+  ( mainDecl = MAIN_DECLARATION() )
+  ( fd = FUNCTION_DECLARATION() {funcDeclList.add(fd); } )*
   <EOF>
   { return new Program(paramDeclList, mainDecl, funcDeclList); }
 }
 
-void MainDeclaration() :
+MainDeclaration MAIN_DECLARATION() :
 {
   StatementList body;
 }
 {
   "main" "{"
-    ( body = StatementList() )
+    ( body = STATEMENT_LIST() )
   "}"
   
   { return new MainDeclaration(body); }
 }
 
-void FunctionDeclaration() :
+FunctionDeclaration FUNCTION_DECLARATION() :
 {
   Token name;
   ArgList argList;
   StatementList body;
 }
 {
-  "func" name = <IDENTIFIER> "(" argList = ArgList() ")" "{"
-    body = StatementList()
+  "func" name = <IDENTIFIER> "(" argList = ARG_LIST() ")" "{"
+    body = STATEMENT_LIST()
   "}"
   
   { return new FunctionDeclaration(name, argList, body); }
 }
 
-void ParamDeclaration() :
+ParamDeclaration PARAM_DECLARATION() :
 {
   Token id;
   Token value;
@@ -205,19 +209,19 @@ void ParamDeclaration() :
   { return new ParamDeclaration(id, value); }
 }
 
-void ArgList() :
+ArgList ARG_LIST() :
 {
   ArgListHead head;
   List<ArgListTail> tail = new ArrayList<ArgListTail>();
   ArgListTail t;
 }
 {
-  head = ArgListHead() ( t = ArgListTail() { tail.add(t); } )*
+  head = ARG_LIST_HEAD() ( t = ARG_LIST_TAIL() { tail.add(t); } )*
   
   { return new ArgList(head, tail); }
 }
 
-void ArgListHead() :
+ArgListHead ARG_LIST_HEAD() :
 {
   Token id;
 }
@@ -227,7 +231,7 @@ void ArgListHead() :
   { return new Variable(id.image()); }
 }
 
-void ArgListTail() :
+ArgListTail ARG_LIST_TAIL() :
 {
   Token id;
 }
@@ -237,32 +241,32 @@ void ArgListTail() :
   { return new Variable(id.image()); }
 }
 
-void StatementList() :
+StatementList STATEMENT_LIST() :
 {
-  List<StatementList> list = new ArrayList<StatementList>();
+  List<Statement> list = new ArrayList<Statement>();
   Statement st;
 }
 {
   
-  (LOOKAHEAD(2) st = Statement() { list.add(st); } )+
+  (LOOKAHEAD(2) st = STATEMENT() { list.add(st); } )+
   
   { return new StatementList(list); }
 }
 
-void Statement() :
+Statement STATEMENT() :
 {
   Operation operation;
   ControlStructure controlStructure;
 }
 {
-  ( operation = Operation() )
+  ( operation = OPERATION() )
   { return new Operation(operation); }
 |
-  ( controlStructure = ControlStructure() )
+  ( controlStructure = CONTROL_STRUCTURE() )
   { return new ControlStructure(controlStructure); }
 }
 
-void Operation() : 
+Operation OPERATION(): 
 {
   SetOperation setOperation;
   VarDeclaration varDeclaration;
@@ -272,52 +276,52 @@ void Operation() :
 }
 {
   (
-    LOOKAHEAD(3) setOperation = SetOperation()
+    LOOKAHEAD(3) setOperation = SET_OPERATION()
     { return new SetOperation(setOperation); }
   |
-    LOOKAHEAD(3) varDeclaration = VarDeclaration()
+    LOOKAHEAD(3) varDeclaration = VAR_DECLARATION()
     { return new VarDeclaration(varDeclaration); }
   |
-    varInitialization = VarInitialization()
+    varInitialization = VAR_INITIALIZATION()
     { return new VarInitialization(varInitialization); }
   |
-    returnOperation = ReturnOperation()
+    returnOperation = RETURN_OPERATION()
     { return new ReturnOperation(returnOperation); }
   |
-    expr = Expression()
+    expr = EXPRESSION()
     { return new Expression(expr); }
   )
   ";"
 }
 
-void ControlStructure() :
+ControlStructure CONTROL_STRUCTURE() :
 {
    ConditionalBranch conditionalBranch;
    WhileLoop whileLoop;
    ForLoop forLoop;
 }
 {
-  conditionalBranch = ConditionalBranch()
+  conditionalBranch = CONDITIONAL_BRANCH()
   { return new ConditionalBranch(conditionalBranch); }
 |
-  whileLoop = WhileLoop()
+  whileLoop = WHILE_LOOP()
   { return new WhileLoop(whileLoop); }
 |
-  forLoop = ForLoop()
+  forLoop = FOR_LOOP()
   { return new ForLoop(forLoop); }
 }
 
-void SetOperation() :
+SetOperation SET_OPERATION() :
 {
   Token id;
   Expression expr;
 }
 {
-  "set" id = <IDENTIFIER> "=" expr = Expression()
+  "set" id = <IDENTIFIER> "=" expr = EXPRESSION()
   { return new SetOperation(id, expr); }
 }
 
-void VarDeclaration() :
+VarDeclaration VAR_DECLARATION() :
 {
   Token id;
 }
@@ -326,26 +330,26 @@ void VarDeclaration() :
   { return new Variable(id.image()); }
 }
 
-void VarInitialization() :
+VarInitialization VAR_INITIALIZATION() :
 {
   Token id;
   Expression expr;
 }
 {
-  "var" id = <IDENTIFIER> "=" expr = Expression()
+  "var" id = <IDENTIFIER> "=" expr = EXPRESSION()
   { return new VarInitialization(id, expr); }
 }
 
-void ReturnOperation() :
+ReturnOperation RETURN_OPERATION() :
 {
   Expression expr;
 }
 {
-  "return" (expr = Expression())?
+  "return" (expr = EXPRESSION())?
   { return new ReturnOperation(expr); }
 }
 
-void ConditionalBranch() :
+ConditionalBranch CONDITIONAL_BRANCH() :
 {
   Expression ifExpr;
   List<Expression> elsifExprList = new ArrayList<Expression>();
@@ -359,40 +363,40 @@ void ConditionalBranch() :
   StatementList elsifStatementList;
 }
 {
-  "if" "(" ifExpr = Expression() ")" "{"
-    ifBody = StatementList()
+  "if" "(" ifExpr = EXPRESSION() ")" "{"
+    ifBody = STATEMENT_LIST()
   "}"
   
   
   ( LOOKAHEAD(2) 
-    "else" "if" "(" elsifExpr = Expression() { elsifExprList.add(elsifExpr); } ")" "{"
-      elsifStatementList = StatementList() { elsifStatementBodyList.add(elsifStatementList); }
+    "else" "if" "(" elsifExpr = EXPRESSION() { elsifExprList.add(elsifExpr); } ")" "{"
+      elsifStatementList = STATEMENT_LIST() { elsifStatementBodyList.add(elsifStatementList); }
     "}"
   )*
   
   (
-    "else" "(" elseExpr = Expression() ")" "{"
-      elseBody = StatementList()
+    "else" "(" elseExpr = EXPRESSION() ")" "{"
+      elseBody = STATEMENT_LIST()
     "}"
   )?
   
   { return new ConditionalBranch(ifExpr, elsifExprList, elseExpr, ifBody, elsifStatementBodyList, elseBody); }
 }
 
-void WhileLoop() :
+WhileLoop WHILE_LOOP() :
 {
   Expression conditional;
   StatementList body;
 }
 {
-  "while" "(" conditional = Expression() ")" "{"
-    body = StatementList()
+  "while" "(" conditional = EXPRESSION() ")" "{"
+    body = STATEMENT_LIST()
   "}"
   
   { return new WhileLoop(conditional, body); }
 }
 
-void ForLoop() :
+ForLoop FOR_LOOP() :
 {
   VarInitialization init;
   Expression conditional;
@@ -400,55 +404,56 @@ void ForLoop() :
   StatementList body;
 }
 {
-  "for" "(" (init = VarInitialization())? ";" conditional = Expression() ";" setOperation = SetOperation() ")" "{"
-    body = StatementList()
+  "for" "(" (init = VAR_INITIALIZATION())? ";" conditional = EXPRESSION() ";" setOperation = SET_OPERATION() ")" "{"
+    body = STATEMENT_LIST()
   "}"
   
   { return new ForLoop(init, conditional, setOperation, body); }
 }
 
-void Expression() :
+Expression EXPRESSION() :
 {
   Token op;
   ExpressionHead head;
   Expression tail;
 }
 {
-  "(" Expression() ")" |
-  "!" Expression() |
-  
-  LOOKAHEAD(3) head = ExpressionHead() op = <OP_ASL> tail = Expression()
+  op = <SEP_LPAREN> tail = EXPRESSION() <SEP_RPAREN>
 |
-  LOOKAHEAD(3) head = ExpressionHead() op = <OP_ASR> tail = Expression()
-|
-  LOOKAHEAD(3) head = ExpressionHead() op = <OP_LSL> tail = Expression()
-|
-  LOOKAHEAD(3) head = ExpressionHead() op = <OP_LSR> tail = Expression()
+  op = <OP_EXCL> tail = EXPRESSION()
 |  
-  LOOKAHEAD(3) head = ExpressionHead() op = <OP_LTE> tail = Expression()
+  LOOKAHEAD(3) head = EXPRESSION_HEAD() op = <OP_ASL> tail = EXPRESSION()
 |
-  LOOKAHEAD(3) head = ExpressionHead() op = <OP_GTE> tail = Expression()
+  LOOKAHEAD(3) head = EXPRESSION_HEAD() op = <OP_ASR> tail = EXPRESSION()
 |
-  LOOKAHEAD(3) head = ExpressionHead() op = <OP_LT> tail = Expression()
+  LOOKAHEAD(3) head = EXPRESSION_HEAD() op = <OP_LSL> tail = EXPRESSION()
 |
-  LOOKAHEAD(3) head = ExpressionHead() op = <OP_GT> tail = Expression()
+  LOOKAHEAD(3) head = EXPRESSION_HEAD() op = <OP_LSR> tail = EXPRESSION()
 |  
-  LOOKAHEAD(3) head = ExpressionHead() op = <OP_PLUS> tail = Expression()
+  LOOKAHEAD(3) head = EXPRESSION_HEAD() op = <OP_LTE> tail = EXPRESSION()
 |
-  LOOKAHEAD(3) head = ExpressionHead() op = <OP_HYPHEN> tail = Expression()
+  LOOKAHEAD(3) head = EXPRESSION_HEAD() op = <OP_GTE> tail = EXPRESSION()
 |
-  LOOKAHEAD(3) head = ExpressionHead() op = <OP_ASTER> tail = Expression()
+  LOOKAHEAD(3) head = EXPRESSION_HEAD() op = <OP_LT> tail = EXPRESSION()
 |
-  LOOKAHEAD(3) head = ExpressionHead() op = <OP_SLASH> tail = Expression()
+  LOOKAHEAD(3) head = EXPRESSION_HEAD() op = <OP_GT> tail = EXPRESSION()
+|  
+  LOOKAHEAD(3) head = EXPRESSION_HEAD() op = <OP_PLUS> tail = EXPRESSION()
 |
-  LOOKAHEAD(3) head = ExpressionHead() op = <OP_CARET> tail = Expression()
+  LOOKAHEAD(3) head = EXPRESSION_HEAD() op = <OP_HYPHEN> tail = EXPRESSION()
 |
-  LOOKAHEAD(3) head = ExpressionHead() op = <OP_PERCENT> tail = Expression()
+  LOOKAHEAD(3) head = EXPRESSION_HEAD() op = <OP_ASTER> tail = EXPRESSION()
+|
+  LOOKAHEAD(3) head = EXPRESSION_HEAD() op = <OP_SLASH> tail = EXPRESSION()
+|
+  LOOKAHEAD(3) head = EXPRESSION_HEAD() op = <OP_CARET> tail = EXPRESSION()
+|
+  LOOKAHEAD(3) head = EXPRESSION_HEAD() op = <OP_PERCENT> tail = EXPRESSION()
   
   { return new Expression(op, head, tail); }
 }
 
-void ExpressionHead() :
+ExpressionHead EXPRESSION_HEAD() :
 {
   FunctionCall func;
   Token id;
@@ -456,7 +461,7 @@ void ExpressionHead() :
   Token value;
 }
 {
-  func = FunctionCall()
+  func = FUNCTION_CALL()
   { return new FunctionCall(func); }
 |
   id = <IDENTIFIER>
@@ -469,24 +474,24 @@ void ExpressionHead() :
   { return new Variable(value.getImage()); }
 }
 
-void FunctionCall() :
+FunctionCall FUNCTION_CALL() :
 {
   Token id;
   ValueList valueList;
 }
 {
-  "." id = <IDENTIFIER> "(" ( valueList = ValueList() )? ")"
+  "." id = <IDENTIFIER> "(" ( valueList = VALUE_LIST() )? ")"
   { return new FunctionCall(id, valueList); }
 }
 
-void ValueList() :
+ValueList VALUE_LIST() :
 {
   Expression exprHead;
   List<Expression> exprList;
   Expression exprTail;
 }
 {
-  exprHead = Expression() ("," exprTail = Expression() { exprList.add(exprTail); } )*
+  exprHead = EXPRESSION() ("," exprTail = EXPRESSION() { exprList.add(exprTail); } )*
   { return new ValueList(exprHead, exprList); }
 }
 
