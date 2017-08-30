@@ -96,7 +96,7 @@ TOKEN: {
 // Separators / Misc tokens
 TOKEN: {
   
-  "(", ")", "{", "}", "[", "]", ",", ";", ":", "\"", "@", "\."
+  "(" | ")" | "{" | "}" | "[" | "]" | "," | ";" | ":" | "\"" | "@" | "."
   
 }
 
@@ -104,7 +104,7 @@ TOKEN: {
 // Reserved Words
 TOKEN: {
   
-  "var", "set", "param", "if", "else", "main", "func", "for", "return", "while"
+  "var" | "set" | "param" | "if" | "else" | "main" | "func" | "for" | "return" | "while"
   
 }
 
@@ -162,7 +162,7 @@ void Program() :
 
   ( pd = ParamDeclaration() { paramDeclList.add(pd); } )*
   ( mainDecl = MainDeclaration() )
-  ( fd = FunctionDeclaration {funcDeclList.add(fd); } )*
+  ( fd = FunctionDeclaration() {funcDeclList.add(fd); } )*
   <EOF>
   { return new Program(paramDeclList, mainDecl, funcDeclList); }
 }
@@ -212,7 +212,7 @@ void ArgList() :
   ArgListTail t;
 }
 {
-  head = ArgListHead() ( t = {tail.add(ArgListTail()); } )*
+  head = ArgListHead() ( t = ArgListTail() { tail.add(t); } )*
   
   { return new ArgList(head, tail); }
 }
@@ -273,19 +273,19 @@ void Operation() :
 {
   (
     LOOKAHEAD(3) setOperation = SetOperation()
-    { return new SetOperation(setOperation) }
+    { return new SetOperation(setOperation); }
   |
     LOOKAHEAD(3) varDeclaration = VarDeclaration()
-    { return new VarDeclaration(varDeclaration) }
+    { return new VarDeclaration(varDeclaration); }
   |
     varInitialization = VarInitialization()
-    { return new VarInitialization(varInitialization) }
+    { return new VarInitialization(varInitialization); }
   |
     returnOperation = ReturnOperation()
-    { return new ReturnOperation(returnOperation) }
+    { return new ReturnOperation(returnOperation); }
   |
     expr = Expression()
-    { return new Expression(expr) }
+    { return new Expression(expr); }
   )
   ";"
 }
@@ -475,7 +475,7 @@ void FunctionCall() :
   ValueList valueList;
 }
 {
-  "\." id = <IDENTIFIER> "(" ( valueList = ValueList() )? ")"
+  "." id = <IDENTIFIER> "(" ( valueList = ValueList() )? ")"
   { return new FunctionCall(id, valueList); }
 }
 
