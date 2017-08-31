@@ -9,7 +9,7 @@ options
 // --------------------------------------------------------------------------------------------------------------------
 // Parser Declaration
 
-PARSER_BEGIN(UmbraCmp)
+PARSER_BEGIN(Parser)
 
 package com.rath.umbra;
 
@@ -17,7 +17,7 @@ import java.io.*;
 import java.util.List;
 import java.util.ArrayList;
 
-public class UmbraCmp {
+public class Parser {
 
   public Program parse() {
     
@@ -36,7 +36,7 @@ public class UmbraCmp {
 }
 
 
-PARSER_END(UmbraCmp)
+PARSER_END(Parser)
 
 // --------------------------------------------------------------------------------------------------------------------
 // Tokens
