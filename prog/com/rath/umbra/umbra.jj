@@ -36,6 +36,250 @@ public class Parser {
 }
 
 
+class ValueList {
+  
+  private final List<Expression> list;
+  
+  public ValueList(final Expression h, final List<Expression> t) {
+    list.add(h);
+    for(Expression ex : t) {
+      list.add(ex);
+    }
+  }
+  
+  public List<Expression> getList() {
+    return this.list;
+  }
+  
+}
+
+
+class FunctionCall {
+  
+  private final String name;
+  private List<Expression> args;
+  
+  public FunctionCall(final Token n, final ValueList l) {
+    this.name = n.getImage();
+    this.args = l.getList();
+  }
+  
+}
+
+
+abstract class ExpressionHead extends Expression {}
+
+
+class Expression {
+  
+}
+
+
+class ForLoop extends ControlStructure {
+  
+  private final VarInitialization init;
+  private final Expression cond;
+  private final SetOperation update;
+  private final StatementList body;
+  
+  public ForLoop(final VarInitialization vi, final Expression ex, final SetOperation so, final StatementList sl) {
+    this.init = vi;
+    this.cond = ex;
+    this.update = so;
+    this.body = sl;
+  }
+  
+  public VarInitialization getInit() {
+    return this.init;
+  }
+  
+  public Expression getCondition() {
+    return this.cond;
+  }
+  
+  public SetOperation getUpdate() {
+    return this.update;
+  }
+  
+  public List<Statement> getBody() {
+    return this.body.getList();
+  }
+  
+}
+
+class WhileLoop extends ControlStructure {
+  
+}
+
+class ConditionalBranch extends ControlStructure {
+  
+}
+
+class ReturnOperation extends Operation {
+  
+}
+
+class VarInitialization extends Operation {
+  
+}
+
+class VarDeclaration extends Operation {
+  
+}
+
+class SetOperation extends Operation {
+  
+}
+
+abstract class Statement {}
+
+class Operation extends Statement {
+  
+}
+
+abstract class ControlStructure extends Statement {}
+
+class StatementList {
+  
+  private final List<Statement> list = new ArrayList<Statement>();
+  
+  public StatementList(final List<Statement> l) {
+    this.list = l;
+  }
+  
+  public List<Statement> getStatements() {
+    return this.list;
+  }
+  
+}
+
+
+class ArgListTail {
+  
+  private final String name;
+  
+  public ArgListTail(final Token t) {
+    this.name = t.getImage();
+  }
+  
+  public String getName() {
+    return this.name;
+  }
+  
+}
+
+
+class ArgListHead {
+  
+  private final String name;
+  
+  public ArgListHead(final Token t) {
+    this.name = t.getImage();
+  }
+  
+  public String getName() {
+    return this.name;
+  }
+  
+}
+
+
+class ArgList {
+  
+  private final List<String> list = new ArrayList<String>();
+  
+  public ArgList(final ArgListHead head, final List<ArgListTail> tail) {
+     list.add(head.getName());
+     for(ArgListTail t : tail) {
+       list.add(t.getName());
+     }
+  }
+  
+  public List<String> getArgList() {
+    return this.list;
+  }
+  
+}
+
+
+
+class ParamDeclaration {
+  
+  private final String id;
+  private final int value;
+  
+  public ParamDeclaration(final Token id, final Token val) {
+    this.id = id.getImage();
+    this.value = Integer.parseInt(val.getImage());
+  }
+  
+  
+}
+
+
+class FunctionDeclaration {
+  
+  private final Token name;
+  private final ArgList args;
+  private final StatementList body;
+  
+  public FunctionDeclaration(final Token t, final ArgList al, final StatementList sl) {
+    this.name = t;
+    this.args = al;
+    this.body = sl;
+  }
+  
+  public Token getName() {
+    return this.name;
+  }
+  
+  public List<String> getArgs() {
+    return this.args.getArgList();
+  }
+  
+  public StatementList getBody() {
+    return this.body;
+  }
+  
+}
+
+
+class MainDeclaration {
+  
+  private final StatementList body;
+  
+  public MainDeclaration(final StatementList b) {
+    this.body = b;
+  }
+  
+  public final StatementList getStatements() {
+    return this.params;
+  }
+  
+}
+
+
+class Program {
+  private final List<ParamDeclaration> params = new ArrayList<ParamDeclaration>();
+  private final List<FunctionDeclaration> funcs = new ArrayList<FunctionDeclaration>();
+  private final MainDeclaration mainDecl;
+  
+  public Program(final List<ParamDeclaration> pl, final List<FunctionDeclaration> fl, final MainDeclaration md) {
+    this.params = pl;
+    this.funcs = fl;
+    this.mainDecl = md;
+  }
+  
+  public final List<ParamDeclaration> getParams() {
+    return this.params;
+  }
+  
+  public final List<FunctionDeclaration> getFunctions() {
+    return this.funcs;
+  }
+}
+
+
 PARSER_END(Parser)
 
 // --------------------------------------------------------------------------------------------------------------------
@@ -230,7 +474,7 @@ ArgListHead ARG_LIST_HEAD() :
 {
   "var" id = <IDENTIFIER>
   
-  { return new Variable(id.image()); }
+  { return new ArgListHead(id.image()); }
 }
 
 ArgListTail ARG_LIST_TAIL() :
@@ -240,7 +484,7 @@ ArgListTail ARG_LIST_TAIL() :
 {
   "," "var" id = <IDENTIFIER>
   
-  { return new Variable(id.image()); }
+  { return ArgListTail(id.image()); }
 }
 
 StatementList STATEMENT_LIST() :
@@ -467,13 +711,13 @@ ExpressionHead EXPRESSION_HEAD() :
   { return new FunctionCall(func); }
 |
   id = <IDENTIFIER>
-  { return new Variable(id.getImage()); }
+  { return id.getImage(); }
 |
   referenceName = <REFERENCE>
-  { return new Variable(referenceName.getImage()); }
+  { return referenceName.getImage(); }
 |
   value = <LIT_GENERAL>
-  { return new Variable(value.getImage()); }
+  { return value.getImage(); }
 }
 
 FunctionCall FUNCTION_CALL() :
