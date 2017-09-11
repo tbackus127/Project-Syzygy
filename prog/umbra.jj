@@ -9,7 +9,7 @@ options
 // --------------------------------------------------------------------------------------------------------------------
 // Parser Declaration
 
-PARSER_BEGIN(Parser)
+PARSER_BEGIN(umbrac)
 
 package com.rath.umbra;
 
@@ -17,12 +17,17 @@ import java.io.*;
 import java.util.List;
 import java.util.ArrayList;
 
-public class Parser {
+public class umbrac {
 
-  public Program parse() {
+  public static void main(String[] args) {
+    
+    final File fOut = new File("output.syz");
     
     try {
-      return PROGRAM();
+      System.out.println("Building parse tree...");
+      final Program parseTree = PROGRAM();
+      System.out.println("Compiling...");
+      final Compiler cmp = new Compiler(parseTree, fOut);
     } catch (TokenMgrError tme) {
       System.err.println(tme.getMessage);
       return null;
@@ -35,6 +40,47 @@ public class Parser {
 
 }
 
+
+class Compiler {
+  
+  private final PrintStream writer;
+  private final Program ptRoot;
+  
+  public Compiler(final Program p, final File fOut) {
+    this.writer = new PrintStream(fOut);
+    this.ptRoot = p;
+  }
+  
+  // TODO: Compile
+  
+}
+
+class SymbolTable {
+  
+  private final Map<String, Integer> map = new HashMap<String, Integer>();
+  private final SymbolTable parent;
+  
+  public SymbolTable(final SymbolTable parent) {
+    this.parent = parent;
+  }
+  
+  public SymbolTable() {
+    this(null);
+  }
+  
+  public final int lookup(final String name) {
+    // TODO: This
+  }
+  
+  public final void add(final String name, final int val) {
+    // TODO: This
+  }
+  
+  public SymbolTable getParent() {
+    return this.parent;
+  }
+  
+}
 
 class ValueList {
   
@@ -64,14 +110,45 @@ class FunctionCall {
     this.args = l.getList();
   }
   
+  public String getName() {
+    return this.name;
+  }
+  
+  public List<Expression> getArgs() {
+    return this.args;
+  }
+  
 }
 
 
-abstract class ExpressionHead extends Expression {}
+class ExpressionHead extends Expression {
+  
+}
 
 
 class Expression {
   
+  private final String operation;
+  private final ExpressionHead head;
+  private final Expression tail;
+  
+  public Expression(final String o, final ExpressionHead h, final Expression t) {
+    this.operation = o;
+    this.head = h;
+    this.tail = t;
+  }
+  
+  public String getOperation() {
+    return this.operation;
+  }
+  
+  public ExpressionHead getHead() {
+    return this.head;
+  }
+  
+  public Expression getTail() {
+    return this.tail;
+  }
 }
 
 
@@ -109,34 +186,130 @@ class ForLoop extends ControlStructure {
 
 class WhileLoop extends ControlStructure {
   
+  private final Expression expr;
+  private final StatementList body;
+  
+  public WhileLoop(final Expression e, final StatementList s) {
+    this.expr = e;
+    this.body = s;
+  }
+  
+  public Expression getExpr() {
+    return this.expr;
+  }
+  
+  public StatementList getBody() {
+    return this.body;
+  }
+  
 }
 
 class ConditionalBranch extends ControlStructure {
+  private final Expression ifExpr;
+  private final List<Expression> elseifExprs;
+  private final Expression elseExpr;
+  private final StatementList ifBody;
+  private final List<StatementList> elseifBodyList;
+  private final StatementList elseBody;
   
+  public ConditionalBranch(final Expression ie, final List<Expression> le, final Expression ee, final StatementList ib, final List<StatementList> lb, final StatementList eb) {
+    this.ifExpr = ie;
+    this.elseifExprs = le;
+    this.elseExpr = ee;
+    this.ifBody = ib;
+    this.elseifBodyList = lb;
+    this.elseBody = eb;
+  }
+  
+  public Expression getIfExpr() {
+    return this.ifExpr;
+  }
+  
+  public List<Expression> getElseifExprs() {
+    return this.elseifExprs;
+  }
+  
+  public Expression getElseExpr() {
+    return this.elseExpr;
+  }
+  
+  public StatementList getIfBody() {
+    return this.ifBody;
+  }
+  
+  public List<StatementList> getElseifBodies() {
+    return this.elseifBodyList;
+  }
+  
+  public StatementList getElseBody() {
+    return this.elseBody;
+  }
 }
 
 class ReturnOperation extends Operation {
   
+  private final Expression expr;
+  
+  public ReturnOperation(final Expression e) {
+    this.expr = e;
+  }
+  
+  public Expression getExpr() {
+    return this.expr;
+  }
+  
 }
 
 class VarInitialization extends Operation {
+  private final String name;
+  private final Expression expr;
   
+  public VarInitialization(final Token t, final Expression e) {
+    this.name = t.getImage();
+    this.expr = e;
+  }
+  
+  public String getName() {
+    return this.name;
+  }
+  
+  public Expression getExpr() {
+    return this.expr;
+  }
 }
 
 class VarDeclaration extends Operation {
+  private final String name;
   
+  public VarDeclaration(final Token t) {
+    this.name = t.getImage();
+  }
+  
+  public String getName() {
+    return this.name;
+  }
 }
 
 class SetOperation extends Operation {
+  private final String name;
+  private final Expression expr;
   
+  public SetOperation(final Token t, final Expression e) {
+    this.name = t.getImage();
+    this.expr = e;
+  }
+  
+  public String getName() {
+    return this.name;
+  }
+  
+  public Expression getExpr() {
+    return this.expr;
+  }
 }
 
 abstract class Statement {}
-
-class Operation extends Statement {
-  
-}
-
+abstract class Operation extends Statement {}
 abstract class ControlStructure extends Statement {}
 
 class StatementList {
@@ -277,10 +450,14 @@ class Program {
   public final List<FunctionDeclaration> getFunctions() {
     return this.funcs;
   }
+  
+  public final MainDeclaration getMain() {
+    return this.mainDecl;
+  }
 }
 
 
-PARSER_END(Parser)
+PARSER_END(umbrac)
 
 // --------------------------------------------------------------------------------------------------------------------
 // Tokens
@@ -711,13 +888,13 @@ ExpressionHead EXPRESSION_HEAD() :
   { return new FunctionCall(func); }
 |
   id = <IDENTIFIER>
-  { return id.getImage(); }
+  { return id; }
 |
   referenceName = <REFERENCE>
-  { return referenceName.getImage(); }
+  { return referenceName; }
 |
   value = <LIT_GENERAL>
-  { return value.getImage(); }
+  { return value; }
 }
 
 FunctionCall FUNCTION_CALL() :
