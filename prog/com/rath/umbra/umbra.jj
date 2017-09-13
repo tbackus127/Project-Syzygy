@@ -1,0 +1,474 @@
+options
+{
+  STATIC = false;
+  COMMON_TOKEN_ACTION = true;
+  DEBUG_PARSER = true;
+  DEBUG_TOKEN_MANAGER = true;
+}
+
+// --------------------------------------------------------------------------------------------------------------------
+// Parser Declaration
+
+PARSER_BEGIN(UmbraParser)
+
+package com.rath.umbra;
+
+import java.io.*;
+import java.util.List;
+import java.util.ArrayList;
+
+import com.rath.umbra.entity.*;
+
+public class UmbraParser {
+
+  public static Program buildTree() {
+    
+    try {
+      System.out.println("Building parse tree...");
+      return PROGRAM();
+    } catch (TokenMgrError tme) {
+      System.err.println(tme.getMessage);
+      return null;
+    } catch (ParseException pe) {
+      System.err.println(pe.getMessage);
+      return null;
+    }
+    
+    return null;
+  }
+
+}
+
+PARSER_END(UmbraParser)
+
+// --------------------------------------------------------------------------------------------------------------------
+// Tokens
+
+TOKEN_MGR_DECLS: {
+  void CommonTokenAction(Token t) {
+    System.out.println("Token: " + t.image);
+  }
+}
+
+SKIP: {
+  " "| "\t" | "\n" | "\r" | <"#" (~["\n","\r"])* ("\n"|"\r"|"\r\n")>
+}
+
+
+
+
+
+// --------------------------------------------------------------------------------------------------------------------
+// Operators
+
+TOKEN: {
+  
+  <OP_ASL: "<<<" >
+|
+  <OP_ASR: ">>>" >
+|
+  <OP_LTE: "<=" >
+|
+  <OP_GTE: ">=" >
+|
+  <OP_LSL: "<<" >
+|
+  <OP_LSR: ">>" >
+|
+  <OP_EXCL: "!" >
+|
+  <OP_PLUS: "+" >
+|
+  <OP_HYPHEN: "-" >
+|
+  <OP_ASTER: "*" >
+|
+  <OP_EQUAL: "=" >
+|
+  <OP_SLASH: "/" >
+|
+  <OP_PERCENT: "%" >
+|
+  <OP_CARET: "^" >
+|
+  <OP_GT: ">" >
+|
+  <OP_LT: "<" >
+|
+  <SEP_LPAREN: "(" >
+|
+  <SEP_RPAREN: ")" >
+  
+}
+
+// --------------------------------------------------------------------------------------------------------------------
+// Separators / Misc tokens
+TOKEN: {
+  
+  "{" | "}" | "[" | "]" | "," | ";" | ":" | "\"" | "@" | "."
+  
+}
+
+// --------------------------------------------------------------------------------------------------------------------
+// Reserved Words
+TOKEN: {
+  
+  "var" | "set" | "param" | "if" | "else" | "main" | "func" | "for" | "return" | "while"
+  
+}
+
+// --------------------------------------------------------------------------------------------------------------------
+// Values
+
+TOKEN: {
+  
+  < IDENTIFIER: ["a"-"z","A"-"Z"] (["a"-"z","A"-"Z","0"-"9","_"])*  >
+|  
+  < REFERENCE: "@" <IDENTIFIER> ":" <IDENTIFIER> >
+|
+  < LIT_GENERAL: <LIT_NUMBER> | <LIT_CHAR> | <LIT_STRING> >
+|
+  < LIT_NUMBER: <LIT_DECIMAL> | <LIT_HEX> >
+|
+  < #LIT_DECIMAL: ["1"-"9"] (["0"-"9"])* >
+|
+  < #LIT_HEX: "0x" (["0"-"9","a"-"f","A"-"F"]){1,4} >
+|
+  < LIT_CHAR:
+    "'"
+    (   
+      (~["\"","\\","\n"]) | 
+      ("\\" ( ["n","\\","'","\""]))
+    )*
+    "'"
+  >
+|
+  < LIT_STRING:
+    "\""
+    (   
+      (~["\"","\\","\n"]) | 
+      ("\\" ( ["n","\\","'","\""]))
+    )*
+    "\""
+  >
+  
+  
+}
+
+
+// --------------------------------------------------------------------------------------------------------------------
+// Grammar
+
+Program PROGRAM() :
+{
+  List<ParamDeclaration> paramDeclList = new ArrayList<ParamDeclaration>();
+  List<FunctionDeclaration> funcDeclList = new ArrayList<FunctionDeclaration>();
+  MainDeclaration mainDecl;
+  ParamDeclaration pd;
+  FunctionDeclaration fd;
+}
+{
+
+  ( pd = PARAM_DECLARATION() { paramDeclList.add(pd); } )*
+  ( mainDecl = MAIN_DECLARATION() )
+  ( fd = FUNCTION_DECLARATION() {funcDeclList.add(fd); } )*
+  <EOF>
+  { return new Program(paramDeclList, mainDecl, funcDeclList); }
+}
+
+MainDeclaration MAIN_DECLARATION() :
+{
+  StatementList body;
+}
+{
+  "main" "{"
+    ( body = STATEMENT_LIST() )
+  "}"
+  
+  { return new MainDeclaration(body); }
+}
+
+FunctionDeclaration FUNCTION_DECLARATION() :
+{
+  Token name;
+  ArgList argList;
+  StatementList body;
+}
+{
+  "func" name = <IDENTIFIER> "(" argList = ARG_LIST() ")" "{"
+    body = STATEMENT_LIST()
+  "}"
+  
+  { return new FunctionDeclaration(name.getImage(), argList, body); }
+}
+
+ParamDeclaration PARAM_DECLARATION() :
+{
+  Token id;
+  Token value;
+}
+{
+ 
+  "param" (id = <IDENTIFIER>) "=" (value = <LIT_GENERAL>) ";"
+  
+  { return new ParamDeclaration(id.getImage(), value.getImage()); }
+}
+
+ArgList ARG_LIST() :
+{
+  ArgListHead head;
+  List<ArgListTail> tail = new ArrayList<ArgListTail>();
+  ArgListTail t;
+}
+{
+  head = ARG_LIST_HEAD() ( t = ARG_LIST_TAIL() { tail.add(t); } )*
+  
+  { return new ArgList(head, tail); }
+}
+
+ArgListHead ARG_LIST_HEAD() :
+{
+  Token id;
+}
+{
+  "var" id = <IDENTIFIER>
+  
+  { return new ArgListHead(id.image()); }
+}
+
+ArgListTail ARG_LIST_TAIL() :
+{
+  Token id;
+}
+{
+  "," "var" id = <IDENTIFIER>
+  
+  { return ArgListTail(id.image()); }
+}
+
+StatementList STATEMENT_LIST() :
+{
+  List<Statement> list = new ArrayList<Statement>();
+  Statement st;
+}
+{
+  
+  (LOOKAHEAD(2) st = STATEMENT() { list.add(st); } )+
+  
+  { return new StatementList(list); }
+}
+
+Statement STATEMENT() :
+{
+  Operation operation;
+  ControlStructure controlStructure;
+}
+{
+  ( operation = OPERATION() )
+  { return new Operation(operation); }
+|
+  ( controlStructure = CONTROL_STRUCTURE() )
+  { return new ControlStructure(controlStructure); }
+}
+
+Operation OPERATION(): 
+{
+  SetOperation setOperation;
+  VarDeclaration varDeclaration;
+  VarInitialization varInitialization;
+  ReturnOperation returnOperation;
+  FunctionCall funcCall;
+}
+{
+  (
+    LOOKAHEAD(3) setOperation = SET_OPERATION()
+    { return new SetOperation(setOperation); }
+  |
+    LOOKAHEAD(3) varDeclaration = VAR_DECLARATION()
+    { return new VarDeclaration(varDeclaration); }
+  |
+    varInitialization = VAR_INITIALIZATION()
+    { return new VarInitialization(varInitialization); }
+  |
+    returnOperation = RETURN_OPERATION()
+    { return new ReturnOperation(returnOperation); }
+  |
+    funcCall = FUNCTION_CALL()
+    { return new FunctionCall(funcCall); }
+  )
+  ";"
+}
+
+ControlStructure CONTROL_STRUCTURE() :
+{
+   ConditionalBranch conditionalBranch;
+   WhileLoop whileLoop;
+   ForLoop forLoop;
+}
+{
+  conditionalBranch = CONDITIONAL_BRANCH()
+  { return new ConditionalBranch(conditionalBranch); }
+|
+  whileLoop = WHILE_LOOP()
+  { return new WhileLoop(whileLoop); }
+|
+  forLoop = FOR_LOOP()
+  { return new ForLoop(forLoop); }
+}
+
+SetOperation SET_OPERATION() :
+{
+  Token id;
+  Expression expr;
+}
+{
+  "set" id = <IDENTIFIER> "=" expr = EXPRESSION()
+  { return new SetOperation(id.getImage(), expr); }
+}
+
+VarDeclaration VAR_DECLARATION() :
+{
+  Token id;
+}
+{
+  "var" id = <IDENTIFIER>
+  { return new VarDeclaration(id.getImage()); }
+}
+
+VarInitialization VAR_INITIALIZATION() :
+{
+  Token id;
+  Expression expr;
+}
+{
+  "var" id = <IDENTIFIER> "=" expr = EXPRESSION()
+  { return new VarInitialization(id..getImage(), expr); }
+}
+
+ReturnOperation RETURN_OPERATION() :
+{
+  Expression expr;
+}
+{
+  "return" (expr = EXPRESSION())?
+  { return new ReturnOperation(expr); }
+}
+
+ConditionalBranch CONDITIONAL_BRANCH() :
+{
+  Expression ifExpr;
+  List<Expression> elsifExprList = new ArrayList<Expression>();
+  Expression elseExpr;
+  
+  StatementList ifBody;
+  List<StatementList> elsifStatementBodyList = new ArrayList<StatementList>();
+  Expression elseBody;
+  
+  Expression elsifExpr;
+  StatementList elsifStatementList;
+}
+{
+  "if" "(" ifExpr = EXPRESSION() ")" "{"
+    ifBody = STATEMENT_LIST()
+  "}"
+  
+  
+  ( LOOKAHEAD(2) 
+    "else" "if" "(" elsifExpr = EXPRESSION() { elsifExprList.add(elsifExpr); } ")" "{"
+      elsifStatementList = STATEMENT_LIST() { elsifStatementBodyList.add(elsifStatementList); }
+    "}"
+  )*
+  
+  (
+    "else" "(" elseExpr = EXPRESSION() ")" "{"
+      elseBody = STATEMENT_LIST()
+    "}"
+  )?
+  
+  { return new ConditionalBranch(ifExpr, elsifExprList, elseExpr, ifBody, elsifStatementBodyList, elseBody); }
+}
+
+WhileLoop WHILE_LOOP() :
+{
+  Expression conditional;
+  StatementList body;
+}
+{
+  "while" "(" conditional = EXPRESSION() ")" "{"
+    body = STATEMENT_LIST()
+  "}"
+  
+  { return new WhileLoop(conditional, body); }
+}
+
+ForLoop FOR_LOOP() :
+{
+  VarInitialization init;
+  Expression conditional;
+  SetOperation setOperation;
+  StatementList body;
+}
+{
+  "for" "(" (init = VAR_INITIALIZATION())? ";" conditional = EXPRESSION() ";" setOperation = SET_OPERATION() ")" "{"
+    body = STATEMENT_LIST()
+  "}"
+  
+  { return new ForLoop(init, conditional, setOperation, body); }
+}
+
+Expression EXPRESSION() :
+{
+  FunctionCall fc;
+  UnaryOperation uo;
+  BinaryOperation bo;
+  VariableReference vr;
+  Number n;
+}
+{
+  fc = FUNCTION_CALL()
+  {return new FunctionCall(fc);}
+|
+  uo = UNARY_OPERATION()
+  {return new UnaryOperation(uo);}
+|
+  bo = BINARY_OPERATION()
+  {return new BinaryOperation(bo);}
+|
+  vr = VARIABLE_REFERENCE()
+  {return new VariableReference(vr);}
+|
+  n = NUMBER()
+  {return new Number(n);}
+  
+}
+
+UnaryOperation UNARY_OPERATION() :
+{
+  Token id;
+  Token op;
+}
+{
+  
+}
+
+FunctionCall FUNCTION_CALL() :
+{
+  Token id;
+  ValueList valueList;
+}
+{
+  "." id = <IDENTIFIER> "(" ( valueList = VALUE_LIST() )? ")"
+  { return new FunctionCall(id, valueList); }
+}
+
+ValueList VALUE_LIST() :
+{
+  Expression exprHead;
+  List<Expression> exprList;
+  Expression exprTail;
+}
+{
+  exprHead = EXPRESSION() ("," exprTail = EXPRESSION() { exprList.add(exprTail); } )*
+  { return new ValueList(exprHead, exprList); }
+}
+
