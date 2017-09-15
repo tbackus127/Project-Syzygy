@@ -63,6 +63,11 @@ SKIP: {
 
 TOKEN: {
   
+  <OP_UNARY: <OP_EXCL> | <OP_HYPHEN> >
+|
+  <OP_BINARY: <OP_ASL> | <OP_ASR> | <OP_LTE> | <OP_GTE> | <OP_LSL> | <OP_LSR> | <OP_PLUS> | OP_HYPHEN>
+  | <OP_ASTER> | <OP_EQUAL> | <OP_SLASH> | <OP_PERCENT> | <OP_CARET> | <OP_GT> | <OP_LT> >
+|
   <OP_ASL: "<<<" >
 |
   <OP_ASR: ">>>" >
@@ -74,6 +79,8 @@ TOKEN: {
   <OP_LSL: "<<" >
 |
   <OP_LSR: ">>" >
+|
+  <OP_NEQ: "!=" >
 |
   <OP_EXCL: "!" >
 |
@@ -426,49 +433,59 @@ Expression EXPRESSION() :
 }
 {
   fc = FUNCTION_CALL()
-  {return new FunctionCall(fc);}
+  {return fc;}
 |
   uo = UNARY_OPERATION()
-  {return new UnaryOperation(uo);}
+  {return uo;}
 |
   bo = BINARY_OPERATION()
-  {return new BinaryOperation(bo);}
+  {return bo;}
 |
   vr = VARIABLE_REFERENCE()
-  {return new VariableReference(vr);}
+  {return vr;}
 |
   n = NUMBER()
-  {return new Number(n);}
+  {return n;}
   
 }
 
 UnaryOperation UNARY_OPERATION() :
 {
-  Token id;
   Token op;
+  Expression expr;
 }
 {
-  
+  op = <OP_UNARY> expr = EXPRESSION()
+  {return new UnaryOperation(op.getImage(), expr);}
+}
+
+BinaryOperation BINARY_OPERATION() :
+{
+  Token op;
+  Expression exa, exb;
+}
+{
+  exa = EXPRESSION() op = <OP_BINARY> exb = EXPRESSION()
+  {return new BinaryOperation(op, exa, exb);}
 }
 
 FunctionCall FUNCTION_CALL() :
 {
-  Token id;
+  Token name;
   ValueList valueList;
 }
 {
-  "." id = <IDENTIFIER> "(" ( valueList = VALUE_LIST() )? ")"
-  { return new FunctionCall(id, valueList); }
+  "." name = <IDENTIFIER> "(" ( valueList = VALUE_LIST() )? ")"
+  { return new FunctionCall(name.getImage(), valueList.getList()); }
 }
 
 ValueList VALUE_LIST() :
 {
-  Expression exprHead;
-  List<Expression> exprList;
-  Expression exprTail;
+  Expression expr;
+  List<Expression> exprList = new ArrayList<Expression>();
 }
 {
-  exprHead = EXPRESSION() ("," exprTail = EXPRESSION() { exprList.add(exprTail); } )*
-  { return new ValueList(exprHead, exprList); }
+  expr = EXPRESSION() {exprList.add(expr);} ("," expr = EXPRESSION() { exprList.add(expr); } )*
+  { return new ValueList(exprList); }
 }
 

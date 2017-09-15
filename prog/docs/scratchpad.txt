@@ -1,0 +1,107 @@
+func fib(var n) {
+  var a = 0;
+  if(n <= 0) {
+    return a;
+  } else {
+    var b = 1;
+    if(n == 1) {
+      return b;
+    } else {
+      for(var i = 2; i <= n; set i = i + 1) {
+        set b = a + b;
+        set a = b - a;
+      }
+      return b;
+    }
+  }
+}
+
+
+Should yield (mid-level assembly, commands preceded by
+a period are macros):
+
+:func_fib1
+push $lbl.fib1_e0
+copy 2, 3
+.getArg(0)
+.push()
+.jgt()
+.pushEnv()
+.getVar(1,0)
+.return()
+
+:fib1_e0
+.pushEnv()
+.setVar(0,0,1)
+push $lbl.fib1_e0_e0
+copy 2, 3
+.getArg(1,0)
+.push()
+.jne()
+.pushEnv()
+.getVar(1,0)
+.return()
+
+:fib1_e0_e0
+.pushEnv()
+
+# For loop begin
+.pushEnv()
+.setVar(0,0,2)
+
+# Check
+:fib1_e0_e0_f0
+push $lbl.e0_e0_f0e
+
+# (i <= n)
+.getVar(0,0)
+.push()
+.getVar(3,0)
+.push()
+.jgtBin()
+
+# Body
+
+# set b = a + b;
+.getVar(3,1)
+.push()
+.getVar(2,0)
+.push()
+.add()
+.setVar(2,0)
+
+# set a = b - a;
+.getVar(2,0)
+.push()
+.getVar(3,1)
+.push()
+.sub()
+.setVar(3,1)
+
+# fib1_e0_e0_f0 jumpback
+push $lbl.fib1_e0_e0_f0
+copy 2, 3
+jmp
+
+# For loop end
+:fib1_e0_e0_f0e
+
+.popEnv()
+.getVar(1,0)
+.return()
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
