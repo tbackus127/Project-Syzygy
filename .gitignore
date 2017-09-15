@@ -10,7 +10,8 @@ cpu/SyzygyB100.runs/*
 cpu/SyzygyB100.sim/*
 cpu/SyzygyB100.srcs/sources_1/bd/*
 cpu/SyzygyB100.xpr
-prog/javacc/*
+prog/com/rath/umbra/javacc/*
+prog/com/rath/umbra/javacc.jar
 *.tmp
 *.xpr
 *.bak
