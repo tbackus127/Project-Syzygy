@@ -1,9 +1,11 @@
+package com.rath.umbra.entity;
+
 public enum Operator {
   
   ADD, SUB, MULT, DIV, MOD, ASL, ASR, LTE, GTE, LSL, LSR, NOT,
   EQ, NEQ, XOR, GT, LT;
   
-  public Operator getOp(final String s) {
+  public static Operator getOp(final String s) {
     switch(s) {
       case "<<<": return ASL;
       case ">>>": return ASR;

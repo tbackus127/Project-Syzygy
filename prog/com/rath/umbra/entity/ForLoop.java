@@ -1,13 +1,15 @@
 package com.rath.umbra.entity;
 
+import java.util.List;
+
 public class ForLoop extends ControlStructure {
   
   private final VarInitialization init;
   private final Expression cond;
   private final SetOperation setOp;
-  private final List<Statement> body;
+  private final StatementList body;
   
-  public ForLoop(final VarInitialization vi, final Expression c, final SetOperation s, final List<Statement> b) {
+  public ForLoop(final VarInitialization vi, final Expression c, final SetOperation s, final StatementList b) {
     this.init = vi;
     this.cond = c;
     this.setOp = s;
@@ -26,7 +28,7 @@ public class ForLoop extends ControlStructure {
     return this.setOp;
   }
   
-  public List<Statement> getBody() {
+  public StatementList getBody() {
     return this.body;
   }
   

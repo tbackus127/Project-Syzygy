@@ -8,7 +8,7 @@ public class FunctionDeclaration {
   private final List<String> params;
   private final List<Statement> body;
   
-  public MainDeclaration(final StatementList sl, final String n, final ArgList al) {
+  public FunctionDeclaration(final StatementList sl, final String n, final ArgList al) {
     this.body = sl.getList();
     this.params = al.getList();
     this.name = n;

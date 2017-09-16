@@ -1,11 +1,13 @@
 package com.rath.umbra.entity;
 
+import java.util.List;
+
 public class WhileLoop extends ControlStructure {
   
   private final Expression expr;
-  private final List<Statement> body;
+  private final StatementList body;
   
-  public WhileLoop(final Expression e, final List<Statement> b) {
+  public WhileLoop(final Expression e, final StatementList b) {
     this.expr = e;
     this.body = b;
   }
@@ -14,7 +16,7 @@ public class WhileLoop extends ControlStructure {
     return this.expr;
   }
   
-  public List<Statement> getBody() {
+  public StatementList getBody() {
     return this.body;
   }
   

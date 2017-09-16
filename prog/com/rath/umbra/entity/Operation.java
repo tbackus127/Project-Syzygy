@@ -1,2 +1,2 @@
 package com.rath.umbra.entity;
-public abstract class Operation extends Statement {}
+public abstract class Operation extends Expression {}

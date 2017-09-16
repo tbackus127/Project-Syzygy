@@ -5,7 +5,7 @@ public class ParamDeclaration {
   private final String name;
   private final int value;
   
-  public MainDeclaration(final String n, final String v) {
+  public ParamDeclaration(final String n, final String v) {
     this.name = n;
     this.value = Integer.parseInt(v);
   }

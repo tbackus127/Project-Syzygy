@@ -2,7 +2,7 @@ package com.rath.umbra.entity;
 
 import java.util.List;
 
-public class FunctionCall() {
+public class FunctionCall extends Expression {
   
   private final String name;
   private final List<Expression> args;

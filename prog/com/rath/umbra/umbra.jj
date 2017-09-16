@@ -11,7 +11,7 @@ options
 
 PARSER_BEGIN(UmbraParser)
 
-package com.rath.umbra;
+package com.rath.umbra.javacc;
 
 import java.io.*;
 import java.util.List;
@@ -21,16 +21,16 @@ import com.rath.umbra.entity.*;
 
 public class UmbraParser {
 
-  public static Program buildTree() {
+  public Program buildTree() {
     
     try {
       System.out.println("Building parse tree...");
       return PROGRAM();
     } catch (TokenMgrError tme) {
-      System.err.println(tme.getMessage);
+      System.err.println(tme.getMessage());
       return null;
     } catch (ParseException pe) {
-      System.err.println(pe.getMessage);
+      System.err.println(pe.getMessage());
       return null;
     }
     
@@ -65,7 +65,7 @@ TOKEN: {
   
   <OP_UNARY: <OP_EXCL> | <OP_HYPHEN> >
 |
-  <OP_BINARY: <OP_ASL> | <OP_ASR> | <OP_LTE> | <OP_GTE> | <OP_LSL> | <OP_LSR> | <OP_PLUS> | OP_HYPHEN>
+  <OP_BINARY: <OP_ASL> | <OP_ASR> | <OP_LTE> | <OP_GTE> | <OP_LSL> | <OP_LSR> | <OP_PLUS> | <OP_HYPHEN>
   | <OP_ASTER> | <OP_EQUAL> | <OP_SLASH> | <OP_PERCENT> | <OP_CARET> | <OP_GT> | <OP_LT> >
 |
   <OP_ASL: "<<<" >
@@ -180,7 +180,7 @@ Program PROGRAM() :
   ( mainDecl = MAIN_DECLARATION() )
   ( fd = FUNCTION_DECLARATION() {funcDeclList.add(fd); } )*
   <EOF>
-  { return new Program(paramDeclList, mainDecl, funcDeclList); }
+  { return new Program(paramDeclList, funcDeclList, mainDecl); }
 }
 
 MainDeclaration MAIN_DECLARATION() :
@@ -206,7 +206,7 @@ FunctionDeclaration FUNCTION_DECLARATION() :
     body = STATEMENT_LIST()
   "}"
   
-  { return new FunctionDeclaration(name.getImage(), argList, body); }
+  { return new FunctionDeclaration(body, name.image, argList); }
 }
 
 ParamDeclaration PARAM_DECLARATION() :
@@ -218,7 +218,7 @@ ParamDeclaration PARAM_DECLARATION() :
  
   "param" (id = <IDENTIFIER>) "=" (value = <LIT_GENERAL>) ";"
   
-  { return new ParamDeclaration(id.getImage(), value.getImage()); }
+  { return new ParamDeclaration(id.image, value.image); }
 }
 
 ArgList ARG_LIST() :
@@ -240,7 +240,7 @@ ArgListHead ARG_LIST_HEAD() :
 {
   "var" id = <IDENTIFIER>
   
-  { return new ArgListHead(id.image()); }
+  { return new ArgListHead(id.image); }
 }
 
 ArgListTail ARG_LIST_TAIL() :
@@ -250,7 +250,7 @@ ArgListTail ARG_LIST_TAIL() :
 {
   "," "var" id = <IDENTIFIER>
   
-  { return ArgListTail(id.image()); }
+  { return new ArgListTail(id.image); }
 }
 
 StatementList STATEMENT_LIST() :
@@ -269,13 +269,17 @@ Statement STATEMENT() :
 {
   Operation operation;
   ControlStructure controlStructure;
+  Expression expr;
 }
 {
   ( operation = OPERATION() )
-  { return new Operation(operation); }
+  { return operation; }
 |
   ( controlStructure = CONTROL_STRUCTURE() )
-  { return new ControlStructure(controlStructure); }
+  { return controlStructure; }
+|
+  ( expr = EXPRESSION() )
+  { return expr; }
 }
 
 Operation OPERATION(): 
@@ -284,24 +288,20 @@ Operation OPERATION():
   VarDeclaration varDeclaration;
   VarInitialization varInitialization;
   ReturnOperation returnOperation;
-  FunctionCall funcCall;
 }
 {
   (
     LOOKAHEAD(3) setOperation = SET_OPERATION()
-    { return new SetOperation(setOperation); }
+    { return new SetOperation(setOperation.getVar(), setOperation.getExpr()); }
   |
     LOOKAHEAD(3) varDeclaration = VAR_DECLARATION()
-    { return new VarDeclaration(varDeclaration); }
+    { return new VarDeclaration(varDeclaration.getName()); }
   |
     varInitialization = VAR_INITIALIZATION()
-    { return new VarInitialization(varInitialization); }
+    { return new VarInitialization(varInitialization.getVar(), varInitialization.getExpr()); }
   |
     returnOperation = RETURN_OPERATION()
-    { return new ReturnOperation(returnOperation); }
-  |
-    funcCall = FUNCTION_CALL()
-    { return new FunctionCall(funcCall); }
+    { return new ReturnOperation(returnOperation.getExpr()); }
   )
   ";"
 }
@@ -314,13 +314,13 @@ ControlStructure CONTROL_STRUCTURE() :
 }
 {
   conditionalBranch = CONDITIONAL_BRANCH()
-  { return new ConditionalBranch(conditionalBranch); }
+  { return new ConditionalBranch(conditionalBranch.getIfExpr(), conditionalBranch.getElseifExprList(), conditionalBranch.getElseExpr(), conditionalBranch.getIfBody(), conditionalBranch.getElseifBodyList(), conditionalBranch.getElseBody()); }
 |
   whileLoop = WHILE_LOOP()
-  { return new WhileLoop(whileLoop); }
+  { return new WhileLoop(whileLoop.getExpr(), whileLoop.getBody()); }
 |
   forLoop = FOR_LOOP()
-  { return new ForLoop(forLoop); }
+  { return new ForLoop(forLoop.getInit(), forLoop.getCond(), forLoop.getSetOp(), forLoop.getBody()); }
 }
 
 SetOperation SET_OPERATION() :
@@ -330,7 +330,7 @@ SetOperation SET_OPERATION() :
 }
 {
   "set" id = <IDENTIFIER> "=" expr = EXPRESSION()
-  { return new SetOperation(id.getImage(), expr); }
+  { return new SetOperation(id.image, expr); }
 }
 
 VarDeclaration VAR_DECLARATION() :
@@ -339,7 +339,7 @@ VarDeclaration VAR_DECLARATION() :
 }
 {
   "var" id = <IDENTIFIER>
-  { return new VarDeclaration(id.getImage()); }
+  { return new VarDeclaration(id.image); }
 }
 
 VarInitialization VAR_INITIALIZATION() :
@@ -349,7 +349,7 @@ VarInitialization VAR_INITIALIZATION() :
 }
 {
   "var" id = <IDENTIFIER> "=" expr = EXPRESSION()
-  { return new VarInitialization(id..getImage(), expr); }
+  { return new VarInitialization(id.image, expr); }
 }
 
 ReturnOperation RETURN_OPERATION() :
@@ -369,7 +369,7 @@ ConditionalBranch CONDITIONAL_BRANCH() :
   
   StatementList ifBody;
   List<StatementList> elsifStatementBodyList = new ArrayList<StatementList>();
-  Expression elseBody;
+  StatementList elseBody;
   
   Expression elsifExpr;
   StatementList elsifStatementList;
@@ -429,16 +429,16 @@ Expression EXPRESSION() :
   UnaryOperation uo;
   BinaryOperation bo;
   VariableReference vr;
-  Number n;
+  NumberVal n;
 }
 {
   fc = FUNCTION_CALL()
-  {return fc;}
+  {return new FunctionCall(fc.getName(), fc.getArgs());}
 |
-  uo = UNARY_OPERATION()
+  LOOKAHEAD(3) uo = UNARY_OPERATION()
   {return uo;}
 |
-  bo = BINARY_OPERATION()
+  LOOKAHEAD(3) bo = BINARY_OPERATION()
   {return bo;}
 |
   vr = VARIABLE_REFERENCE()
@@ -456,17 +456,38 @@ UnaryOperation UNARY_OPERATION() :
 }
 {
   op = <OP_UNARY> expr = EXPRESSION()
-  {return new UnaryOperation(op.getImage(), expr);}
+  {return new UnaryOperation(op.image, expr);}
 }
 
 BinaryOperation BINARY_OPERATION() :
 {
   Token op;
-  Expression exa, exb;
+  Expression expr;
+  UnaryOperation uo;
 }
 {
-  exa = EXPRESSION() op = <OP_BINARY> exb = EXPRESSION()
-  {return new BinaryOperation(op, exa, exb);}
+  uo = UNARY_OPERATION() op = <OP_BINARY> expr = EXPRESSION()
+  {return new BinaryOperation(uo, op.image, expr);}
+}
+
+
+
+VariableReference VARIABLE_REFERENCE() :
+{
+  Token t;
+}
+{
+  t = <IDENTIFIER>
+  {return new VariableReference(t.image);}
+}
+
+NumberVal NUMBER() :
+{
+  Token t;
+}
+{
+  t = <LIT_NUMBER>
+  {return new NumberVal(t.image);}
 }
 
 FunctionCall FUNCTION_CALL() :
@@ -476,7 +497,8 @@ FunctionCall FUNCTION_CALL() :
 }
 {
   "." name = <IDENTIFIER> "(" ( valueList = VALUE_LIST() )? ")"
-  { return new FunctionCall(name.getImage(), valueList.getList()); }
+  { return new FunctionCall(name.image, valueList.getList()); }
+  ";"
 }
 
 ValueList VALUE_LIST() :
