@@ -101,7 +101,7 @@ func buildInputBuffer(var buf) {
 #   index: The bit number, 0-15, with 15 being the most-significant
 # -----------------------------------------------------------------------------
 func getBit(var val, var index) {
-  return (val >> index) & (-1 << (index + 1));
+  return (val >> index) & (!1 << (index + 1));
 }
 
 # -----------------------------------------------------------------------------

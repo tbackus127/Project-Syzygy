@@ -1,8 +1,10 @@
 package com.rath.umbra.entity;
 
-public class VariableReference extends UnaryOperation {
+import java.util.List;
 
-  public VariableReference(final String v) {
-    super(v);
+public class VariableReference extends UnaryExpression {
+
+  public VariableReference(final String v, final List<Expression> e) {
+    super(v, e);
   }
 }

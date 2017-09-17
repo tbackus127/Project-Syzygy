@@ -1,6 +1,6 @@
 package com.rath.umbra.entity;
 
-public class NumberVal extends UnaryOperation {
+public class NumberVal extends UnaryExpression {
 
   public NumberVal(final String s) {
     super((int) Short.decode(s));

@@ -67,8 +67,6 @@ TOKEN: {
   
   < IDENTIFIER: ["a"-"z","A"-"Z"] (["a"-"z","A"-"Z","0"-"9","_"])*  >
 |  
-  < REFERENCE: "@" <IDENTIFIER> ":" <IDENTIFIER> >
-|
   < LIT_GENERAL: <LIT_NUMBER> | <LIT_CHAR> | <LIT_STRING> >
 |
   < LIT_NUMBER: <LIT_DECIMAL> | <LIT_HEX> >
@@ -171,12 +169,12 @@ ParamList PARAM_LIST() :
 
 ParamListHead PARAM_LIST_HEAD() :
 {
-  Token id;
+  Token id = null;
 }
 {
-  "var" id = <IDENTIFIER>
+  ("var" id = <IDENTIFIER>)?
   
-  { return new ParamListHead(id.image); }
+  { return new ParamListHead((id == null) ? null : id.image); }
 }
 
 ParamListTail PARAM_LIST_TAIL() :
@@ -195,7 +193,7 @@ StatementList STATEMENT_LIST() :
   Statement st;
 }
 {
-  (LOOKAHEAD(2) st = STATEMENT() { list.add(st); } )+
+  (LOOKAHEAD(2) st = STATEMENT() { list.add(st); } )*
   { return new StatementList(list); }
 }
 
@@ -226,16 +224,16 @@ Operation OPERATION():
 {
   (
     LOOKAHEAD(3) setOperation = SET_OPERATION()
-    { return new SetOperation(setOperation.getVar(), setOperation.getExpr()); }
+    { return setOperation; }
   |
     LOOKAHEAD(3) varInitialization = VAR_INITIALIZATION()
-    { return new VarInitialization(varInitialization.getVar(), varInitialization.getExpr()); }
+    { return varInitialization; }
   |
     LOOKAHEAD(3) varDeclaration = VAR_DECLARATION()
-    { return new VarDeclaration(varDeclaration.getName()); }
+    { return varDeclaration; }
   |
     returnOperation = RETURN_OPERATION()
-    { return new ReturnOperation(returnOperation.getExpr()); }
+    { return returnOperation; }
   )
 }
 
@@ -258,12 +256,13 @@ ControlStructure CONTROL_STRUCTURE() :
 
 SetOperation SET_OPERATION() :
 {
-  Token id;
+  VariableReference vr;
+  ArrayExpression ae;
   Expression expr;
 }
 {
-  "set" id = <IDENTIFIER> "=" expr = EXPRESSION()
-  { return new SetOperation(id.image, expr); }
+  "set" vr = VARIABLE_REFERENCE() "=" expr = EXPRESSION()
+  { return new SetOperation(vr, expr); }
 }
 
 VarDeclaration VAR_DECLARATION() :
@@ -320,7 +319,7 @@ ConditionalBranch CONDITIONAL_BRANCH() :
   )*
   
   (
-    "else" "(" elseExpr = EXPRESSION() ")" "{"
+    "else" "{"
       elseBody = STATEMENT_LIST()
     "}"
   )?
@@ -359,56 +358,142 @@ ForLoop FOR_LOOP() :
 Expression EXPRESSION() :
 {
   FunctionCall fc;
-  BinaryOperation bo;
-  UnaryOperation uo;
+  Expression expr;
 }
 {
-  fc = FUNCTION_CALL()
+  LOOKAHEAD(3) fc = FUNCTION_CALL()
   {return new FunctionCall(fc.getName(), fc.getArgs());}
 |
-  LOOKAHEAD(3) bo = BINARY_OPERATION()
-  {return bo;}
-|
-  uo = UNARY_OPERATION()
-  {return uo;}
+  LOOKAHEAD(3) expr = OR_EXPRESSION()
+  {return expr;}
 }
 
-UnaryOperation UNARY_OPERATION() :
+Expression OR_EXPRESSION():
 {
-  Token op;
-  Expression expr;
-  VariableReference vr;
-  NumberVal n;
+  Expression xa, xb;
 }
 {
-  op = <("!" | "-")> expr = EXPRESSION()
-  {return new UnaryOperation(op.image, expr);}
+  xa = XOR_EXPRESSION() (LOOKAHEAD(2) "|" xb = XOR_EXPRESSION() {xa = new BinaryExpression(xa, "|", xb);} )*
+  {return xa;}
+}
+
+Expression XOR_EXPRESSION():
+{
+  Expression xa, xb;
+}
+{
+  xa = AND_EXPRESSION() (LOOKAHEAD(2) "^" xb = AND_EXPRESSION() {xa = new BinaryExpression(xa, "^", xb);} )*
+  {return xa;}
+}
+
+Expression AND_EXPRESSION():
+{
+  Expression xa, xb;
+}
+{
+  xa = EQUALITY_EXPRESSION() (LOOKAHEAD(2) "&" xb = EQUALITY_EXPRESSION() {xa = new BinaryExpression(xa, "&", xb);} )*
+  {return xa;}
+}
+
+Expression EQUALITY_EXPRESSION():
+{
+  Token op;
+  Expression xa, xb;
+}
+{
+  xa = MAGNITUDE_EXPRESSION() (LOOKAHEAD(2) op = <("==" | "!=")> xb = MAGNITUDE_EXPRESSION() {xa = new BinaryExpression(xa, op.image, xb);} )*
+  {return xa;}
+}
+
+Expression MAGNITUDE_EXPRESSION():
+{
+  Token op;
+  Expression xa, xb;
+}
+{
+  xa = SHIFT_EXPRESSION() (LOOKAHEAD(2) op = <("<=" | ">=" | "<" | ">")> xb = SHIFT_EXPRESSION() {xa = new BinaryExpression(xa, op.image, xb);} )*
+  {return xa;}
+}
+
+Expression SHIFT_EXPRESSION():
+{
+  Token op;
+  Expression xa, xb;
+}
+{
+  xa = ADDITIVE_EXPRESSION() (LOOKAHEAD(2) op = <("<<<" | ">>>" | "<<" | ">>")> xb = ADDITIVE_EXPRESSION() {xa = new BinaryExpression(xa, op.image, xb);} )*
+  {return xa;}
+}
+
+Expression ADDITIVE_EXPRESSION():
+{
+  Token op;
+  Expression xa, xb;
+}
+{
+  xa = MULTIPLICATIVE_EXPRESSION() (LOOKAHEAD(2) op = <("+" | "-")> xb = MULTIPLICATIVE_EXPRESSION() {xa = new BinaryExpression(xa, op.image, xb);} )*
+  {return xa;}
+}
+
+Expression MULTIPLICATIVE_EXPRESSION():
+{
+  Token op;
+  Expression xa, xb;
+}
+{
+  xa = UNARY_EXPRESSION() (LOOKAHEAD(2) op = <("*" | "/" | "%")> xb = UNARY_EXPRESSION() {xa = new BinaryExpression(xa, op.image, xb);} )*
+  {return xa;}
+}
+
+Expression UNARY_EXPRESSION() :
+{
+  FunctionCall fc;
+  Expression ex;
+  Token op;
+  VariableReference vr;
+  ConfigReference cr;
+  NumberVal nv;
+}
+{
+  ("(" ex = EXPRESSION() ")")
+  {return ex;}
 |
-  vr = VARIABLE_REFERENCE()
+  fc = FUNCTION_CALL()
+  {return fc;}
+|
+  op = <("?" | "!" | "-")> ex = UNARY_EXPRESSION()
+  {return new UnaryExpression(Operator.getOp(op.image), ex);}
+|
+  cr = CONFIG_REFERENCE()
+  {return cr;}
+|
+  LOOKAHEAD(2) vr = VARIABLE_REFERENCE()
   {return vr;}
 |
-  n = NUMBER()
-  {return n;}
+  nv = NUMBER()
+  {return nv;}
+  
 }
 
-BinaryOperation BINARY_OPERATION() :
+ConfigReference CONFIG_REFERENCE() :
 {
-  Token op;
-  Expression expr;
-  UnaryOperation uo;
+  Token cls;
+  Token var;
 }
 {
-  uo = UNARY_OPERATION() op = <("<<<" | ">>>" | "==" | "<=" | ">=" | "<<" | ">>" | "!=" | "+" | "-" | "*" | "/" | "%" | "^" | ">" | "<")> expr = EXPRESSION()
-  {return new BinaryOperation(uo, op.image, expr);}
+  "@" cls = <IDENTIFIER> ":" var = <IDENTIFIER>
+  {return new ConfigReference(cls.image, var.image);}
 }
 
 VariableReference VARIABLE_REFERENCE() :
 {
   Token t;
+  Expression ref;
+  List<Expression> arrayRefs = new ArrayList<Expression>();
 }
 {
-  t = <IDENTIFIER>
-  {return new VariableReference(t.image);}
+  t = <IDENTIFIER> ("[" ref = EXPRESSION() "]" {arrayRefs.add(ref);})*
+  {return new VariableReference(t.image, arrayRefs);}
 }
 
 NumberVal NUMBER() :
