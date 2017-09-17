@@ -4,20 +4,13 @@ import java.util.List;
 
 public class ArgList {
   
-  private final List<String> args;
+  private final List<Expression> args;
   
-  public ArgList(final ArgListHead h, final List<ArgListTail> t) {
-    if(h != null) {
-      args.add(h.getName());
-      for(ArgListTail tail : t) {
-        if(tail != null) {
-          args.add(tail.getName());
-        }
-      }
-    }
+  public ArgList(final List<Expression> el) {
+    this.args = el;
   }
   
-  public List<String> getList() {
+  public List<Expression> getList() {
     return this.args;
   }
   

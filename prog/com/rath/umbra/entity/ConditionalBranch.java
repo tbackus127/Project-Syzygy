@@ -30,7 +30,7 @@ public class ConditionalBranch extends ControlStructure {
   }
   
   public List<Expression> getElseifExprList() {
-    return this.elseIfExprList;
+    return this.elseifExprList;
   }
   
   public Expression getElseExpr() {

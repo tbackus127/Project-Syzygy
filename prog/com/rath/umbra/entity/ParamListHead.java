@@ -2,11 +2,11 @@ package com.rath.umbra.entity;
 
 import java.util.List;
 
-public class ArgListTail {
+public class ParamListHead {
   
   private final String name;
   
-  public ArgListTail(final String n) {
+  public ParamListHead(final String n) {
     this.name = n;
   }
   

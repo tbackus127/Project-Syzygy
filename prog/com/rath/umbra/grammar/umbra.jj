@@ -1,9 +1,7 @@
 options
 {
   STATIC = false;
-  COMMON_TOKEN_ACTION = true;
   DEBUG_PARSER = true;
-  DEBUG_TOKEN_MANAGER = true;
 }
 
 // --------------------------------------------------------------------------------------------------------------------
@@ -11,7 +9,7 @@ options
 
 PARSER_BEGIN(UmbraParser)
 
-package com.rath.umbra.javacc;
+package com.rath.umbra.grammar;
 
 import java.io.*;
 import java.util.List;
@@ -33,8 +31,6 @@ public class UmbraParser {
       System.err.println(pe.getMessage());
       return null;
     }
-    
-    return null;
   }
 
 }
@@ -44,68 +40,8 @@ PARSER_END(UmbraParser)
 // --------------------------------------------------------------------------------------------------------------------
 // Tokens
 
-TOKEN_MGR_DECLS: {
-  void CommonTokenAction(Token t) {
-    System.out.println("Token: " + t.image);
-  }
-}
-
 SKIP: {
   " "| "\t" | "\n" | "\r" | <"#" (~["\n","\r"])* ("\n"|"\r"|"\r\n")>
-}
-
-
-
-
-
-// --------------------------------------------------------------------------------------------------------------------
-// Operators
-
-TOKEN: {
-  
-  <OP_UNARY: <OP_EXCL> | <OP_HYPHEN> >
-|
-  <OP_BINARY: <OP_ASL> | <OP_ASR> | <OP_LTE> | <OP_GTE> | <OP_LSL> | <OP_LSR> | <OP_PLUS> | <OP_HYPHEN>
-  | <OP_ASTER> | <OP_EQUAL> | <OP_SLASH> | <OP_PERCENT> | <OP_CARET> | <OP_GT> | <OP_LT> >
-|
-  <OP_ASL: "<<<" >
-|
-  <OP_ASR: ">>>" >
-|
-  <OP_LTE: "<=" >
-|
-  <OP_GTE: ">=" >
-|
-  <OP_LSL: "<<" >
-|
-  <OP_LSR: ">>" >
-|
-  <OP_NEQ: "!=" >
-|
-  <OP_EXCL: "!" >
-|
-  <OP_PLUS: "+" >
-|
-  <OP_HYPHEN: "-" >
-|
-  <OP_ASTER: "*" >
-|
-  <OP_EQUAL: "=" >
-|
-  <OP_SLASH: "/" >
-|
-  <OP_PERCENT: "%" >
-|
-  <OP_CARET: "^" >
-|
-  <OP_GT: ">" >
-|
-  <OP_LT: "<" >
-|
-  <SEP_LPAREN: "(" >
-|
-  <SEP_RPAREN: ")" >
-  
 }
 
 // --------------------------------------------------------------------------------------------------------------------
@@ -137,7 +73,7 @@ TOKEN: {
 |
   < LIT_NUMBER: <LIT_DECIMAL> | <LIT_HEX> >
 |
-  < #LIT_DECIMAL: ["1"-"9"] (["0"-"9"])* >
+  < #LIT_DECIMAL: (["1"-"9"] (["0"-"9"])*) | "0" >
 |
   < #LIT_HEX: "0x" (["0"-"9","a"-"f","A"-"F"]){1,4} >
 |
@@ -198,15 +134,15 @@ MainDeclaration MAIN_DECLARATION() :
 FunctionDeclaration FUNCTION_DECLARATION() :
 {
   Token name;
-  ArgList argList;
+  ParamList paramList;
   StatementList body;
 }
 {
-  "func" name = <IDENTIFIER> "(" argList = ARG_LIST() ")" "{"
+  "func" name = <IDENTIFIER> "(" paramList = PARAM_LIST() ")" "{"
     body = STATEMENT_LIST()
   "}"
   
-  { return new FunctionDeclaration(body, name.image, argList); }
+  { return new FunctionDeclaration(body, name.image, paramList); }
 }
 
 ParamDeclaration PARAM_DECLARATION() :
@@ -221,36 +157,36 @@ ParamDeclaration PARAM_DECLARATION() :
   { return new ParamDeclaration(id.image, value.image); }
 }
 
-ArgList ARG_LIST() :
+ParamList PARAM_LIST() :
 {
-  ArgListHead head;
-  List<ArgListTail> tail = new ArrayList<ArgListTail>();
-  ArgListTail t;
+  ParamListHead head;
+  List<ParamListTail> tail = new ArrayList<ParamListTail>();
+  ParamListTail t;
 }
 {
-  head = ARG_LIST_HEAD() ( t = ARG_LIST_TAIL() { tail.add(t); } )*
+  head = PARAM_LIST_HEAD() ( t = PARAM_LIST_TAIL() { tail.add(t); } )*
   
-  { return new ArgList(head, tail); }
+  { return new ParamList(head, tail); }
 }
 
-ArgListHead ARG_LIST_HEAD() :
+ParamListHead PARAM_LIST_HEAD() :
 {
   Token id;
 }
 {
   "var" id = <IDENTIFIER>
   
-  { return new ArgListHead(id.image); }
+  { return new ParamListHead(id.image); }
 }
 
-ArgListTail ARG_LIST_TAIL() :
+ParamListTail PARAM_LIST_TAIL() :
 {
   Token id;
 }
 {
   "," "var" id = <IDENTIFIER>
   
-  { return new ArgListTail(id.image); }
+  { return new ParamListTail(id.image); }
 }
 
 StatementList STATEMENT_LIST() :
@@ -259,9 +195,7 @@ StatementList STATEMENT_LIST() :
   Statement st;
 }
 {
-  
   (LOOKAHEAD(2) st = STATEMENT() { list.add(st); } )+
-  
   { return new StatementList(list); }
 }
 
@@ -272,13 +206,13 @@ Statement STATEMENT() :
   Expression expr;
 }
 {
-  ( operation = OPERATION() )
+  ( operation = OPERATION() ";")
   { return operation; }
 |
   ( controlStructure = CONTROL_STRUCTURE() )
   { return controlStructure; }
 |
-  ( expr = EXPRESSION() )
+  ( expr = EXPRESSION() ";" )
   { return expr; }
 }
 
@@ -294,16 +228,15 @@ Operation OPERATION():
     LOOKAHEAD(3) setOperation = SET_OPERATION()
     { return new SetOperation(setOperation.getVar(), setOperation.getExpr()); }
   |
+    LOOKAHEAD(3) varInitialization = VAR_INITIALIZATION()
+    { return new VarInitialization(varInitialization.getVar(), varInitialization.getExpr()); }
+  |
     LOOKAHEAD(3) varDeclaration = VAR_DECLARATION()
     { return new VarDeclaration(varDeclaration.getName()); }
-  |
-    varInitialization = VAR_INITIALIZATION()
-    { return new VarInitialization(varInitialization.getVar(), varInitialization.getExpr()); }
   |
     returnOperation = RETURN_OPERATION()
     { return new ReturnOperation(returnOperation.getExpr()); }
   )
-  ";"
 }
 
 ControlStructure CONTROL_STRUCTURE() :
@@ -354,7 +287,7 @@ VarInitialization VAR_INITIALIZATION() :
 
 ReturnOperation RETURN_OPERATION() :
 {
-  Expression expr;
+  Expression expr = null;
 }
 {
   "return" (expr = EXPRESSION())?
@@ -365,11 +298,11 @@ ConditionalBranch CONDITIONAL_BRANCH() :
 {
   Expression ifExpr;
   List<Expression> elsifExprList = new ArrayList<Expression>();
-  Expression elseExpr;
+  Expression elseExpr = null;
   
   StatementList ifBody;
   List<StatementList> elsifStatementBodyList = new ArrayList<StatementList>();
-  StatementList elseBody;
+  StatementList elseBody = null;
   
   Expression elsifExpr;
   StatementList elsifStatementList;
@@ -410,13 +343,13 @@ WhileLoop WHILE_LOOP() :
 
 ForLoop FOR_LOOP() :
 {
-  VarInitialization init;
+  VarInitialization init = null;
   Expression conditional;
-  SetOperation setOperation;
+  SetOperation setOperation = null;
   StatementList body;
 }
 {
-  "for" "(" (init = VAR_INITIALIZATION())? ";" conditional = EXPRESSION() ";" setOperation = SET_OPERATION() ")" "{"
+  "for" "(" (init = VAR_INITIALIZATION())? ";" conditional = EXPRESSION() ";" (setOperation = SET_OPERATION())? ")" "{"
     body = STATEMENT_LIST()
   "}"
   
@@ -426,37 +359,36 @@ ForLoop FOR_LOOP() :
 Expression EXPRESSION() :
 {
   FunctionCall fc;
-  UnaryOperation uo;
   BinaryOperation bo;
-  VariableReference vr;
-  NumberVal n;
+  UnaryOperation uo;
 }
 {
   fc = FUNCTION_CALL()
   {return new FunctionCall(fc.getName(), fc.getArgs());}
 |
-  LOOKAHEAD(3) uo = UNARY_OPERATION()
-  {return uo;}
-|
   LOOKAHEAD(3) bo = BINARY_OPERATION()
   {return bo;}
 |
-  vr = VARIABLE_REFERENCE()
-  {return vr;}
-|
-  n = NUMBER()
-  {return n;}
-  
+  uo = UNARY_OPERATION()
+  {return uo;}
 }
 
 UnaryOperation UNARY_OPERATION() :
 {
   Token op;
   Expression expr;
+  VariableReference vr;
+  NumberVal n;
 }
 {
-  op = <OP_UNARY> expr = EXPRESSION()
+  op = <("!" | "-")> expr = EXPRESSION()
   {return new UnaryOperation(op.image, expr);}
+|
+  vr = VARIABLE_REFERENCE()
+  {return vr;}
+|
+  n = NUMBER()
+  {return n;}
 }
 
 BinaryOperation BINARY_OPERATION() :
@@ -466,11 +398,9 @@ BinaryOperation BINARY_OPERATION() :
   UnaryOperation uo;
 }
 {
-  uo = UNARY_OPERATION() op = <OP_BINARY> expr = EXPRESSION()
+  uo = UNARY_OPERATION() op = <("<<<" | ">>>" | "==" | "<=" | ">=" | "<<" | ">>" | "!=" | "+" | "-" | "*" | "/" | "%" | "^" | ">" | "<")> expr = EXPRESSION()
   {return new BinaryOperation(uo, op.image, expr);}
 }
-
-
 
 VariableReference VARIABLE_REFERENCE() :
 {
@@ -486,28 +416,27 @@ NumberVal NUMBER() :
   Token t;
 }
 {
-  t = <LIT_NUMBER>
+  t = <LIT_GENERAL>
   {return new NumberVal(t.image);}
 }
 
 FunctionCall FUNCTION_CALL() :
 {
   Token name;
-  ValueList valueList;
+  ArgList argList = null;
 }
 {
-  "." name = <IDENTIFIER> "(" ( valueList = VALUE_LIST() )? ")"
-  { return new FunctionCall(name.image, valueList.getList()); }
-  ";"
+  "." name = <IDENTIFIER> "(" ( argList = ARG_LIST() )? ")"
+  { return new FunctionCall(name.image, ((argList == null) ? null : argList.getList())); }
 }
 
-ValueList VALUE_LIST() :
+ArgList ARG_LIST() :
 {
   Expression expr;
   List<Expression> exprList = new ArrayList<Expression>();
 }
 {
   expr = EXPRESSION() {exprList.add(expr);} ("," expr = EXPRESSION() { exprList.add(expr); } )*
-  { return new ValueList(exprList); }
+  { return new ArgList(exprList); }
 }
 

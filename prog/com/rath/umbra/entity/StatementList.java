@@ -10,7 +10,7 @@ public class StatementList {
     this.statements = l;
   }
   
-  public String getList() {
+  public List<Statement> getList() {
     return this.statements;
   }
   

@@ -1,15 +1,8 @@
 package com.rath.umbra.entity;
 
-public class VariableReference extends Operation {
-  
-  private final String var;
-  
+public class VariableReference extends UnaryOperation {
+
   public VariableReference(final String v) {
-    this.var = v;
+    super(v);
   }
-  
-  public String getVar() {
-    return this.var;
-  }
-  
 }
