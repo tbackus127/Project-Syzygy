@@ -10,8 +10,11 @@ cpu/SyzygyB100.runs/*
 cpu/SyzygyB100.sim/*
 cpu/SyzygyB100.srcs/sources_1/bd/*
 cpu/SyzygyB100.xpr
-!prog/com/rath/umbra/grammar/umbra.jj
+prog/com/rath/umbra/grammar/*.java
+prog/com/rath/umbra/grammar/org/
+prog/com/rath/umbra/grammar/templates/
 *.tmp
+*.class
 *.xpr
 *.bak
 *.swp
