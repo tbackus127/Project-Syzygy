@@ -1,0 +1,419 @@
+\documentclass{article}
+
+\usepackage{tikz}
+\usetikzlibrary{positioning, shapes, arrows, backgrounds, external, fit}
+\usepackage{lmodern}
+
+\tikzset{
+	SysPeriph/.style={ellipse, draw, fill=blue!15},
+	SysComp/.style={rectangle, draw, fill=blue!5}
+}
+
+\title{\textbf{Syzygy B100 - Hardware Specifications}}
+\date{2017-9-1}
+\author{Timothy M. Backus}
+
+\begin{document}
+
+	\pagenumbering{gobble}
+
+	\maketitle
+
+	\newpage
+	\pagenumbering{arabic}
+
+	\tableofcontents
+
+	\pagebreak
+
+	\section{Overview}
+
+	The Syzygy system was implemented on Digilent's Basys 3 FPGA for the purpose of creating a homebrew computer system from scratch, or at least as "from scratch" as possible without fabricating the chip on silicon. The Syzygy system includes a single-core CPU and 128kB of memory. In addition, the system supports a single SDHC card to boot from, a PS/2 keyboard for user input, and a VGA monitor for output.
+
+	\section{CPU}
+
+	The Syzygy B100 is a 16-bit RISC CPU built with programming ease as its focus. The processor has seventeen registers in total, with fourteen of them being directly writable. The ALU is capable of performing six different base operations, in addition to manipulating the bits of both inputs as well as the output.\\
+	\\
+	This CPU runs at 33.3MHz, although it may be possible for it to run at a higher frequency. This clock speed was chosen because the block memory on the Basys 3 has a latency of one clock cycle, and the CPU expects a new instruction every rising-edge of its clock. All registers in the CPU are falling-edge triggered.
+
+		\subsection{Special Registers}
+	
+		\begin{description}
+			\item[$\cdot$] R0: Instruction Register\\
+			Holds the current instruction as a 16-bit value. It is written to when the clock phase signal is low, and releases its data if the clock phase signal is high. This register is not directly writable with an instruction.
+			\item[$\cdot$] R1: Program Counter\\
+			Holds the 16-bit index of the current instruction. It will increment its value on the falling-edge of its clock when the enable signal is high. Additionally, its value will be set to its data-in signal when the set signal is high. This register is only writable through R3 (Jump Address).
+			\item[$\cdot$] FR: Flag Register\\
+			This register holds a single 16-bit value where each bit corresponds to a flag signal. The only flag implemented is $f_0$, which is the signal to choose between fetching the instruction from memory rather than the boot ROM. This register is only writable through the "sys" instruction (see Instruction Set below).
+		\end{description}
+
+		\subsection{Other Registers}
+
+			\begin{description}
+				\item[$\cdot$] R2: Accumulator\\
+				This is the only register that can be immediately set by one instruction (push instruction). Any ALU instruction will overwrite this register's value with the result of the ALU instruction. Jump instruction's comparisons will also read this register's value.
+				\item[$\cdot$] R3: Jump Address\\
+				Contains the address R1 (Program Counter) will be set to if the comparison to zero using R2's value is true.
+				\item[$\cdot$] R4: I/O Bits 0-15\\
+				Contains the lower 16 bits of a 32-bit value to or from a peripheral interface. Whenever an I/O instruction is executed, both R4 and R5 will be read from or written to at the same time.
+				\item[$\cdot$] R5: I/O Bits 16-31\\
+				Contains the upper 16 bits of a 32-bi value to or from a peripheral interface.
+				\item[$\cdot$] R6: ALU Operand A\\
+				The value that is contained in this register will be used during an ALU instruction. If the instruction is a unary operation, this value alone will be used. If the ALU instruction is a binary operation, this value will be the left operand.
+				\item[$\cdot$] R7: ALU Operand B\\
+				Contains the right operand of an ALU operation. If the ALU receives a unary operation, this value is ignored.
+				\item[$\cdot$] R8 - R15: General Purpose Registers\\
+				These registers have no special purpose and may be used as a temporary place to store intermediate values.
+				
+			\end{description}
+
+		\subsection{Layout}
+
+			%todo Draw a nice graph here.
+			ALU diagram goes here.
+
+		\subsection{ALU}
+		
+			The ALU (arithmetic-logic unit) is capable of performing seven different base mathematical or logical operations:
+			
+			\begin{enumerate}
+				\item \textbf{Pass value}: \\
+				Pass the value of operand A without performing any arithmetic or logic operations. Unary operation.\\
+				\\
+				Other applications:
+				\begin{description}
+					\item[$\cdot$] Invert: Set ALU output invert flag.
+				\end{description}
+				
+				\item \textbf{Logical OR}: \\
+				Performs a bitwise OR operation using both operand A and operand B. Binary operation.\\
+				\\
+				Other applications:
+				\begin{description}
+					\item[$\cdot$] NOR: Set ALU output invert flag.
+					\item[$\cdot$] NAND: Set operand A, and operand B invert flags.
+					\item[$\cdot$] AND: Set operand A, operand B, and ALU output invert flags.
+				\end{description}
+				
+				\item \textbf{Addition}: \\
+				Performs addition on both operands. Any overflow from adding or subtracting is ignored. Binary operation.
+				\begin{description}
+					\item[$\cdot$] \textit{Optional flag: Increment value after addition.}
+				\end{description}
+				Other applications: 
+				\begin{description}
+					\item[$\cdot$] Increment: Set increment and zero operand B flags.
+					\item[$\cdot$] Decrement: Set increment, zero operand B, and negate operand B flags.
+					\item[$\cdot$] Subtract: Set increment, invert operand A, and invert operand B flags.
+				\end{description}
+				
+				\item \textbf{Left Shift}: \\
+				Left shifts the value of operand A by the value of operand B. Any bits shifted out of the value will be lost. Binary operation.
+				
+				\begin{description}
+					\item[$\cdot$] \textit{Optional flag: perform a right shift instead of a left shift.}
+					\item[$\cdot$] \textit{Optional flag: perform a bit rotation instead of a shift. Bits shifted out of the 16-bit value will be shifted back into the value on the opposite side.}
+					\item[$\cdot$] \textit{Optional flag: Preserve the sign bit while shifting (arithmetic shift).}
+				\end{description}
+				
+				\item \textbf{Exclusive OR (XOR)}: \\
+				Performs an XOR operation using both operand A and operand B. Binary operation.\\
+				\\
+				Other applications:
+				\begin{description}
+					\item[$\cdot$] XNOR: Set ALU output invert flag.
+				\end{description}
+				
+				
+			\end{enumerate}
+		
+		\section{Instruction Set}
+		
+			The Syzygy B100 uses 16-bit instructions. There are two instruction formats -- the first type uses only one bit as its opcode, and the second type uses four bits as its opcode.\\
+			\\
+			The machine code syntax is displayed as 16 bits, grouped in nybbles of four bits. Any time a 0 or 1 appears for a bit, the machine instruction must be that 0 or 1. If a letter appears, the bit(s) can be changed (see descriptions for explanations of bit arguments). If an underscore (\_) appears, the bit(s) are ignored.
+			
+			\begin{enumerate}
+				
+				\item \textbf{Push Instruction}\\
+				Format: Single-bit\\
+				Description: Sets R2 (accumulator) to the specified value, $n$.\\
+				\\
+				Syntax: \texttt{1nnn nnnn nnnn nnnn}
+				\begin{quote}
+					\begin{description}
+						\item[$\cdot$] \texttt{n}: the 15-bit value that will be contained in R2 after this instruction is executed.
+					\end{description}
+				\end{quote}
+				Example: \texttt{0x8010} will set R2 to \texttt{0x0010}, or 16 in decimal.\\
+				\emph{Notice: Negative values cannot be directly pushed.}
+				\\
+			
+				\item \textbf{System Instruction}\\
+				Format: Four-bit\\
+				Description: Performs a special system instruction not available with the standard instructions.\\
+				\\
+				Syntax: \texttt{0000 pppp nnnn nnnn}
+				\begin{quote}
+					\begin{description}
+						\item[$\cdot$] \texttt{p}: This 4-bit value chooses the type of system instruction that will be executed.
+						\begin{description}
+							\item[\texttt{p} = 0x1:] Execute command
+							\item[\texttt{p} = anything else:] Unused (no-op)
+						\end{description}
+						\item[$\cdot$] \texttt{n}: The arguments of the system instruction type.
+						\begin{description}
+							\item[when $p$ = 0x1:] Command to execute\\
+							Commands:
+							\begin{description}
+								\item[0x00:] Von Neumann mode on (fetch instructions from system memory rather than boot ROM)
+								\item[0x01:] Von Neumann mode off (fetch instructions from boot ROM rather than system memory)
+							\end{description}
+						
+							\item[when $p$ = anything else:] Unused (no-op)
+								
+						\end{description}
+					\end{description}
+				\end{quote}
+			
+			\vskip 0.2in
+			
+			\item \textbf{Copy Instruction}\\
+			Format: Four-bit\\
+			Description: Copies the value of one register to another register. The source register's value remains unchanged, while the destination register's value is overwritten. If R0 is chosen as the source, a value of \texttt{0x0000} will be copied. Likewise, if R1 is chosen, \texttt{0xFFFF} will be copied.\\
+			\\
+			Syntax: \texttt{0001 ssss dddd \_\_\_\_}
+			\begin{quote}
+				\begin{description}
+					\item[$\cdot$] \texttt{s}: the register number that contains the value to be copied (source register) as a four-bit value.
+					\item[$\cdot$] \texttt{d}: the register number to write the value being copied to (destination register) as a four-bit value.
+				\end{description}
+			\end{quote}
+			Example: \texttt{0x1A60} will overwrite R6 with R10's value.\\
+			\\
+			
+			\item \textbf{Jump Instruction}\\
+			Format: Four-bit\\
+			Description: Sets R1 (Program Counter) to the value contained in R3 (Jump Address) if R2's (Accumulator) value passes the given comparison check to zero. Comparisons can be used together to form compound comparisons (for unconditional jumps, all three checks should be used).\\
+			\\
+			Syntax: \texttt{0010 leg\_ \_\_\_\_ \_\_\_\_}
+			\begin{quote}
+				\begin{description}
+					\item[$\cdot$] \texttt{l}: check if $R2 < 0$.
+					\item[$\cdot$] \texttt{e}: check if $R2 = 0$.
+					\item[$\cdot$] \texttt{g}: check if $R2 > 0$.
+				\end{description}
+			\end{quote}
+			Example: \texttt{0x2C00} will test if $R2 \leq 0$.\\
+			\\
+			
+			\item \textbf{ALU Instruction}\\
+			Format: Four-bit\\
+			Description: Uses the values of only R6 or both R6 and R7 as operands for an arithmetic or logic instruction. The result will be placed in R2. R2's value will be overwritten on any ALU instruction.\\
+			\\
+			Syntax: \texttt{0011 \_ppp abzn rff\_}
+			\begin{quote}
+				\begin{description}
+					\item[$\cdot$] \texttt{p}: The operation the ALU will perform.
+					\begin{description}
+						\item[0x0]: No operation; pass operand A
+						\item[0x1]: Bitwise OR operand A with operand B
+						\item[0x2]: Addition; A + B. Overflow is ignored.
+						\item[0x3]: Left shift operand A by operand B's value.
+						\item[0x4]: Exclusive-OR operand A with operand B.
+						\item[0x5]: Count the number of 1's in operand A.
+						\item[0x6 - 0x7]: Unused
+					\end{description}
+					\item[$\cdot$] \texttt{a}: Invert operand A (from R6, R6's value will not be changed) before calculating.
+					\item[$\cdot$] \texttt{b}: Invert operand B (from R7, R7's value will not be changed) before calculating.
+					\item[$\cdot$] \texttt{z}: Use zero for operand B (from R7, R7's value will not be changed) before calculating.
+					\item[$\cdot$] \texttt{n}: Invert the result's bits before writing to R2.
+					\item[$\cdot$] \texttt{r}: Operation argument. Dependant on \texttt{p}:
+					\begin{description}
+						\item[p = 2]: Increment the result of the addition.
+						\item[p = 3]: Shift right instead of left.
+					\end{description}
+				    \item[$\cdot$] \texttt{f}: Two bit argument that chooses the shift operation type to perform:
+				    \begin{description}
+				    	\item[0x0]: Logical shift
+				    	\item[0x1]: Logical rotation
+				    	\item[0x2]: Arithmetic shift
+				    	\item[0x3]: Arithmetic rotation
+				    \end{description}
+					
+				\end{description}
+			\end{quote}
+			Example 1: \texttt{0x3208} will add $R6 + R7 + 1$.\\
+			Example 2: \texttt{0x331A} will shift R6's value right by R7, while preserving the sign bit, and then invert the output.\\
+			Example 3: \texttt{0x31D0} will perform a bitwise AND by taking advantage of DeMorgan's law (invert R6 and R7, OR, invert output). 
+			\\
+			
+			\item \textbf{I/O Instruction}\\
+			Format: Four-bit\\
+			Description: Transfers data to or from a peripheral interface. Both R4 and R5 are used for a 32-bit value if the peripheral interface supports them. If not, R4 is used for the 16-bit value. R4 contains the 16 least-significant bits, and R5 contains the most-significant bits of a 32-bit value.\\
+			\\
+			Syntax: \texttt{0100 dddd rrrr xm\_\_}
+			\begin{quote}
+				\begin{description}
+					\item[$\cdot$] \texttt{d}: The four-bit ID of the peripheral interface to access:
+					\begin{description}
+						\item[0x0]: LEDs
+						\item[0x1]: Seven-segment display
+						\item[0x2]: System memory
+						\item[0x3]: SD controller
+						\item[0x4]: Unused
+						\item[0x5]: VGA controller (monitor)
+						\item[0x6]: PS/2 controller (keyboard)
+						\item[0x7 - 0xF]: Unused
+					\end{description}
+					\item[$\cdot$] \texttt{r}: The interface's register number to access. Ignored when \texttt{x} is set:
+					\begin{description}
+						\item[R0]: Instruction register
+						\item[R1]: Status register
+						\item[R2 - R15]: Peripheral-specific
+					\end{description}
+					\item[$\cdot$] \texttt{x}: Instruct the peripheral interface to execute the command in its instruction register.
+					\item[$\cdot$] \texttt{m}: Data access mode. Ignored when \texttt{x} is set:
+					\begin{description}
+						\item[0]: Read the 16 or 32-bit value from the interface's register, and overwrite R4 and R5 with its value.
+						\item[1]: Write the peripheral's chosen register with R4 and R5's value.
+					\end{description}
+				\end{description}
+			\end{quote}
+			Example 1: \texttt{0x4344} will set peripheral interface 3's (SD controller by default) register number 4 (SD block number) to the value of R4 and R5.\\
+			Example 2: \texttt{0x4208} will instruct peripheral interface 2 (system memory by default) to execute the command in its instruction register.\\
+			
+			\item \textbf{Opcodes } \texttt{0x5 - 0x7} \textbf{are unused.}
+			
+			\end{enumerate}
+			
+	\section{Memory}
+
+		The Syzygy system has 128kB of memory available. Values are written 16 bits at a time, and data is manipulated through the memory interface (PID 2).
+
+		\subsection{Memory Specifications}
+		
+			The system memory is designed for the Basys 3's block memory. The memory clock runs at 100MHz and is rising-edge triggered. The block memory is true dual-port, with one port being used by the CPU, and the other is read-only for the VGA output and runs from a different clock.\\
+			
+			The CPU frequency runs slower than the memory clock because the FPGA's block RAM has a one cycle delay. Driving the memory clock faster allows a value to be fetched from memory on the rising edge of the CPU clock.
+
+	\section{Peripheral Interfaces}
+
+		In order to communicate with external systems, the Syzygy system follows a specific I/O protocol abstracted away by a peripheral's interface. Each interface must be compatible with the CPU's I/O instruction.
+
+		\subsection{Interface Connection}
+		
+			A valid Syzygy interface supports the following connections (required connections are in \textbf{bold}, optional connections are in \textit{italics}.):
+			
+			\begin{description}
+				\item[$\cdot$] \textbf{Inputs:}
+				\begin{enumerate}
+					\item \textbf{CPU clock} - The CPU's clock signal.
+					\item \textbf{Peripheral select} - High if this peripheral is selected.
+					\item \textbf{Register select} - Four-bit value for the peripheral's register to read from or write to.
+					\item \textbf{Read enable} - If this signal is high , register reads will be enabled on the CPU clock's rising edge (data available in the interface's data-out connection).
+					\item \textbf{Write enable} - If this signal is high, the interface's selected register (by register select connection) will be written with data-in's value on the rising edge of the CPU clock.
+					\item \textit{Reset} - Zeroes all registers in this interface on the next rising edge of the CPU clock signal.
+					\item \textit{Data-In} - The 32-bit value from the CPU (using R4 and R5) that will be written to the selected register if the write enable signal is high.
+					\item \textit{Execute} - Instructs the interface to execute the instruction stored in its instruction register. Instructions are interface-defined.
+					\item \textit{Debug register select} - 4-bit value that selects the register whose value will be output to the debug-out connection.
+				\end{enumerate}
+				\item[$\cdot$] \textbf{Outputs:}
+				\begin{enumerate}
+					\item \textit{Data-out} - The 32-bit value that will be sent back to the CPU. If the interface does not need a data-out, it should be kept as \texttt{0x00000000}.
+					\item \textit{Debug value} - A connection that outputs a value that can be used in any way to assist in the debugging process.
+				\end{enumerate}
+			\end{description}
+		
+			An additional requirement is at least one register -- the instruction register. If any other register is not needed, it shall output \texttt{0x0000}, or \texttt{0x00000000} if 32-bit values are supported, if the register is read from.
+
+		\subsection{Interface Specifications}
+
+			Below are descriptions of the various interfaces supported by the Syzygy system:
+
+			\begin{enumerate}
+				
+				\item \textbf{LEDs}\\
+				The instruction register's value will be displayed on the 16 LEDs on the FPGA. Status is always \texttt{0x0000}.\\
+				Registers:
+				\begin{description}
+					\item[$\cdot$] R0: Instruction register
+					\item[$\cdot$] R1: Status register
+				\end{description}
+			
+				\item \textbf{Seven-segment display}\\
+				The instruction register's value will be displayed on the four seven-segment display on the FPGA. Status is always \texttt{0x0000}.\\
+				Registers:
+				\begin{description}
+					\item[$\cdot$] R0: Instruction register 
+					\item[$\cdot$] R1: Status register
+				\end{description}
+			
+				\item \textbf{Memory}\\
+				This interface handles memory writes and reads controlled by the CPU by I/O instructions. There are two instructions -- read (\texttt{0x0000}), and write (\texttt{0x0001}) that can be executed, and if the memory is unavailable, the status register will be non-zero. On a data read or write, the interface will access the address given by the interface's R4 register. The data-in or data-out register will be read from or written to (respectively) after the interface's instruction completes.\\
+				Registers:
+				\begin{description}
+					\item[$\cdot$] R0: Instruction register
+					\item[$\cdot$] R1: Status register
+					\item[$\cdot$] R2: Data-in register
+					\item[$\cdot$] R3: Data-out register
+					\item[$\cdot$] R4: Address register
+				\end{description}
+			
+				\item \textbf{SD Card}\\
+				This interface abstracts away the complex process of using the SD controller. There are four instructions, and eight statuses (see below). This interface's status register starts in the BUSY\_INIT status while waiting for the controller to complete the initialization process.\\
+				\\
+				Like the memory interface, this interface has a data-in and data-out register that is used in a similar fashion. However, the address register selects the 512-byte sector number on the SD card.\\
+				Registers:
+				\begin{description}
+					\item[$\cdot$] R0: Instruction register
+					\item[$\cdot$] R1: Status register
+					\item[$\cdot$] R2: Data-in register
+					\item[$\cdot$] R3: Data-out register
+					\item[$\cdot$] R4: Address register
+				\end{description}
+			
+				\item \textbf{PS/2 (keyboard)}\\
+				This interface contains one physical register that holds the currently-pressed key on the connected keyboard. R0 and R1 are ignored/unused.\\
+				\\
+				Key codes are converted from PS/2 scan codes to 8-bit values and are defined as followed:
+				\begin{description}
+					\item[0x00]: null
+					\item[0x01]: ESC
+					\item[0x02 - 0x0D]: F1 - F12
+					\item[0x0E]: Return
+					\item[0x0F]: Backspace
+					\item[0x10]: Caps Lock
+					\item[0x11]: Num Lock
+					\item[0x12]: Scroll Lock
+					\item[0x13 - 0x1C]: Numpad 0 - Numpad 9
+					\item[0x1D]: Numpad Decimal
+					\item[0x1E]: Tab
+					\item[0x20 - 0x39]: A - Z
+					\item[0x3A]: Grave
+					\item[0x3B]: Hyphen
+					\item[0x3C]: Equals
+					\item[0x3D]: Left Curly Brace
+					\item[0x3E]: Right Curly Brace
+					\item[0x3F]: Backslash
+					\item[0x40 - 0x48]: 0 - 9
+					\item[0x49]: Semicolon
+					\item[0x4A]: Single Quote
+					\item[0x4B]: Comma
+					\item[0x4C]: Period
+					\item[0x4D]: Slash
+					\item[0x4E]: Space
+			    \end{description}
+				
+				Registers:
+				\begin{description}
+					\item[$\cdot$] R0: Instruction register
+					\item[$\cdot$] R1: Status register
+					\item[$\cdot$] R2: Syzygy key code
+				\end{description}
+			
+			\end{enumerate}
+
+\end{document}
+
+

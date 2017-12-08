@@ -29,7 +29,7 @@ main {
   var blinkState = 0;
   var keyFlag = 0;
   
-  while(running != 0) {
+  while(running > 0) {
     
     set key = .getKeyReleased();
     
@@ -101,7 +101,7 @@ func buildInputBuffer(var buf) {
 #   index: The bit number, 0-15, with 15 being the most-significant
 # -----------------------------------------------------------------------------
 func getBit(var val, var index) {
-  return (val >> index) & (!1 << (index + 1));
+  return (val >> index) & (-1 << (index + 1));
 }
 
 # -----------------------------------------------------------------------------
@@ -128,6 +128,7 @@ func getKeyRelease() {
     set keyFlag = 1;
     return 0;
   }
+  .free(key);
 }
 
 # -----------------------------------------------------------------------------
