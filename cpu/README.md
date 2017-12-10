@@ -86,3 +86,18 @@ io - Peripheral I/O operations
 0111 ____ ____ ____
 
 ```
+
+## How to Use
+
+You will need the Basys 3 FPGA, a license for the Vivado development suite, the pmodSD module for the Basys 3, an 8GB standard-size SDHC card, a VGA cable and VGA monitor, and a USB keyboard to use this CPU.
+
+1. Install the latest version of Vivado.
+2. Import this project into Vivado from the cpu/ directory.
+3. Configure Vivado to target the Basys 3.
+4. Perform a low-level format on the 8GB SD card (so it has no file system).
+5. Use either the assembler or compiler to create a small program for the CPU to run.
+6. Copy the binary data from the compiled .bin file onto sector 0 of the SD card using a hex editor. Programs that span more than one sector will need to have the bootloader edited to enable multiple sector reads. You can find the bootloader in os/boot/bootloader.syz. The BootRom.v file will also need to have its internal ROM capacity expanded (cpu/SyzygyB100\.srcs/sources_1/new/BootRom\.v).
+7. Synthesize and implement the system (this takes a little more than 3 minutes on an overclocked 2500K, so be patient)
+8. In Vivado, open the hardware manager, and generate the bitstream.
+9. Make sure your Basys 3 is turned on and connected to your computer, and that the pmodSD module is inserted in the JB PMod port (top-right) with the SD card inside.
+10. Click 'write bitstream' in Vivado. The CPU should now be running the program on the SD card after it boots.
