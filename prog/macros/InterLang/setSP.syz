@@ -1,0 +1,6 @@
+# Expects value in R4, overwrites 248
+macro setSP
+  push $conf.MEM.STK_PTR
+  copy 2, 8
+  !memset
+endmacro

@@ -1,0 +1,11 @@
+# Expects value in R9, overwrites 2468
+macro pushFromR9
+  !getSP
+  copy 4, 6
+  copy 4, 8
+  copy 9, 4
+  !memset
+  inc
+  copy 2, 4
+  !setSP
+endmacro

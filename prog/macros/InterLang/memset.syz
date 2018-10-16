@@ -1,0 +1,10 @@
+# Expects address in R8, value in R4, overwrites 248
+macro memset
+  iosr $conf.PID.MEM, $conf.MEM.REG_DIN
+  copy 8, 4
+  iosr $conf.PID.MEM, $conf.MEM.REG_ADDR
+  push $conf.MEM.INSTR_WRITE
+  copy 2, 4
+  iosr $conf.PID.MEM, $conf.MEM.REG_INSTR
+  ioex $conf.PID.MEM
+endmacro

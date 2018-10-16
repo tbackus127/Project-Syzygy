@@ -1,0 +1,10 @@
+# Overwrites 246789, result placed in R4
+macro getVar vidx
+  push $conf.MEM.OFFSET_VIDX
+  copy 2, 6
+  push $vidx
+  copy 2, 7
+  add
+  copy 2, 8
+  !memget
+endmacro

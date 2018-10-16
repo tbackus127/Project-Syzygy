@@ -1,0 +1,6 @@
+# Overwrites 24689
+macro pushConst val
+  push $val
+  copy 2, 9
+  !pushFromR9
+endmacro

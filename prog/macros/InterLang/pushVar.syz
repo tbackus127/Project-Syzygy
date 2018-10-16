@@ -1,0 +1,6 @@
+# Overwrites 246789
+macro pushVar vidx
+  !getVar $vidx
+  copy 4, 9
+  !pushFromR9
+endmacro

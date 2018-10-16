@@ -1,0 +1,68 @@
+
+main {                   func mult(var a, var b) {
+                           return a * b;
+  var a = 3;             }
+  set a = a * 9;         
+  var b = 7;             main {
+  set a = a - b;           var a = 5;
+                           var b = 2;
+}                          var c =  .mult(a, 4);
+                           set a = .mult(b, .mult(c, a));
+                         }
+                        
+-----------------------------------------------------------------------------------------------------------------------
+| ** Should Yield (Umbra -> Intermediate Language) **                                                                 |
+-----------------------------------------------------------------------------------------------------------------------
+                      
+!pushConst 3             !pushConst 5
+!popToVar 0              !popToVar 0
+!pushVar 0               !pushConst 2
+!pushConst 9             !popToVar 1
+!mult                    !pushVar 0
+!popToVar 0              !pushConst 4
+!pushConst 7             !call mult2
+!popToVar 1              !popToVar 2
+!pushVar 0               !pushVar 1
+!pushVar 1               !pushVar 2
+!sub                     !pushVar 0
+!popToVar 0              !call mult2
+!exit                    !call mult2
+                         !popToVar 0
+                         :mult2
+                         !pushArg 0
+                         !pushArg 1
+                         !mult
+                         !return
+                         :mult2e
+                         !exit
+                         
+-----------------------------------------------------------------------------------------------------------------------
+| ** Should Yield (Intermediate Language -> Assembly) **                                                              |
+-----------------------------------------------------------------------------------------------------------------------
+                         
+                         
+                         
+                         
+                         
+                         
+                         
+                         
+                         
+                         
+                         
+                         
+                         
+                         
+                         
+                         
+                         
+                         
+                         
+                         
+                         
+                         
+                         
+                         
+                         
+                         
+                         

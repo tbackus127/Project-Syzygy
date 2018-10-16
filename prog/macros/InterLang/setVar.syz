@@ -1,0 +1,11 @@
+# Expects value on stack, overwrites 246789
+macro setVar
+  !popToR4
+  push $conf.MEM.OFFSET_VIDX
+  copy 2, 6
+  push $vidx
+  copy 2, 7
+  add
+  copy 2, 8
+  !memset
+endmacro

@@ -1,0 +1,6 @@
+# Overwrites 248, result placed in R4
+macro getSP
+  push $conf.MEM.STK_PTR
+  copy 2, 8
+  !memget
+endmacro

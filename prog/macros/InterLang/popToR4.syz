@@ -1,0 +1,8 @@
+# Expects value on stack, overwrites 2468, result placed in R4
+macro popToR4
+  !getSP
+  copy 4, 6
+  
+  copy 4, 8
+  !memget
+endmacro
